@@ -3,168 +3,655 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
+
 <title>GHANTENDE MICROFINANCE</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-*{box-sizing:border-box;font-family:Arial,sans-serif}
-body{margin:0;min-height:100vh;background:linear-gradient(135deg,#075e2d,#0b8f4d);padding:18px}
-.login-box,#dashboard{width:100%;max-width:1050px;margin:45px auto;background:#f7f9f8;border-radius:18px;box-shadow:0 10px 35px #0004;padding:24px}
-.login-box{max-width:410px;background:#fff}
-h1{text-align:center;color:#075e2d;font-size:25px;margin:0 0 6px}
-.subtitle{text-align:center;color:#555;margin-bottom:28px}
-label{display:block;font-weight:bold;margin:0 0 7px;color:#333}
-input{width:100%;padding:13px;border:1px solid #ccc;border-radius:9px;margin-bottom:16px;font-size:16px}
-button{border:0;border-radius:9px;padding:13px 16px;background:#075e2d;color:white;font-size:16px;font-weight:bold;cursor:pointer}
-button:disabled{opacity:.6}
-.login-btn{width:100%}
-#message{text-align:center;margin-top:15px;font-weight:bold}
-.footer{text-align:center;color:#777;font-size:13px;margin-top:22px}
-.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
-.top h2{color:#075e2d;margin:0}
-.logout{background:#b42318}
-.welcome{background:#075e2d;color:white;padding:17px;border-radius:14px;margin:18px 0}
-.welcome b{font-size:17px}
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}
-.card{background:#fff;padding:19px;border-radius:14px;box-shadow:0 3px 12px #0001;cursor:pointer}
-.card h3{margin:0 0 8px;color:#555;font-size:15px}
-.card strong{font-size:28px;color:#075e2d}
-.muted{color:#777}
-.page{display:none;margin-top:20px}
-.page.active{display:block}
-.page-header{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
-.page-header h2{margin:0;color:#075e2d}
-.secondary{background:#666}
-.table-box,.form-box{background:white;padding:20px;border-radius:14px;box-shadow:0 3px 12px #0001}
-.customer{padding:13px 0;border-bottom:1px solid #ddd}
-.customer:last-child{border:0}
-.status{margin-top:12px;font-weight:bold}
-.danger{color:#b42318}
+*{
+box-sizing:border-box;
+font-family:Arial,sans-serif
+}
+
+body{
+margin:0;
+min-height:100vh;
+background:linear-gradient(135deg,#075e2d,#0b8f4d);
+padding:18px
+}
+
+.login-box,
+#dashboard{
+width:100%;
+max-width:1050px;
+margin:45px auto;
+background:#f7f9f8;
+border-radius:18px;
+box-shadow:0 10px 35px #0004;
+padding:24px
+}
+
+.login-box{
+max-width:410px;
+background:#fff
+}
+
+h1{
+text-align:center;
+color:#075e2d;
+font-size:25px;
+margin:0 0 6px
+}
+
+.subtitle{
+text-align:center;
+color:#555;
+margin-bottom:28px
+}
+
+label{
+display:block;
+font-weight:bold;
+margin:0 0 7px;
+color:#333
+}
+
+input,
+select{
+width:100%;
+padding:13px;
+border:1px solid #ccc;
+border-radius:9px;
+margin-bottom:16px;
+font-size:16px
+}
+
+button{
+border:0;
+border-radius:9px;
+padding:13px 16px;
+background:#075e2d;
+color:white;
+font-size:16px;
+font-weight:bold;
+cursor:pointer
+}
+
+button:disabled{
+opacity:.6
+}
+
+.login-btn{
+width:100%
+}
+
+#message{
+text-align:center;
+margin-top:15px;
+font-weight:bold
+}
+
+.footer{
+text-align:center;
+color:#777;
+font-size:13px;
+margin-top:22px
+}
+
+.top{
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:10px;
+flex-wrap:wrap
+}
+
+.top h2{
+color:#075e2d;
+margin:0
+}
+
+.logout{
+background:#b42318
+}
+
+.welcome{
+background:#075e2d;
+color:white;
+padding:17px;
+border-radius:14px;
+margin:18px 0
+}
+
+.welcome b{
+font-size:17px
+}
+
+.cards{
+display:grid;
+grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+gap:14px
+}
+
+.card{
+background:#fff;
+padding:19px;
+border-radius:14px;
+box-shadow:0 3px 12px #0001;
+cursor:pointer;
+transition:.2s
+}
+
+.card:hover{
+transform:translateY(-2px);
+box-shadow:0 5px 16px #0002
+}
+
+.card h3{
+margin:0 0 8px;
+color:#555;
+font-size:15px
+}
+
+.card strong{
+font-size:28px;
+color:#075e2d
+}
+
+.muted{
+color:#777;
+font-size:14px
+}
+
+.page{
+display:none;
+margin-top:20px
+}
+
+.page.active{
+display:block
+}
+
+.page-header{
+display:flex;
+justify-content:space-between;
+align-items:center;
+gap:10px;
+flex-wrap:wrap;
+margin-bottom:14px
+}
+
+.page-header h2{
+margin:0;
+color:#075e2d
+}
+
+.secondary{
+background:#666
+}
+
+.table-box,
+.form-box{
+background:white;
+padding:20px;
+border-radius:14px;
+box-shadow:0 3px 12px #0001
+}
+
+.customer{
+padding:13px 0;
+border-bottom:1px solid #ddd
+}
+
+.customer:last-child{
+border:0
+}
+
+.status{
+margin-top:12px;
+font-weight:bold
+}
+
+.danger{
+color:#b42318
+}
+
+.success{
+color:#087f3d
+}
+
+.application{
+padding:15px;
+border-bottom:1px solid #ddd
+}
+
+.application:last-child{
+border-bottom:0
+}
+
+.back-home{
+margin-top:15px;
+background:#555
+}
+
+.empty{
+padding:20px 0;
+color:#777;
+text-align:center
+}
 </style>
 </head>
 
 <body>
 
-<!-- LOGIN -->
+<!-- ================= LOGIN ================= -->
+
 <div class="login-box" id="loginBox">
+
 <h1>GHANTENDE MICROFINANCE</h1>
-<div class="subtitle">Mfumo wa Usimamizi wa Mikopo</div>
+
+<div class="subtitle">
+Mfumo wa Usimamizi wa Mikopo
+</div>
 
 <form id="loginForm">
+
 <label>Gmail</label>
-<input type="email" id="email" placeholder="Ingiza Gmail yako" required>
+
+<input
+type="email"
+id="email"
+placeholder="Ingiza Gmail yako"
+required
+>
 
 <label>Password</label>
-<input type="password" id="password" placeholder="Ingiza password" required>
 
-<button class="login-btn" id="loginButton">INGIA</button>
+<input
+type="password"
+id="password"
+placeholder="Ingiza password"
+required
+>
+
+<button
+class="login-btn"
+id="loginButton"
+type="submit"
+>
+INGIA
+</button>
+
 </form>
 
 <div id="message"></div>
-<div class="footer">© 2026 GHANTENDE MICROFINANCE</div>
+
+<div class="footer">
+© 2026 GHANTENDE MICROFINANCE
+</div>
+
 </div>
 
 
-<!-- DASHBOARD -->
+<!-- ================= DASHBOARD ================= -->
+
 <div id="dashboard" style="display:none">
 
 <div class="top">
-<h2>GHANTENDE MICROFINANCE</h2>
-<button class="logout" id="logoutButton">TOKA</button>
+
+<h2>
+GHANTENDE MICROFINANCE
+</h2>
+
+<button
+class="logout"
+id="logoutButton"
+>
+TOKA
+</button>
+
 </div>
+
 
 <div class="welcome">
-Karibu kwenye mfumo wa usimamizi wa mikopo.<br>
+
+Karibu kwenye mfumo wa usimamizi wa mikopo.
+
+<br>
+
 <b id="userEmail"></b>
+
 </div>
 
 
-<!-- CARDS -->
+<!-- ================= CARDS ================= -->
+
 <div class="cards">
 
-<div class="card" id="watejaCard">
-<h3>Wateja</h3>
-<strong id="customerCount">0</strong>
-<div class="muted">Bonyeza kufungua</div>
-</div>
-
-<div class="card" id="pendingCard">
-<h3>Maombi Pending</h3>
-<strong id="pendingCount">0</strong>
-<div class="muted">Maombi yanayosubiri</div>
-</div>
-
-<div class="card">
-<h3>Mikopo Active</h3>
-<strong id="activeLoanCount">0</strong>
-</div>
-
-<div class="card">
-<h3>Salio la Mikopo</h3>
-<strong>TZS 0</strong>
-</div>
-
-</div>
-
-
 <!-- WATEJA -->
-<div id="customersPage" class="page">
+
+<div
+class="card"
+id="watejaCard"
+>
+
+<h3>Wateja</h3>
+
+<strong id="customerCount">0</strong>
+
+<div class="muted">
+Bonyeza kufungua
+</div>
+
+</div>
+
+
+<!-- MAOMBI PENDING -->
+
+<div
+class="card"
+id="pendingCard"
+>
+
+<h3>Maombi Pending</h3>
+
+<strong id="pendingCount">0</strong>
+
+<div class="muted">
+Maombi yanayosubiri
+</div>
+
+</div>
+
+
+<!-- MIKOPO ACTIVE -->
+
+<div
+class="card"
+id="activeLoanCard"
+>
+
+<h3>Mikopo Active</h3>
+
+<strong id="activeLoanCount">0</strong>
+
+<div class="muted">
+Mikopo inayoendelea
+</div>
+
+</div>
+
+
+<!-- SALIO -->
+
+<div
+class="card"
+id="balanceCard"
+>
+
+<h3>Salio la Mikopo</h3>
+
+<strong id="loanBalance">
+TZS 0
+</strong>
+
+<div class="muted">
+Jumla ya salio
+</div>
+
+</div>
+
+</div>
+
+
+<!-- ================= WATEJA PAGE ================= -->
+
+<div
+id="customersPage"
+class="page"
+>
 
 <div class="page-header">
+
 <h2>Wateja</h2>
-<button id="addCustomerButton">+ ONGEZA MTEJA</button>
+
+<button id="addCustomerButton">
++ ONGEZA MTEJA
+</button>
+
 </div>
 
 <div class="table-box">
-<div id="customersList">Inapakia...</div>
+
+<div id="customersList">
+Inapakia...
 </div>
 
 </div>
 
+<button
+class="back-home"
+id="customersHomeButton"
+>
+RUDI DASHBOARD
+</button>
 
-<!-- ONGEZA MTEJA -->
-<div id="addCustomerPage" class="page">
+</div>
+
+
+<!-- ================= ONGEZA MTEJA ================= -->
+
+<div
+id="addCustomerPage"
+class="page"
+>
 
 <div class="page-header">
+
 <h2>Ongeza Mteja</h2>
-<button class="secondary" id="backButton">RUDI</button>
+
+<button
+class="secondary"
+id="backButton"
+>
+RUDI
+</button>
+
 </div>
+
 
 <div class="form-box">
 
 <form id="customerForm">
 
-<label>Customer Number</label>
-<input id="customerNumber" readonly>
+<label>
+Customer Number
+</label>
 
-<label>Jina Kamili</label>
-<input id="fullName" required placeholder="Mfano: Sabato Mwita">
+<input
+id="customerNumber"
+readonly
+>
 
-<label>Simu</label>
-<input id="phone" required placeholder="07XXXXXXXX">
 
-<label>National ID</label>
-<input id="nationalId" placeholder="Namba ya kitambulisho">
+<label>
+Jina Kamili
+</label>
 
-<label>Address</label>
-<input id="address" placeholder="Anwani ya mteja">
+<input
+id="fullName"
+required
+placeholder="Mfano: Sabato Mwita"
+>
 
-<button type="submit" id="saveCustomer">
+
+<label>
+Simu
+</label>
+
+<input
+id="phone"
+required
+placeholder="07XXXXXXXX"
+>
+
+
+<label>
+National ID
+</label>
+
+<input
+id="nationalId"
+placeholder="Namba ya kitambulisho"
+>
+
+
+<label>
+Address
+</label>
+
+<input
+id="address"
+placeholder="Anwani ya mteja"
+>
+
+
+<button
+type="submit"
+id="saveCustomer"
+>
 HIFADHI MTEJA
 </button>
 
-<div class="status" id="customerMessage"></div>
+<div
+class="status"
+id="customerMessage"
+></div>
 
 </form>
 
 </div>
+
+</div>
+
+
+<!-- ================= MAOMBI PAGE ================= -->
+
+<div
+id="applicationsPage"
+class="page"
+>
+
+<div class="page-header">
+
+<h2>
+Maombi ya Mkopo
+</h2>
+
+<button
+class="secondary"
+id="applicationsHomeButton"
+>
+RUDI DASHBOARD
+</button>
+
+</div>
+
+
+<div class="table-box">
+
+<div id="applicationsList">
+Inapakia maombi...
+</div>
+
+</div>
+
+</div>
+
+
+<!-- ================= ACTIVE LOANS PAGE ================= -->
+
+<div
+id="activeLoansPage"
+class="page"
+>
+
+<div class="page-header">
+
+<h2>
+Mikopo Active
+</h2>
+
+<button
+class="secondary"
+id="activeLoansHomeButton"
+>
+RUDI DASHBOARD
+</button>
+
+</div>
+
+
+<div class="table-box">
+
+<div id="activeLoansList">
+Inapakia mikopo...
+</div>
+
+</div>
+
+</div>
+
+
+<!-- ================= BALANCE PAGE ================= -->
+
+<div
+id="balancePage"
+class="page"
+>
+
+<div class="page-header">
+
+<h2>
+Salio la Mikopo
+</h2>
+
+<button
+class="secondary"
+id="balanceHomeButton"
+>
+RUDI DASHBOARD
+</button>
+
+</div>
+
+
+<div class="table-box">
+
+<h3>
+Jumla ya Salio
+</h3>
+
+<strong
+id="balanceTotal"
+style="font-size:30px;color:#075e2d"
+>
+TZS 0
+</strong>
+
+</div>
+
 </div>
 
 </div>
 
 
 <script>
+
+/* =========================
+   SUPABASE
+========================= */
 
 const SUPABASE_URL =
 'https://kvcbsebklyuupwixmagd.supabase.co';
@@ -179,13 +666,24 @@ SUPABASE_KEY
 );
 
 
-const $ = id => document.getElementById(id);
+/* =========================
+   SHORT ID FUNCTION
+========================= */
 
+const $ = id =>
+document.getElementById(id);
+
+
+/* =========================
+   ESCAPE HTML
+========================= */
 
 function esc(v){
-return String(v??'').replace(
+
+return String(v ?? '')
+.replace(
 /[&<>'"]/g,
-m=>({
+m => ({
 '&':'&amp;',
 '<':'&lt;',
 '>':'&gt;',
@@ -193,6 +691,51 @@ m=>({
 '"':'&quot;'
 }[m])
 );
+
+}
+
+
+/* =========================
+   PAGE NAVIGATION
+========================= */
+
+function showPage(pageId){
+
+const pages =
+document.querySelectorAll('.page');
+
+pages.forEach(page => {
+
+page.classList.remove('active');
+
+});
+
+const page =
+$(pageId);
+
+if(page){
+
+page.classList.add('active');
+
+}
+
+}
+
+
+/* =========================
+   DASHBOARD HOME
+========================= */
+
+function showHome(){
+
+document
+.querySelectorAll('.page')
+.forEach(page => {
+
+page.classList.remove('active');
+
+});
+
 }
 
 
@@ -202,45 +745,86 @@ m=>({
 
 async function loadCustomers(){
 
-const box=$('customersList');
+const box =
+$('customersList');
 
-box.textContent='Inapakia...';
+box.textContent =
+'Inapakia...';
 
-const {data,error}=await supabaseClient
+
+const {data,error} =
+await supabaseClient
+
 .from('customers')
-.select('id,customer_number,full_name,phone,national_id,address')
-.order('id',{ascending:false});
+
+.select(
+'id,customer_number,full_name,phone,national_id,address'
+)
+
+.order(
+'id',
+{
+ascending:false
+}
+);
+
 
 if(error){
 
-box.innerHTML=
-'<span class="danger">Imeshindwa kusoma Wateja: '
-+esc(error.message)+
+box.innerHTML =
+'<span class="danger">' +
+'Imeshindwa kusoma Wateja: ' +
+esc(error.message) +
 '</span>';
 
 return;
+
 }
 
-$('customerCount').textContent=data?.length||0;
+
+$('customerCount').textContent =
+data?.length || 0;
+
 
 if(!data?.length){
 
-box.innerHTML=
-'<div class="muted">
-Hakuna mteja bado. Bonyeza + ONGEZA MTEJA.
-</div>';
+box.innerHTML =
+'<div class="empty">' +
+'Hakuna mteja bado.<br>' +
+'Bonyeza + ONGEZA MTEJA.' +
+'</div>';
 
 return;
+
 }
 
-box.innerHTML=data.map((c,i)=>
 
-'<div class="customer">'+
-'<b>'+(i+1)+'. '+esc(c.full_name)+'</b><br>'+
-'Customer No: '+esc(c.customer_number||'-')+'<br>'+
-'Simu: '+esc(c.phone||'-')+'<br>'+
-'National ID: '+esc(c.national_id||'-')+'<br>'+
-'Address: '+esc(c.address||'-')+
+box.innerHTML =
+data.map((c,i) =>
+
+'<div class="customer">' +
+
+'<b>' +
+(i+1) +
+'. ' +
+esc(c.full_name) +
+'</b><br>' +
+
+'Customer No: ' +
+esc(c.customer_number || '-') +
+'<br>' +
+
+'Simu: ' +
+esc(c.phone || '-') +
+'<br>' +
+
+'National ID: ' +
+esc(c.national_id || '-') +
+'<br>' +
+
+'Address: ' +
+esc(c.address || '-') +
+
 '</div>'
 
 ).join('');
@@ -249,18 +833,29 @@ box.innerHTML=data.map((c,i)=>
 
 
 /* =========================
-   LOAD PENDING APPLICATIONS
+   LOAD PENDING
 ========================= */
 
 async function loadPendingApplications(){
 
-const {count,error}=await supabaseClient
+const {count,error} =
+await supabaseClient
+
 .from('loan_applications')
-.select('*',{
+
+.select(
+'*',
+{
 count:'exact',
 head:true
-})
-.eq('status','Pending');
+}
+)
+
+.eq(
+'status',
+'Pending'
+);
+
 
 if(error){
 
@@ -269,12 +864,115 @@ console.error(
 error
 );
 
-$('pendingCount').textContent='0';
+$('pendingCount').textContent =
+'0';
 
 return;
+
 }
 
-$('pendingCount').textContent=count||0;
+
+$('pendingCount').textContent =
+count || 0;
+
+}
+
+
+/* =========================
+   SHOW PENDING APPLICATIONS
+========================= */
+
+async function loadApplications(){
+
+const box =
+$('applicationsList');
+
+box.textContent =
+'Inapakia maombi...';
+
+
+const {data,error} =
+await supabaseClient
+
+.from('loan_applications')
+
+.select('*')
+
+.eq(
+'status',
+'Pending'
+)
+
+.order(
+'id',
+{
+ascending:false
+}
+);
+
+
+if(error){
+
+box.innerHTML =
+'<span class="danger">' +
+'Imeshindwa kusoma maombi: ' +
+esc(error.message) +
+'</span>';
+
+return;
+
+}
+
+
+if(!data?.length){
+
+box.innerHTML =
+'<div class="empty">' +
+'Hakuna maombi ya mkopo Pending.' +
+'</div>';
+
+return;
+
+}
+
+
+box.innerHTML =
+data.map((a,i) => {
+
+return (
+
+'<div class="application">' +
+
+'<b>Ombi #' +
+(i+1) +
+'</b><br>' +
+
+'Jina: ' +
+esc(
+a.full_name ||
+a.customer_name ||
+'-'
+) +
+
+'<br>' +
+
+'Kiasi: TZS ' +
+esc(
+a.amount ||
+a.loan_amount ||
+'0'
+) +
+
+'<br>' +
+
+'Hali: ' +
+esc(a.status || 'Pending') +
+
+'</div>'
+
+);
+
+}).join('');
 
 }
 
@@ -285,13 +983,24 @@ $('pendingCount').textContent=count||0;
 
 async function loadActiveLoans(){
 
-const {count,error}=await supabaseClient
+const {count,error} =
+await supabaseClient
+
 .from('loans')
-.select('*',{
+
+.select(
+'*',
+{
 count:'exact',
 head:true
-})
-.eq('status','Active');
+}
+)
+
+.eq(
+'status',
+'Active'
+);
+
 
 if(error){
 
@@ -300,27 +1009,134 @@ console.error(
 error
 );
 
-$('activeLoanCount').textContent='0';
+$('activeLoanCount').textContent =
+'0';
 
 return;
+
 }
 
-$('activeLoanCount').textContent=count||0;
+
+$('activeLoanCount').textContent =
+count || 0;
 
 }
 
 
 /* =========================
-   DASHBOARD
+   ACTIVE LOANS PAGE
+========================= */
+
+async function loadActiveLoansPage(){
+
+const box =
+$('activeLoansList');
+
+box.textContent =
+'Inapakia mikopo...';
+
+
+const {data,error} =
+await supabaseClient
+
+.from('loans')
+
+.select('*')
+
+.eq(
+'status',
+'Active'
+)
+
+.order(
+'id',
+{
+ascending:false
+}
+);
+
+
+if(error){
+
+box.innerHTML =
+'<span class="danger">' +
+'Imeshindwa kusoma mikopo: ' +
+esc(error.message) +
+'</span>';
+
+return;
+
+}
+
+
+if(!data?.length){
+
+box.innerHTML =
+'<div class="empty">' +
+'Hakuna mikopo Active.' +
+'</div>';
+
+return;
+
+}
+
+
+box.innerHTML =
+data.map((loan,i) =>
+
+'<div class="application">' +
+
+'<b>Mkopo #' +
+(i+1) +
+'</b><br>' +
+
+'Mteja: ' +
+esc(
+loan.full_name ||
+loan.customer_name ||
+'-'
+) +
+
+'<br>' +
+
+'Kiasi: TZS ' +
+esc(
+loan.amount ||
+loan.loan_amount ||
+'0'
+) +
+
+'<br>' +
+
+'Hali: ' +
+esc(
+loan.status ||
+'Active'
+) +
+
+'</div>'
+
+).join('');
+
+}
+
+
+/* =========================
+   SHOW DASHBOARD
 ========================= */
 
 function showDashboard(email){
 
-$('loginBox').style.display='none';
+$('loginBox').style.display =
+'none';
 
-$('dashboard').style.display='block';
+$('dashboard').style.display =
+'block';
 
-$('userEmail').textContent=email||'';
+$('userEmail').textContent =
+email || '';
+
+showHome();
 
 loadCustomers();
 
@@ -337,44 +1153,62 @@ loadActiveLoans();
 
 $('loginForm').addEventListener(
 'submit',
-async e=>{
+async e => {
 
 e.preventDefault();
 
-const b=$('loginButton');
+const button =
+$('loginButton');
 
-$('message').textContent='';
+$('message').textContent =
+'';
 
-b.disabled=true;
+button.disabled =
+true;
 
-b.textContent='Inaingia...';
+button.textContent =
+'Inaingia...';
+
 
 try{
 
-const {data,error}=
-await supabaseClient.auth.signInWithPassword({
+const {data,error} =
+await supabaseClient.auth
+.signInWithPassword({
 
-email:$('email').value.trim(),
+email:
+$('email').value.trim(),
 
-password:$('password').value
+password:
+$('password').value
 
 });
 
-if(error)throw error;
 
-showDashboard(data.user.email);
+if(error)
+throw error;
 
-}
-catch(err){
 
-$('message').style.color='red';
+showDashboard(
+data.user.email
+);
 
-$('message').textContent=
+
+}catch(err){
+
+console.error(err);
+
+$('message').style.color =
+'red';
+
+$('message').textContent =
 'Gmail au password si sahihi.';
 
-b.disabled=false;
+button.disabled =
+false;
 
-b.textContent='INGIA';
+button.textContent =
+'INGIA';
 
 }
 
@@ -382,16 +1216,15 @@ b.textContent='INGIA';
 
 
 /* =========================
-   WATEJA PAGE
+   WATEJA CARD
 ========================= */
 
-$('watejaCard').onclick=()=>{
+$('watejaCard').onclick =
+() => {
 
-$('customersPage')
-.classList.add('active');
-
-$('addCustomerPage')
-.classList.remove('active');
+showPage(
+'customersPage'
+);
 
 loadCustomers();
 
@@ -399,19 +1232,67 @@ loadCustomers();
 
 
 /* =========================
-   ONGEZA MTEJA
+   PENDING CARD
 ========================= */
 
-$('addCustomerButton').onclick=()=>{
+$('pendingCard').onclick =
+() => {
 
-$('customersPage')
-.classList.remove('active');
+showPage(
+'applicationsPage'
+);
 
-$('addCustomerPage')
-.classList.add('active');
+loadApplications();
 
-$('customerNumber').value=
-'CUS-'+Date.now().toString().slice(-8);
+};
+
+
+/* =========================
+   ACTIVE LOANS CARD
+========================= */
+
+$('activeLoanCard').onclick =
+() => {
+
+showPage(
+'activeLoansPage'
+);
+
+loadActiveLoansPage();
+
+};
+
+
+/* =========================
+   BALANCE CARD
+========================= */
+
+$('balanceCard').onclick =
+() => {
+
+showPage(
+'balancePage'
+);
+
+};
+
+
+/* =========================
+   ADD CUSTOMER
+========================= */
+
+$('addCustomerButton').onclick =
+() => {
+
+showPage(
+'addCustomerPage'
+);
+
+$('customerNumber').value =
+'CUS-' +
+Date.now()
+.toString()
+.slice(-8);
 
 $('fullName').focus();
 
@@ -419,18 +1300,65 @@ $('fullName').focus();
 
 
 /* =========================
-   RUDI
+   BACK FROM ADD CUSTOMER
 ========================= */
 
-$('backButton').onclick=()=>{
+$('backButton').onclick =
+() => {
 
-$('addCustomerPage')
-.classList.remove('active');
-
-$('customersPage')
-.classList.add('active');
+showPage(
+'customersPage'
+);
 
 loadCustomers();
+
+};
+
+
+/* =========================
+   CUSTOMER HOME
+========================= */
+
+$('customersHomeButton').onclick =
+() => {
+
+showHome();
+
+};
+
+
+/* =========================
+   APPLICATION HOME
+========================= */
+
+$('applicationsHomeButton').onclick =
+() => {
+
+showHome();
+
+};
+
+
+/* =========================
+   ACTIVE LOANS HOME
+========================= */
+
+$('activeLoansHomeButton').onclick =
+() => {
+
+showHome();
+
+};
+
+
+/* =========================
+   BALANCE HOME
+========================= */
+
+$('balanceHomeButton').onclick =
+() => {
+
+showHome();
 
 };
 
@@ -441,21 +1369,27 @@ loadCustomers();
 
 $('customerForm').addEventListener(
 'submit',
-async e=>{
+async e => {
 
 e.preventDefault();
 
-const b=$('saveCustomer');
+const button =
+$('saveCustomer');
 
-const msg=$('customerMessage');
+const msg =
+$('customerMessage');
 
-b.disabled=true;
+button.disabled =
+true;
 
-b.textContent='Inahifadhi...';
+button.textContent =
+'Inahifadhi...';
 
-msg.textContent='';
+msg.textContent =
+'';
 
-const payload={
+
+const payload = {
 
 customer_number:
 $('customerNumber').value.trim(),
@@ -467,54 +1401,73 @@ phone:
 $('phone').value.trim(),
 
 national_id:
-$('nationalId').value.trim()||null,
+$('nationalId').value.trim() ||
+null,
 
 address:
-$('address').value.trim()||null
+$('address').value.trim() ||
+null
 
 };
 
-const {error}=
+
+const {error} =
 await supabaseClient
+
 .from('customers')
-.insert([payload]);
+
+.insert([
+payload
+]);
+
 
 if(error){
 
-msg.style.color='red';
+msg.style.color =
+'red';
 
-msg.textContent=
-'Imeshindikana kuhifadhi: '+
+msg.textContent =
+'Imeshindikana kuhifadhi: ' +
 error.message;
 
-b.disabled=false;
+button.disabled =
+false;
 
-b.textContent='HIFADHI MTEJA';
+button.textContent =
+'HIFADHI MTEJA';
 
 return;
 
 }
 
-msg.style.color='green';
 
-msg.textContent=
+msg.style.color =
+'green';
+
+msg.textContent =
 'Mteja amehifadhiwa kikamilifu!';
+
 
 $('customerForm').reset();
 
-b.disabled=false;
 
-b.textContent='HIFADHI MTEJA';
+button.disabled =
+false;
+
+button.textContent =
+'HIFADHI MTEJA';
+
 
 await loadCustomers();
 
-setTimeout(()=>{
 
-$('addCustomerPage')
-.classList.remove('active');
+setTimeout(() => {
 
-$('customersPage')
-.classList.add('active');
+showPage(
+'customersPage'
+);
+
+loadCustomers();
 
 },700);
 
@@ -525,9 +1478,12 @@ $('customersPage')
    LOGOUT
 ========================= */
 
-$('logoutButton').onclick=async()=>{
+$('logoutButton').onclick =
+async () => {
 
-await supabaseClient.auth.signOut();
+await supabaseClient
+.auth
+.signOut();
 
 location.reload();
 
@@ -538,10 +1494,13 @@ location.reload();
    CHECK SESSION
 ========================= */
 
-(async()=>{
+(async() => {
 
-const {data}=await
-supabaseClient.auth.getSession();
+const {data} =
+await supabaseClient
+.auth
+.getSession();
+
 
 if(data.session){
 
