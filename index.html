@@ -247,82 +247,1020 @@ text-align:center
 
 <!-- ================= LOGIN ================= -->
 
-<div class="login-box" id="loginBox">
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 
-<h1>GHANTENDE MICROFINANCE</h1>
+<title>GHANTENDE MICROFINANCE</title>
 
-<div class="subtitle">
-Mfumo wa Usimamizi wa Mikopo
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+<style>
+*{
+  box-sizing:border-box;
+  font-family:Arial,sans-serif;
+}
+
+body{
+  margin:0;
+  min-height:100vh;
+  background:linear-gradient(135deg,#064e3b,#0f766e,#115e59);
+  color:#222;
+}
+
+/* LOGIN */
+#loginPage{
+  min-height:100vh;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  padding:20px;
+}
+
+.login-box{
+  width:100%;
+  max-width:400px;
+  background:white;
+  border-radius:18px;
+  padding:30px 24px;
+  box-shadow:0 10px 35px rgba(0,0,0,.25);
+}
+
+.logo{
+  width:75px;
+  height:75px;
+  margin:0 auto 15px;
+  border-radius:50%;
+  background:#047857;
+  color:white;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:30px;
+  font-weight:bold;
+}
+
+.login-box h1{
+  text-align:center;
+  margin:8px 0;
+  color:#065f46;
+}
+
+.login-box p{
+  text-align:center;
+  color:#666;
+}
+
+.input{
+  width:100%;
+  padding:14px;
+  margin:8px 0;
+  border:1px solid #ccc;
+  border-radius:10px;
+  font-size:16px;
+}
+
+.btn{
+  width:100%;
+  padding:14px;
+  border:none;
+  border-radius:10px;
+  background:#047857;
+  color:white;
+  font-size:16px;
+  font-weight:bold;
+  cursor:pointer;
+  margin-top:10px;
+}
+
+.btn:hover{
+  background:#065f46;
+}
+
+.message{
+  text-align:center;
+  margin-top:12px;
+  font-size:14px;
+}
+
+/* APP */
+#app{
+  display:none;
+  min-height:100vh;
+  background:#f3f4f6;
+}
+
+header{
+  background:#065f46;
+  color:white;
+  padding:15px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  position:sticky;
+  top:0;
+  z-index:10;
+}
+
+header h2{
+  margin:0;
+  font-size:19px;
+}
+
+.logout{
+  background:#dc2626;
+  border:none;
+  color:white;
+  padding:9px 13px;
+  border-radius:8px;
+  cursor:pointer;
+}
+
+/* MENU */
+.menu{
+  background:white;
+  display:flex;
+  gap:8px;
+  padding:10px;
+  overflow-x:auto;
+  border-bottom:1px solid #ddd;
+}
+
+.menu button{
+  border:none;
+  background:#e5e7eb;
+  padding:11px 15px;
+  border-radius:8px;
+  white-space:nowrap;
+  cursor:pointer;
+  font-weight:bold;
+}
+
+.menu button.active{
+  background:#047857;
+  color:white;
+}
+
+/* SECTIONS */
+.section{
+  display:none;
+  padding:18px;
+  max-width:1100px;
+  margin:auto;
+}
+
+.section.active{
+  display:block;
+}
+
+.section h2{
+  color:#065f46;
+}
+
+/* DASHBOARD CARDS */
+.cards{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:15px;
+}
+
+.card{
+  background:white;
+  padding:20px;
+  border-radius:14px;
+  box-shadow:0 3px 12px rgba(0,0,0,.08);
+}
+
+.card h3{
+  margin:0 0 12px;
+  font-size:15px;
+  color:#555;
+}
+
+.card strong{
+  font-size:30px;
+  color:#047857;
+}
+
+/* FORM */
+.form-box{
+  background:white;
+  padding:20px;
+  border-radius:14px;
+  box-shadow:0 3px 12px rgba(0,0,0,.08);
+}
+
+.form-box label{
+  display:block;
+  margin-top:12px;
+  margin-bottom:5px;
+  font-weight:bold;
+}
+
+.form-box input,
+.form-box select,
+.form-box textarea{
+  width:100%;
+  padding:12px;
+  border:1px solid #ccc;
+  border-radius:8px;
+}
+
+.form-box textarea{
+  min-height:100px;
+}
+
+/* TABLE */
+.table-box{
+  background:white;
+  padding:15px;
+  border-radius:14px;
+  overflow-x:auto;
+}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  min-width:600px;
+}
+
+th,td{
+  padding:11px;
+  border-bottom:1px solid #ddd;
+  text-align:left;
+}
+
+th{
+  background:#ecfdf5;
+  color:#065f46;
+}
+
+.empty{
+  text-align:center;
+  padding:25px;
+  color:#777;
+}
+
+@media(max-width:600px){
+  header h2{
+    font-size:16px;
+  }
+
+  .section{
+    padding:12px;
+  }
+
+  .cards{
+    grid-template-columns:1fr 1fr;
+  }
+
+  .card{
+    padding:15px;
+  }
+}
+</style>
+</head>
+
+<body>
+
+<!-- ================= LOGIN ================= -->
+
+<div id="loginPage">
+
+  <div class="login-box">
+
+    <div class="logo">GM</div>
+
+    <h1>GHANTENDE</h1>
+    <p>MICROFINANCE</p>
+
+    <input
+      type="email"
+      id="email"
+      class="input"
+      placeholder="Email"
+      autocomplete="email"
+    >
+
+    <input
+      type="password"
+      id="password"
+      class="input"
+      placeholder="Password"
+      autocomplete="current-password"
+    >
+
+    <button class="btn" onclick="login()">
+      INGIA
+    </button>
+
+    <div id="loginMessage" class="message"></div>
+
+  </div>
+
 </div>
 
-<form id="loginForm">
 
-<label>Gmail</label>
+<!-- ================= APP ================= -->
 
-<input
-type="email"
-id="email"
-placeholder="Ingiza Gmail yako"
-required
->
+<div id="app">
 
-<label>Password</label>
+<header>
 
-<input
-type="password"
-id="password"
-placeholder="Ingiza password"
-required
->
+  <h2>GHANTENDE MICROFINANCE</h2>
 
-<button
-class="login-btn"
-id="loginButton"
-type="submit"
->
-INGIA
-</button>
+  <button class="logout" onclick="logout()">
+    Toka
+  </button>
 
-</form>
+</header>
 
-<div id="message"></div>
 
-<div class="footer">
-© 2026 GHANTENDE MICROFINANCE
-</div>
+<!-- ================= MENU ================= -->
+
+<div class="menu">
+
+  <button class="active" onclick="showSection('dashboard',this)">
+    Dashboard
+  </button>
+
+  <button onclick="showSection('wateja',this)">
+    Wateja
+  </button>
+
+  <button onclick="showSection('maombi',this)">
+    Maombi ya Mkopo
+  </button>
+
+  <button onclick="showSection('mikopo',this)">
+    Mikopo Active
+  </button>
+
+  <button onclick="showSection('maafisa',this)">
+    Maafisa
+  </button>
 
 </div>
 
 
 <!-- ================= DASHBOARD ================= -->
 
-<div id="dashboard" style="display:none">
+<section id="dashboard" class="section active">
 
-<div class="top">
+  <h2>Dashboard</h2>
 
-<h2>
-GHANTENDE MICROFINANCE
-</h2>
+  <div class="cards">
 
-<button
-class="logout"
-id="logoutButton"
->
-TOKA
-</button>
+    <div class="card">
+      <h3>Jumla ya Wateja</h3>
+      <strong id="totalCustomers">0</strong>
+    </div>
+
+    <div class="card">
+      <h3>Maombi Pending</h3>
+      <strong id="pendingApplications">0</strong>
+    </div>
+
+    <div class="card">
+      <h3>Mikopo Active</h3>
+      <strong id="activeLoans">0</strong>
+    </div>
+
+    <div class="card">
+      <h3>Salio la Mikopo</h3>
+      <strong id="loanBalance">TZS 0</strong>
+    </div>
+
+  </div>
+
+</section>
+
+
+<!-- ================= WATEJA ================= -->
+
+<section id="wateja" class="section">
+
+  <h2>Wateja</h2>
+
+  <div class="table-box">
+
+    <table>
+
+      <thead>
+        <tr>
+          <th>Jina</th>
+          <th>Simu</th>
+          <th>Hali</th>
+        </tr>
+      </thead>
+
+      <tbody id="customersTable">
+
+        <tr>
+          <td colspan="3" class="empty">
+            Hakuna taarifa bado
+          </td>
+        </tr>
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+</section>
+
+
+<!-- ================= MAOMBI ================= -->
+
+<section id="maombi" class="section">
+
+  <h2>Maombi ya Mkopo</h2>
+
+  <div class="form-box">
+
+    <label>Jina la Mteja</label>
+    <input id="loanCustomer" type="text" placeholder="Jina kamili">
+
+    <label>Namba ya Simu</label>
+    <input id="loanPhone" type="tel" placeholder="07XXXXXXXX">
+
+    <label>Kiasi cha Mkopo</label>
+    <input id="loanAmount" type="number" placeholder="Kiasi TZS">
+
+    <label>Sababu ya Mkopo</label>
+    <textarea id="loanReason" placeholder="Andika sababu ya mkopo"></textarea>
+
+    <button class="btn" onclick="submitLoan()">
+      TUMA OMBI
+    </button>
+
+    <div id="loanMessage" class="message"></div>
+
+  </div>
+
+</section>
+
+
+<!-- ================= MIKOPO ================= -->
+
+<section id="mikopo" class="section">
+
+  <h2>Mikopo Active</h2>
+
+  <div class="table-box">
+
+    <table>
+
+      <thead>
+        <tr>
+          <th>Mteja</th>
+          <th>Kiasi</th>
+          <th>Hali</th>
+        </tr>
+      </thead>
+
+      <tbody id="loansTable">
+
+        <tr>
+          <td colspan="3" class="empty">
+            Hakuna mikopo active
+          </td>
+        </tr>
+
+      </tbody>
+
+    </table>
+
+  </div>
+
+</section>
+
+
+<!-- ================= MAAFISA ================= -->
+
+<section id="maafisa" class="section">
+
+  <h2>Maafisa</h2>
+
+  <div class="table-box">
+
+    <p>
+      Akaunti hii imeingia kwenye mfumo.
+    </p>
+
+    <p id="userEmail"></p>
+
+  </div>
+
+</section>
 
 </div>
 
 
-<div class="welcome">
+<script>
 
-Karibu kwenye mfumo wa usimamizi wa mikopo.
+/* =====================================================
+   SUPABASE
+===================================================== */
 
-<br>
+const SUPABASE_URL =
+"https://YOUR-PROJECT.supabase.co";
 
-<b id="userEmail"></b>
+const SUPABASE_ANON_KEY =
+"YOUR_SUPABASE_ANON_KEY";
 
-</div>
+const supabaseClient =
+supabase.createClient(
+  SUPABASE_URL,
+  SUPABASE_ANON_KEY
+);
+
+
+/* =====================================================
+   LOGIN
+===================================================== */
+
+async function login(){
+
+  const email =
+    document.getElementById("email").value.trim();
+
+  const password =
+    document.getElementById("password").value;
+
+  const message =
+    document.getElementById("loginMessage");
+
+  if(!email || !password){
+
+    message.style.color="red";
+    message.innerText =
+      "Weka email na password.";
+
+    return;
+  }
+
+  message.style.color="#555";
+  message.innerText="Inaingia...";
+
+  const {data,error} =
+    await supabaseClient.auth.signInWithPassword({
+      email:email,
+      password:password
+    });
+
+  if(error){
+
+    message.style.color="red";
+    message.innerText =
+      "Login imegoma: "+error.message;
+
+    return;
+  }
+
+  message.style.color="green";
+  message.innerText="Umefanikiwa kuingia.";
+
+  showApp(data.user);
+
+}
+
+
+/* =====================================================
+   CHECK LOGIN
+===================================================== */
+
+async function checkUser(){
+
+  const {data} =
+    await supabaseClient.auth.getSession();
+
+  if(data.session){
+
+    showApp(data.session.user);
+
+  }else{
+
+    showLogin();
+
+  }
+
+}
+
+
+/* =====================================================
+   SHOW APP
+===================================================== */
+
+function showApp(user){
+
+  document.getElementById("loginPage")
+    .style.display="none";
+
+  document.getElementById("app")
+    .style.display="block";
+
+  if(user){
+
+    document.getElementById("userEmail")
+      .innerText =
+      "Email: "+user.email;
+
+  }
+
+  loadDashboard();
+
+}
+
+
+/* =====================================================
+   SHOW LOGIN
+===================================================== */
+
+function showLogin(){
+
+  document.getElementById("loginPage")
+    .style.display="flex";
+
+  document.getElementById("app")
+    .style.display="none";
+
+}
+
+
+/* =====================================================
+   LOGOUT
+===================================================== */
+
+async function logout(){
+
+  await supabaseClient.auth.signOut();
+
+  showLogin();
+
+}
+
+
+/* =====================================================
+   MENUS ZIMETENGANISHWA
+===================================================== */
+
+function showSection(sectionId,button){
+
+  document.querySelectorAll(".section")
+    .forEach(section=>{
+      section.classList.remove("active");
+    });
+
+  document.getElementById(sectionId)
+    .classList.add("active");
+
+  document.querySelectorAll(".menu button")
+    .forEach(btn=>{
+      btn.classList.remove("active");
+    });
+
+  button.classList.add("active");
+
+}
+
+
+/* =====================================================
+   DASHBOARD
+===================================================== */
+
+async function loadDashboard(){
+
+  /*
+   * Majina ya tables yanayotarajiwa:
+   * customers
+   * loan_applications
+   * loans
+   */
+
+  try{
+
+    const customers =
+      await supabaseClient
+      .from("customers")
+      .select("*");
+
+    if(!customers.error){
+
+      document.getElementById("totalCustomers")
+        .innerText =
+        customers.data.length;
+
+      renderCustomers(customers.data);
+
+    }
+
+
+    const applications =
+      await supabaseClient
+      .from("loan_applications")
+      .select("*")
+      .eq("status","pending");
+
+    if(!applications.error){
+
+      document.getElementById("pendingApplications")
+        .innerText =
+        applications.data.length;
+
+    }
+
+
+    const loans =
+      await supabaseClient
+      .from("loans")
+      .select("*")
+      .eq("status","active");
+
+    if(!loans.error){
+
+      document.getElementById("activeLoans")
+        .innerText =
+        loans.data.length;
+
+      renderLoans(loans.data);
+
+      let total=0;
+
+      loans.data.forEach(loan=>{
+
+        total += Number(
+          loan.balance ||
+          loan.remaining_balance ||
+          loan.amount ||
+          0
+        );
+
+      });
+
+      document.getElementById("loanBalance")
+        .innerText =
+        "TZS "+total.toLocaleString();
+
+    }
+
+  }catch(error){
+
+    console.log(error);
+
+  }
+
+}
+
+
+/* =====================================================
+   CUSTOMERS TABLE
+===================================================== */
+
+function renderCustomers(data){
+
+  const table =
+    document.getElementById("customersTable");
+
+  if(!data || data.length===0){
+
+    table.innerHTML=`
+      <tr>
+        <td colspan="3" class="empty">
+          Hakuna wateja
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+  table.innerHTML="";
+
+  data.forEach(customer=>{
+
+    const name =
+      customer.name ||
+      customer.full_name ||
+      customer.jina ||
+      "-";
+
+    const phone =
+      customer.phone ||
+      customer.phone_number ||
+      customer.simuy ||
+      "-";
+
+    const status =
+      customer.status ||
+      "active";
+
+    table.innerHTML += `
+      <tr>
+        <td>${escapeHtml(name)}</td>
+        <td>${escapeHtml(phone)}</td>
+        <td>${escapeHtml(status)}</td>
+      </tr>
+    `;
+
+  });
+
+}
+
+
+/* =====================================================
+   LOANS TABLE
+===================================================== */
+
+function renderLoans(data){
+
+  const table =
+    document.getElementById("loansTable");
+
+  if(!data || data.length===0){
+
+    table.innerHTML=`
+      <tr>
+        <td colspan="3" class="empty">
+          Hakuna mikopo active
+        </td>
+      </tr>
+    `;
+
+    return;
+  }
+
+  table.innerHTML="";
+
+  data.forEach(loan=>{
+
+    const customer =
+      loan.customer_name ||
+      loan.name ||
+      "-";
+
+    const amount =
+      Number(
+        loan.amount ||
+        loan.loan_amount ||
+        0
+      );
+
+    const status =
+      loan.status ||
+      "active";
+
+    table.innerHTML += `
+      <tr>
+        <td>${escapeHtml(customer)}</td>
+        <td>TZS ${amount.toLocaleString()}</td>
+        <td>${escapeHtml(status)}</td>
+      </tr>
+    `;
+
+  });
+
+}
+
+
+/* =====================================================
+   SUBMIT LOAN
+===================================================== */
+
+async function submitLoan(){
+
+  const name =
+    document.getElementById("loanCustomer")
+      .value.trim();
+
+  const phone =
+    document.getElementById("loanPhone")
+      .value.trim();
+
+  const amount =
+    document.getElementById("loanAmount")
+      .value;
+
+  const reason =
+    document.getElementById("loanReason")
+      .value.trim();
+
+  const message =
+    document.getElementById("loanMessage");
+
+  if(!name || !phone || !amount){
+
+    message.style.color="red";
+
+    message.innerText =
+      "Jaza jina, simu na kiasi cha mkopo.";
+
+    return;
+  }
+
+  message.style.color="#555";
+  message.innerText="Inatuma...";
+
+  const {error} =
+    await supabaseClient
+    .from("loan_applications")
+    .insert([{
+
+      customer_name:name,
+
+      phone:phone,
+
+      amount:Number(amount),
+
+      reason:reason,
+
+      status:"pending"
+
+    }]);
+
+  if(error){
+
+    message.style.color="red";
+
+    message.innerText =
+      "Imeshindikana: "+error.message;
+
+    return;
+  }
+
+  message.style.color="green";
+
+  message.innerText =
+    "Ombi la mkopo limetumwa kikamilifu.";
+
+  document.getElementById("loanCustomer")
+    .value="";
+
+  document.getElementById("loanPhone")
+    .value="";
+
+  document.getElementById("loanAmount")
+    .value="";
+
+  document.getElementById("loanReason")
+    .value="";
+
+  loadDashboard();
+
+}
+
+
+/* =====================================================
+   SECURITY - HTML ESCAPE
+===================================================== */
+
+function escapeHtml(value){
+
+  return String(value)
+    .replaceAll("&","&amp;")
+    .replaceAll("<","&lt;")
+    .replaceAll(">","&gt;")
+    .replaceAll('"',"&quot;")
+    .replaceAll("'","&#039;");
+
+}
+
+
+/* =====================================================
+   AUTH STATE
+===================================================== */
+
+supabaseClient.auth.onAuthStateChange(
+  (event,session)=>{
+
+    if(session){
+
+      showApp(session.user);
+
+    }else{
+
+      showLogin();
+
+    }
+
+  }
+);
+
+
+/* =====================================================
+   START
+===================================================== */
+
+checkUser();
+
+</script>
+
+</body>
+</html>
 
 
 <!-- ================= CARDS ================= -->
