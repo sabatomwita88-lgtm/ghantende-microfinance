@@ -1,39 +1,3 @@
-<!DOCTYPE html>
-<html lang="sw">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GHANTENDE MICROFINANCE</title>
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-<style>
-*{box-sizing:border-box;font-family:Arial,sans-serif}
-body{margin:0;min-height:100vh;background:linear-gradient(135deg,#075e2d,#0b8f4d);padding:20px}
-.login-box{width:100%;max-width:400px;background:#fff;padding:35px 25px;border-radius:18px;box-shadow:0 10px 35px rgba(0,0,0,.25);margin:60px auto}
-h1{text-align:center;color:#075e2d;margin-bottom:5px;font-size:25px}.subtitle{text-align:center;color:#555;margin-bottom:30px}
-label{display:block;margin-bottom:8px;font-weight:bold;color:#333}input{width:100%;padding:14px;border:1px solid #ccc;border-radius:9px;margin-bottom:18px;font-size:16px}
-button{padding:14px;border:0;border-radius:9px;background:#075e2d;color:#fff;font-size:17px;font-weight:bold;cursor:pointer}button:disabled{background:#999}
-#loginButton{width:100%}#message{margin-top:18px;text-align:center;font-weight:bold}.footer{text-align:center;margin-top:25px;color:#777;font-size:13px}
-#dashboard{display:none;width:100%;max-width:1000px;background:#f7f9f8;border-radius:18px;box-shadow:0 10px 35px rgba(0,0,0,.25);padding:24px;margin:0 auto}
-.top{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:20px;flex-wrap:wrap}.top h2{margin:0;color:#075e2d}.logout{width:auto;padding:10px 16px;background:#b42318}
-.welcome{background:#075e2d;color:#fff;border-radius:14px;padding:18px;margin-bottom:18px}.welcome b{font-size:18px}
-.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:15px}.card{background:#fff;border-radius:14px;padding:20px;box-shadow:0 3px 12px rgba(0,0,0,.08);cursor:pointer}.card h3{margin:0 0 8px;color:#555;font-size:15px}.card strong{font-size:28px;color:#075e2d}.card:hover{transform:translateY(-2px)}
-.page{display:none;margin-top:20px}.page.active{display:block}.page-header{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:15px}.page-header h2{margin:0;color:#075e2d}.secondary{background:#666;width:auto}.add{background:#075e2d;width:auto}.form-box,.table-box{background:#fff;padding:20px;border-radius:14px;box-shadow:0 3px 12px rgba(0,0,0,.08)}
-.form-box{max-width:600px}.save{width:100%}.status{margin-top:12px;font-weight:bold}.customer{border-bottom:1px solid #ddd;padding:12px 0}.customer:last-child{border-bottom:0}.muted{color:#777}
-</style>
-</head>
-<body>
-<div class="login-box">
-<h1>GHANTENDE MICROFINANCE</h1><div class="subtitle">Mfumo wa Usimamizi wa Mikopo</div>
-<form id="loginForm"><label for="email">Gmail</label><input type="email" id="email" placeholder="Ingiza Gmail yako" required><label for="password">Password</label><input type="password" id="password" placeholder="Ingiza password" required><button type="submit" id="loginButton">INGIA</button></form>
-<div id="message"></div><div class="footer">© 2026 GHANTENDE MICROFINANCE</div>
-</div>
-
-<div id="dashboard">
-<div class="top"><h2>GHANTENDE MICROFINANCE</h2><button class="logout" id="logoutButton">TOKA</button></div>
-<div class="welcome">Karibu kwenye mfumo wa usimamizi wa mikopo.<br><b id="userEmail"></b></div>
-<div class="cards">
-<div class="card" id="watejaCard"><h3>Wateja</h3><strong id="customerCount">0</strong><div class="muted">Bonyeza kufungua</div></div>
-<div class="card"><h3>Maombi Pending</h3><strong>0</strong></div><div class="card"><h3>Mikopo Active</h3><strong>0</strong></div><div class="card"><h3>Salio la Mikopo</h3><strong>TZS 0</strong></div>
 </div>
 
 <div id="customersPage" class="page">
