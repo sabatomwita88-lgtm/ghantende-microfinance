@@ -1,29 +1,559 @@
-html>
+<!DOCTYPE html>
 <html lang="sw">
 <head>
-<meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1.0">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
 <title>GHANTENDE MICROFINANCE</title>
+
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
 <style>
-*{box-sizing:border-box;font-family:Arial,sans-serif}body{margin:0;min-height:100vh;background:linear-gradient(135deg,#075e2d,#0b8f4d);padding:18px}.login-box,#dashboard{width:100%;max-width:1050px;margin:45px auto;background:#f7f9f8;border-radius:18px;box-shadow:0 10px 35px #0004;padding:24px}.login-box{max-width:410px;background:#fff}h1{text-align:center;color:#075e2d;font-size:25px;margin:0 0 6px}.subtitle{text-align:center;color:#555;margin-bottom:28px}label{display:block;font-weight:bold;margin:0 0 7px;color:#333}input{width:100%;padding:13px;border:1px solid #ccc;border-radius:9px;margin-bottom:16px;font-size:16px}button{border:0;border-radius:9px;padding:13px 16px;background:#075e2d;color:white;font-size:16px;font-weight:bold;cursor:pointer}button:disabled{opacity:.6}.login-btn{width:100%}#message{text-align:center;margin-top:15px;font-weight:bold}.footer{text-align:center;color:#777;font-size:13px;margin-top:22px}.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}.top h2{color:#075e2d;margin:0}.logout{background:#b42318}.welcome{background:#075e2d;color:white;padding:17px;border-radius:14px;margin:18px 0}.welcome b{font-size:17px}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}.card{background:#fff;padding:19px;border-radius:14px;box-shadow:0 3px 12px #0001;cursor:pointer}.card h3{margin:0 0 8px;color:#555;font-size:15px}.card strong{font-size:28px;color:#075e2d}.muted{color:#777}.page{display:none;margin-top:20px}.page.active{display:block}.page-header{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}.page-header h2{margin:0;color:#075e2d}.secondary{background:#666}.table-box,.form-box{background:white;padding:20px;border-radius:14px;box-shadow:0 3px 12px #0001}.customer{padding:13px 0;border-bottom:1px solid #ddd}.customer:last-child{border:0}.status{margin-top:12px;font-weight:bold}.danger{color:#b42318}
-</style></head><body>
-<div class="login-box" id="loginBox"><h1>GHANTENDE MICROFINANCE</h1><div class="subtitle">Mfumo wa Usimamizi wa Mikopo</div><form id="loginForm"><label>Gmail</label><input type="email" id="email" placeholder="Ingiza Gmail yako" required><label>Password</label><input type="password" id="password" placeholder="Ingiza password" required><button class="login-btn" id="loginButton">INGIA</button></form><div id="message"></div><div class="footer">© 2026 GHANTENDE MICROFINANCE</div></div>
-<div id="dashboard" style="display:none"><div class="top"><h2>GHANTENDE MICROFINANCE</h2><button class="logout" id="logoutButton">TOKA</button></div><div class="welcome">Karibu kwenye mfumo wa usimamizi wa mikopo.<br><b id="userEmail"></b></div>
-<div class="cards"><div class="card" id="watejaCard"><h3>Wateja</h3><strong id="customerCount">0</strong><div class="muted">Bonyeza kufungua</div></div><div class="card"><h3>Maombi Pending</h3><strong id="pendingCount">0</strong>/div><div class="card"><h3>Mikopo Active</h3><strong>0</strong></div><div class="card"><h3>Salio la Mikopo</h3><strong>TZS 0</strong></div></div>
-<div id="customersPage" class="page"><div class="page-header"><h2>Wateja</h2><button id="addCustomerButton">+ ONGEZA MTEJA</button></div><div class="table-box"><div id="customersList">Inapakia...</div></div></div>
-<div id="addCustomerPage" class="page"><div class="page-header"><h2>Ongeza Mteja</h2><button class="secondary" id="backButton">RUDI</button></div><div class="form-box"><form id="customerForm"><label>Customer Number</label><input id="customerNumber" readonly><label>Jina Kamili</label><input id="fullName" required placeholder="Mfano: Sabato Mwita"><label>Simu</label><input id="phone" required placeholder="07XXXXXXXX"><label>National ID</label><input id="nationalId" placeholder="Namba ya kitambulisho"><label>Address</label><input id="address" placeholder="Anwani ya mteja"><button type="submit" id="saveCustomer">HIFADHI MTEJA</button><div class="status" id="customerMessage"></div></form></div></div></div>
+*{box-sizing:border-box;font-family:Arial,sans-serif}
+body{margin:0;min-height:100vh;background:linear-gradient(135deg,#075e2d,#0b8f4d);padding:18px}
+.login-box,#dashboard{width:100%;max-width:1050px;margin:45px auto;background:#f7f9f8;border-radius:18px;box-shadow:0 10px 35px #0004;padding:24px}
+.login-box{max-width:410px;background:#fff}
+h1{text-align:center;color:#075e2d;font-size:25px;margin:0 0 6px}
+.subtitle{text-align:center;color:#555;margin-bottom:28px}
+label{display:block;font-weight:bold;margin:0 0 7px;color:#333}
+input{width:100%;padding:13px;border:1px solid #ccc;border-radius:9px;margin-bottom:16px;font-size:16px}
+button{border:0;border-radius:9px;padding:13px 16px;background:#075e2d;color:white;font-size:16px;font-weight:bold;cursor:pointer}
+button:disabled{opacity:.6}
+.login-btn{width:100%}
+#message{text-align:center;margin-top:15px;font-weight:bold}
+.footer{text-align:center;color:#777;font-size:13px;margin-top:22px}
+.top{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap}
+.top h2{color:#075e2d;margin:0}
+.logout{background:#b42318}
+.welcome{background:#075e2d;color:white;padding:17px;border-radius:14px;margin:18px 0}
+.welcome b{font-size:17px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:14px}
+.card{background:#fff;padding:19px;border-radius:14px;box-shadow:0 3px 12px #0001;cursor:pointer}
+.card h3{margin:0 0 8px;color:#555;font-size:15px}
+.card strong{font-size:28px;color:#075e2d}
+.muted{color:#777}
+.page{display:none;margin-top:20px}
+.page.active{display:block}
+.page-header{display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:14px}
+.page-header h2{margin:0;color:#075e2d}
+.secondary{background:#666}
+.table-box,.form-box{background:white;padding:20px;border-radius:14px;box-shadow:0 3px 12px #0001}
+.customer{padding:13px 0;border-bottom:1px solid #ddd}
+.customer:last-child{border:0}
+.status{margin-top:12px;font-weight:bold}
+.danger{color:#b42318}
+</style>
+</head>
+
+<body>
+
+<!-- LOGIN -->
+<div class="login-box" id="loginBox">
+<h1>GHANTENDE MICROFINANCE</h1>
+<div class="subtitle">Mfumo wa Usimamizi wa Mikopo</div>
+
+<form id="loginForm">
+<label>Gmail</label>
+<input type="email" id="email" placeholder="Ingiza Gmail yako" required>
+
+<label>Password</label>
+<input type="password" id="password" placeholder="Ingiza password" required>
+
+<button class="login-btn" id="loginButton">INGIA</button>
+</form>
+
+<div id="message"></div>
+<div class="footer">© 2026 GHANTENDE MICROFINANCE</div>
+</div>
+
+
+<!-- DASHBOARD -->
+<div id="dashboard" style="display:none">
+
+<div class="top">
+<h2>GHANTENDE MICROFINANCE</h2>
+<button class="logout" id="logoutButton">TOKA</button>
+</div>
+
+<div class="welcome">
+Karibu kwenye mfumo wa usimamizi wa mikopo.<br>
+<b id="userEmail"></b>
+</div>
+
+
+<!-- CARDS -->
+<div class="cards">
+
+<div class="card" id="watejaCard">
+<h3>Wateja</h3>
+<strong id="customerCount">0</strong>
+<div class="muted">Bonyeza kufungua</div>
+</div>
+
+<div class="card" id="pendingCard">
+<h3>Maombi Pending</h3>
+<strong id="pendingCount">0</strong>
+<div class="muted">Maombi yanayosubiri</div>
+</div>
+
+<div class="card">
+<h3>Mikopo Active</h3>
+<strong id="activeLoanCount">0</strong>
+</div>
+
+<div class="card">
+<h3>Salio la Mikopo</h3>
+<strong>TZS 0</strong>
+</div>
+
+</div>
+
+
+<!-- WATEJA -->
+<div id="customersPage" class="page">
+
+<div class="page-header">
+<h2>Wateja</h2>
+<button id="addCustomerButton">+ ONGEZA MTEJA</button>
+</div>
+
+<div class="table-box">
+<div id="customersList">Inapakia...</div>
+</div>
+
+</div>
+
+
+<!-- ONGEZA MTEJA -->
+<div id="addCustomerPage" class="page">
+
+<div class="page-header">
+<h2>Ongeza Mteja</h2>
+<button class="secondary" id="backButton">RUDI</button>
+</div>
+
+<div class="form-box">
+
+<form id="customerForm">
+
+<label>Customer Number</label>
+<input id="customerNumber" readonly>
+
+<label>Jina Kamili</label>
+<input id="fullName" required placeholder="Mfano: Sabato Mwita">
+
+<label>Simu</label>
+<input id="phone" required placeholder="07XXXXXXXX">
+
+<label>National ID</label>
+<input id="nationalId" placeholder="Namba ya kitambulisho">
+
+<label>Address</label>
+<input id="address" placeholder="Anwani ya mteja">
+
+<button type="submit" id="saveCustomer">
+HIFADHI MTEJA
+</button>
+
+<div class="status" id="customerMessage"></div>
+
+</form>
+
+</div>
+</div>
+
+</div>
+
+
 <script>
-const SUPABASE_URL='https://kvcbsebklyuupwixmagd.supabase.co';
-const SUPABASE_KEY='sb_publishable_CaipCB_cvv1uPsqtt4Yalg_cFWGSP2t';
-const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_KEY);const $=id=>document.getElementById(id);
-function esc(v){return String(v??'').replace(/[&<>'"]/g,m=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[m]))}
-async function loadCustomers(){const box=$('customersList');box.textContent='Inapakia...';const {data,error}=await supabaseClient.from('customers').select('id,customer_number,full_name,phone,national_id,address').order('id',{ascending:false});if(error){box.innerHTML='<span class="danger">Imeshindwa kusoma Wateja: '+esc(error.message)+'</span>';return}$('customerCount').textContent=data?.length||0;if(!data?.length){box.innerHTML='<div class="muted">Hakuna mteja bado. Bonyeza + ONGEZA MTEJA.</div>';return}box.innerHTML=data.map((c,i)=>'<div class="customer"><b>'+(i+1)+'. '+esc(c.full_name)+'</b><br>Customer No: '+esc(c.customer_number||'-')+'<br>Simu: '+esc(c.phone||'-')+'<br>National ID: '+esc(c.national_id||'-')+'<br>Address: '+esc(c.address||'-')+'</div>').join('')}
-function showDashboard(email){$('loginBox').style.display='none';$('dashboard').style.display='block';$('userEmail').textContent=email||'';loadCustomers()}
-$('loginForm').addEventListener('submit',async e=>{e.preventDefault();const b=$('loginButton');$('message').textContent='';b.disabled=true;b.textContent='Inaingia...';try{const {data,error}=await supabaseClient.auth.signInWithPassword({email:$('email').value.trim(),password:$('password').value});if(error)throw error;showDashboard(data.user.email)}catch(err){$('message').style.color='red';$('message').textContent='Gmail au password si sahihi.';b.disabled=false;b.textContent='INGIA'}});
-$('watejaCard').onclick=()=>{$('customersPage').classList.add('active');$('addCustomerPage').classList.remove('active');loadCustomers()};
-$('addCustomerButton').onclick=()=>{$('customersPage').classList.remove('active');$('addCustomerPage').classList.add('active');$('customerNumber').value='CUS-'+Date.now().toString().slice(-8);$('fullName').focus()};
-$('backButton').onclick=()=>{$('addCustomerPage').classList.remove('active');$('customersPage').classList.add('active');loadCustomers()};
-$('customerForm').addEventListener('submit',async e=>{e.preventDefault();const b=$('saveCustomer'),msg=$('customerMessage');b.disabled=true;b.textContent='Inahifadhi...';msg.textContent='';const payload={customer_number:$('customerNumber').value.trim(),full_name:$('fullName').value.trim(),phone:$('phone').value.trim(),national_id:$('nationalId').value.trim()||null,address:$('address').value.trim()||null};const {error}=await supabaseClient.from('customers').insert([payload]);if(error){msg.style.color='red';msg.textContent='Imeshindikana kuhifadhi: '+error.message;b.disabled=false;b.textContent='HIFADHI MTEJA';return}msg.style.color='green';msg.textContent='Mteja amehifadhiwa kikamilifu!';$('customerForm').reset();b.disabled=false;b.textContent='HIFADHI MTEJA';await loadCustomers();setTimeout(()=>{$('addCustomerPage').classList.remove('active');$('customersPage').classList.add('active')},700)});
-$('logoutButton').onclick=async()=>{await supabaseClient.auth.signOut();location.reload()};
-(async()=>{const {data}=await supabaseClient.auth.getSession();if(data.session)showDashboard(data.session.user.email)})();
-</script></body></html>
+
+const SUPABASE_URL =
+'https://kvcbsebklyuupwixmagd.supabase.co';
+
+const SUPABASE_KEY =
+'sb_publishable_CaipCB_cvv1uPsqtt4Yalg_cFWGSP2t';
+
+const supabaseClient =
+window.supabase.createClient(
+SUPABASE_URL,
+SUPABASE_KEY
+);
+
+
+const $ = id => document.getElementById(id);
+
+
+function esc(v){
+return String(v??'').replace(
+/[&<>'"]/g,
+m=>({
+'&':'&amp;',
+'<':'&lt;',
+'>':'&gt;',
+"'":'&#39;',
+'"':'&quot;'
+}[m])
+);
+}
+
+
+/* =========================
+   LOAD CUSTOMERS
+========================= */
+
+async function loadCustomers(){
+
+const box=$('customersList');
+
+box.textContent='Inapakia...';
+
+const {data,error}=await supabaseClient
+.from('customers')
+.select('id,customer_number,full_name,phone,national_id,address')
+.order('id',{ascending:false});
+
+if(error){
+
+box.innerHTML=
+'<span class="danger">Imeshindwa kusoma Wateja: '
++esc(error.message)+
+'</span>';
+
+return;
+}
+
+$('customerCount').textContent=data?.length||0;
+
+if(!data?.length){
+
+box.innerHTML=
+'<div class="muted">
+Hakuna mteja bado. Bonyeza + ONGEZA MTEJA.
+</div>';
+
+return;
+}
+
+box.innerHTML=data.map((c,i)=>
+
+'<div class="customer">'+
+'<b>'+(i+1)+'. '+esc(c.full_name)+'</b><br>'+
+'Customer No: '+esc(c.customer_number||'-')+'<br>'+
+'Simu: '+esc(c.phone||'-')+'<br>'+
+'National ID: '+esc(c.national_id||'-')+'<br>'+
+'Address: '+esc(c.address||'-')+
+'</div>'
+
+).join('');
+
+}
+
+
+/* =========================
+   LOAD PENDING APPLICATIONS
+========================= */
+
+async function loadPendingApplications(){
+
+const {count,error}=await supabaseClient
+.from('loan_applications')
+.select('*',{
+count:'exact',
+head:true
+})
+.eq('status','Pending');
+
+if(error){
+
+console.error(
+'Pending applications error:',
+error
+);
+
+$('pendingCount').textContent='0';
+
+return;
+}
+
+$('pendingCount').textContent=count||0;
+
+}
+
+
+/* =========================
+   LOAD ACTIVE LOANS
+========================= */
+
+async function loadActiveLoans(){
+
+const {count,error}=await supabaseClient
+.from('loans')
+.select('*',{
+count:'exact',
+head:true
+})
+.eq('status','Active');
+
+if(error){
+
+console.error(
+'Active loans error:',
+error
+);
+
+$('activeLoanCount').textContent='0';
+
+return;
+}
+
+$('activeLoanCount').textContent=count||0;
+
+}
+
+
+/* =========================
+   DASHBOARD
+========================= */
+
+function showDashboard(email){
+
+$('loginBox').style.display='none';
+
+$('dashboard').style.display='block';
+
+$('userEmail').textContent=email||'';
+
+loadCustomers();
+
+loadPendingApplications();
+
+loadActiveLoans();
+
+}
+
+
+/* =========================
+   LOGIN
+========================= */
+
+$('loginForm').addEventListener(
+'submit',
+async e=>{
+
+e.preventDefault();
+
+const b=$('loginButton');
+
+$('message').textContent='';
+
+b.disabled=true;
+
+b.textContent='Inaingia...';
+
+try{
+
+const {data,error}=
+await supabaseClient.auth.signInWithPassword({
+
+email:$('email').value.trim(),
+
+password:$('password').value
+
+});
+
+if(error)throw error;
+
+showDashboard(data.user.email);
+
+}
+catch(err){
+
+$('message').style.color='red';
+
+$('message').textContent=
+'Gmail au password si sahihi.';
+
+b.disabled=false;
+
+b.textContent='INGIA';
+
+}
+
+});
+
+
+/* =========================
+   WATEJA PAGE
+========================= */
+
+$('watejaCard').onclick=()=>{
+
+$('customersPage')
+.classList.add('active');
+
+$('addCustomerPage')
+.classList.remove('active');
+
+loadCustomers();
+
+};
+
+
+/* =========================
+   ONGEZA MTEJA
+========================= */
+
+$('addCustomerButton').onclick=()=>{
+
+$('customersPage')
+.classList.remove('active');
+
+$('addCustomerPage')
+.classList.add('active');
+
+$('customerNumber').value=
+'CUS-'+Date.now().toString().slice(-8);
+
+$('fullName').focus();
+
+};
+
+
+/* =========================
+   RUDI
+========================= */
+
+$('backButton').onclick=()=>{
+
+$('addCustomerPage')
+.classList.remove('active');
+
+$('customersPage')
+.classList.add('active');
+
+loadCustomers();
+
+};
+
+
+/* =========================
+   SAVE CUSTOMER
+========================= */
+
+$('customerForm').addEventListener(
+'submit',
+async e=>{
+
+e.preventDefault();
+
+const b=$('saveCustomer');
+
+const msg=$('customerMessage');
+
+b.disabled=true;
+
+b.textContent='Inahifadhi...';
+
+msg.textContent='';
+
+const payload={
+
+customer_number:
+$('customerNumber').value.trim(),
+
+full_name:
+$('fullName').value.trim(),
+
+phone:
+$('phone').value.trim(),
+
+national_id:
+$('nationalId').value.trim()||null,
+
+address:
+$('address').value.trim()||null
+
+};
+
+const {error}=
+await supabaseClient
+.from('customers')
+.insert([payload]);
+
+if(error){
+
+msg.style.color='red';
+
+msg.textContent=
+'Imeshindikana kuhifadhi: '+
+error.message;
+
+b.disabled=false;
+
+b.textContent='HIFADHI MTEJA';
+
+return;
+
+}
+
+msg.style.color='green';
+
+msg.textContent=
+'Mteja amehifadhiwa kikamilifu!';
+
+$('customerForm').reset();
+
+b.disabled=false;
+
+b.textContent='HIFADHI MTEJA';
+
+await loadCustomers();
+
+setTimeout(()=>{
+
+$('addCustomerPage')
+.classList.remove('active');
+
+$('customersPage')
+.classList.add('active');
+
+},700);
+
+});
+
+
+/* =========================
+   LOGOUT
+========================= */
+
+$('logoutButton').onclick=async()=>{
+
+await supabaseClient.auth.signOut();
+
+location.reload();
+
+};
+
+
+/* =========================
+   CHECK SESSION
+========================= */
+
+(async()=>{
+
+const {data}=await
+supabaseClient.auth.getSession();
+
+if(data.session){
+
+showDashboard(
+data.session.user.email
+);
+
+}
+
+})();
+
+</script>
+
+</body>
+</html>
