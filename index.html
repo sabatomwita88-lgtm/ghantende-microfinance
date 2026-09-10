@@ -3,1593 +3,631 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1.0">
-
 <title>GHANTENDE MICROFINANCE</title>
 
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 
 <style>
-*{
-box-sizing:border-box;
-font-family:Arial,sans-serif
-}
+*{box-sizing:border-box;font-family:Arial,sans-serif}
 
 body{
-margin:0;
-min-height:100vh;
-background:linear-gradient(135deg,#075e2d,#0b8f4d);
-padding:18px
-}
-
-.login-box,
-#dashboard{
-width:100%;
-max-width:1050px;
-margin:45px auto;
-background:#f7f9f8;
-border-radius:18px;
-box-shadow:0 10px 35px #0004;
-padding:24px
-}
-
-.login-box{
-max-width:410px;
-background:#fff
-}
-
-h1{
-text-align:center;
-color:#075e2d;
-font-size:25px;
-margin:0 0 6px
-}
-
-.subtitle{
-text-align:center;
-color:#555;
-margin-bottom:28px
-}
-
-label{
-display:block;
-font-weight:bold;
-margin:0 0 7px;
-color:#333
-}
-
-input,
-select{
-width:100%;
-padding:13px;
-border:1px solid #ccc;
-border-radius:9px;
-margin-bottom:16px;
-font-size:16px
+ margin:0;
+ min-height:100vh;
+ background:linear-gradient(135deg,#075e2d,#0b8f4d);
+ padding:15px;
+ color:#222
 }
 
 button{
-border:0;
-border-radius:9px;
-padding:13px 16px;
-background:#075e2d;
-color:white;
-font-size:16px;
-font-weight:bold;
-cursor:pointer
+ border:0;
+ border-radius:9px;
+ padding:12px 16px;
+ background:#075e2d;
+ color:#fff;
+ font-weight:bold;
+ cursor:pointer
 }
 
-button:disabled{
-opacity:.6
-}
+button:disabled{opacity:.55}
 
-.login-btn{
-width:100%
-}
-
-#message{
-text-align:center;
-margin-top:15px;
-font-weight:bold
-}
-
-.footer{
-text-align:center;
-color:#777;
-font-size:13px;
-margin-top:22px
-}
-
-.top{
-display:flex;
-justify-content:space-between;
-align-items:center;
-gap:10px;
-flex-wrap:wrap
-}
-
-.top h2{
-color:#075e2d;
-margin:0
-}
-
-.logout{
-background:#b42318
-}
-
-.welcome{
-background:#075e2d;
-color:white;
-padding:17px;
-border-radius:14px;
-margin:18px 0
-}
-
-.welcome b{
-font-size:17px
-}
-
-.cards{
-display:grid;
-grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-gap:14px
-}
-
-.card{
-background:#fff;
-padding:19px;
-border-radius:14px;
-box-shadow:0 3px 12px #0001;
-cursor:pointer;
-transition:.2s
-}
-
-.card:hover{
-transform:translateY(-2px);
-box-shadow:0 5px 16px #0002
-}
-
-.card h3{
-margin:0 0 8px;
-color:#555;
-font-size:15px
-}
-
-.card strong{
-font-size:28px;
-color:#075e2d
-}
-
-.muted{
-color:#777;
-font-size:14px
-}
-
-.page{
-display:none;
-margin-top:20px
-}
-
-.page.active{
-display:block
-}
-
-.page-header{
-display:flex;
-justify-content:space-between;
-align-items:center;
-gap:10px;
-flex-wrap:wrap;
-margin-bottom:14px
-}
-
-.page-header h2{
-margin:0;
-color:#075e2d
-}
-
-.secondary{
-background:#666
-}
-
-.table-box,
-.form-box{
-background:white;
-padding:20px;
-border-radius:14px;
-box-shadow:0 3px 12px #0001
-}
-
-.customer{
-padding:13px 0;
-border-bottom:1px solid #ddd
-}
-
-.customer:last-child{
-border:0
-}
-
-.status{
-margin-top:12px;
-font-weight:bold
-}
-
-.danger{
-color:#b42318
-}
-
-.success{
-color:#087f3d
-}
-
-.application{
-padding:15px;
-border-bottom:1px solid #ddd
-}
-
-.application:last-child{
-border-bottom:0
-}
-
-.back-home{
-margin-top:15px;
-background:#555
-}
-
-.empty{
-padding:20px 0;
-color:#777;
-text-align:center
-}
-</style>
-</head>
-
-<body>
-
-<!-- ================= LOGIN ================= -->
-
-<!DOCTYPE html>
-<html lang="sw">
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width,initial-scale=1.0">
-
-<title>GHANTENDE MICROFINANCE</title>
-
-<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-
-<style>
-*{
-  box-sizing:border-box;
-  font-family:Arial,sans-serif;
-}
-
-body{
-  margin:0;
-  min-height:100vh;
-  background:linear-gradient(135deg,#064e3b,#0f766e,#115e59);
-  color:#222;
-}
-
-/* LOGIN */
-#loginPage{
-  min-height:100vh;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  padding:20px;
+.login-box,#app{
+ width:100%;
+ max-width:1100px;
+ margin:25px auto;
+ background:#f5f7f6;
+ border-radius:18px;
+ box-shadow:0 10px 35px #0004;
+ padding:22px
 }
 
 .login-box{
-  width:100%;
-  max-width:400px;
-  background:white;
-  border-radius:18px;
-  padding:30px 24px;
-  box-shadow:0 10px 35px rgba(0,0,0,.25);
+ max-width:410px;
+ background:white
 }
 
-.logo{
-  width:75px;
-  height:75px;
-  margin:0 auto 15px;
-  border-radius:50%;
-  background:#047857;
-  color:white;
-  display:flex;
-  align-items:center;
-  justify-content:center;
-  font-size:30px;
-  font-weight:bold;
+h1{
+ text-align:center;
+ color:#075e2d;
+ margin:5px 0;
+ font-size:25px
 }
 
-.login-box h1{
-  text-align:center;
-  margin:8px 0;
-  color:#065f46;
+.subtitle{
+ text-align:center;
+ color:#666;
+ margin-bottom:25px
 }
 
-.login-box p{
-  text-align:center;
-  color:#666;
+label{
+ display:block;
+ font-weight:bold;
+ margin:12px 0 6px
 }
 
-.input{
-  width:100%;
-  padding:14px;
-  margin:8px 0;
-  border:1px solid #ccc;
-  border-radius:10px;
-  font-size:16px;
+input,select,textarea{
+ width:100%;
+ padding:13px;
+ border:1px solid #ccc;
+ border-radius:9px;
+ font-size:16px;
+ background:#fff
 }
 
-.btn{
-  width:100%;
-  padding:14px;
-  border:none;
-  border-radius:10px;
-  background:#047857;
-  color:white;
-  font-size:16px;
-  font-weight:bold;
-  cursor:pointer;
-  margin-top:10px;
+textarea{
+ min-height:90px;
+ resize:vertical
 }
 
-.btn:hover{
-  background:#065f46;
+.login-btn{width:100%;margin-top:10px}
+
+#message{
+ text-align:center;
+ min-height:22px;
+ margin-top:15px;
+ font-weight:bold
 }
 
-.message{
-  text-align:center;
-  margin-top:12px;
-  font-size:14px;
+.top{
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ gap:10px;
+ flex-wrap:wrap
 }
 
-/* APP */
-#app{
-  display:none;
-  min-height:100vh;
-  background:#f3f4f6;
+.top h2{
+ color:#075e2d;
+ margin:0
 }
 
-header{
-  background:#065f46;
-  color:white;
-  padding:15px;
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:10px;
-  position:sticky;
-  top:0;
-  z-index:10;
+.logout{background:#b42318}
+
+.welcome{
+ background:#075e2d;
+ color:white;
+ padding:17px;
+ border-radius:14px;
+ margin:18px 0
 }
 
-header h2{
-  margin:0;
-  font-size:19px;
-}
-
-.logout{
-  background:#dc2626;
-  border:none;
-  color:white;
-  padding:9px 13px;
-  border-radius:8px;
-  cursor:pointer;
-}
-
-/* MENU */
-.menu{
-  background:white;
-  display:flex;
-  gap:8px;
-  padding:10px;
-  overflow-x:auto;
-  border-bottom:1px solid #ddd;
-}
-
-.menu button{
-  border:none;
-  background:#e5e7eb;
-  padding:11px 15px;
-  border-radius:8px;
-  white-space:nowrap;
-  cursor:pointer;
-  font-weight:bold;
-}
-
-.menu button.active{
-  background:#047857;
-  color:white;
-}
-
-/* SECTIONS */
-.section{
-  display:none;
-  padding:18px;
-  max-width:1100px;
-  margin:auto;
-}
-
-.section.active{
-  display:block;
-}
-
-.section h2{
-  color:#065f46;
-}
-
-/* DASHBOARD CARDS */
 .cards{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
-  gap:15px;
+ display:grid;
+ grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+ gap:14px
 }
 
 .card{
-  background:white;
-  padding:20px;
-  border-radius:14px;
-  box-shadow:0 3px 12px rgba(0,0,0,.08);
+ background:white;
+ padding:20px;
+ border-radius:14px;
+ box-shadow:0 3px 12px #0001;
+ cursor:pointer
 }
 
+.card:hover{transform:translateY(-2px)}
+
 .card h3{
-  margin:0 0 12px;
-  font-size:15px;
-  color:#555;
+ margin:0 0 8px;
+ color:#555;
+ font-size:15px
 }
 
 .card strong{
-  font-size:30px;
-  color:#047857;
+ font-size:28px;
+ color:#075e2d
 }
 
-/* FORM */
-.form-box{
-  background:white;
-  padding:20px;
-  border-radius:14px;
-  box-shadow:0 3px 12px rgba(0,0,0,.08);
+.muted{color:#777;font-size:13px;margin-top:5px}
+
+.nav{
+ display:grid;
+ grid-template-columns:repeat(auto-fit,minmax(140px,1fr));
+ gap:9px;
+ margin:18px 0
 }
 
-.form-box label{
-  display:block;
-  margin-top:12px;
-  margin-bottom:5px;
-  font-weight:bold;
+.nav button{
+ background:white;
+ color:#075e2d;
+ border:1px solid #ddd
 }
 
-.form-box input,
-.form-box select,
-.form-box textarea{
-  width:100%;
-  padding:12px;
-  border:1px solid #ccc;
-  border-radius:8px;
+.nav button.active{
+ background:#075e2d;
+ color:white
 }
 
-.form-box textarea{
-  min-height:100px;
+.page{display:none}
+
+.page.active{display:block}
+
+.box{
+ background:white;
+ padding:18px;
+ border-radius:14px;
+ box-shadow:0 3px 12px #0001;
+ margin-bottom:15px
 }
 
-/* TABLE */
-.table-box{
-  background:white;
-  padding:15px;
-  border-radius:14px;
-  overflow-x:auto;
+.page-head{
+ display:flex;
+ justify-content:space-between;
+ align-items:center;
+ gap:10px;
+ flex-wrap:wrap;
+ margin-bottom:15px
+}
+
+.page-head h2{
+ margin:0;
+ color:#075e2d
+}
+
+.grid{
+ display:grid;
+ grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+ gap:12px
+}
+
+.form-actions{
+ display:flex;
+ gap:10px;
+ flex-wrap:wrap;
+ margin-top:15px
+}
+
+.secondary{background:#666}
+.danger{background:#b42318}
+.warning{background:#9a6700}
+
+.item{
+ border-bottom:1px solid #ddd;
+ padding:15px 0
+}
+
+.item:last-child{border-bottom:0}
+
+.item-title{
+ font-size:17px;
+ font-weight:bold;
+ color:#075e2d;
+ margin-bottom:7px
+}
+
+.badge{
+ display:inline-block;
+ padding:5px 9px;
+ border-radius:20px;
+ font-size:12px;
+ font-weight:bold;
+ background:#eee
+}
+
+.pending{background:#fff0b3;color:#795400}
+.approved{background:#d9f7df;color:#126b2f}
+.rejected,.cancelled{background:#ffd9d9;color:#9b1515}
+
+.actions{
+ display:flex;
+ gap:7px;
+ flex-wrap:wrap;
+ margin-top:10px
+}
+
+.actions button{
+ padding:8px 11px;
+ font-size:13px
 }
 
 table{
-  width:100%;
-  border-collapse:collapse;
-  min-width:600px;
+ width:100%;
+ border-collapse:collapse;
+ min-width:700px
 }
 
 th,td{
-  padding:11px;
-  border-bottom:1px solid #ddd;
-  text-align:left;
+ padding:10px;
+ border-bottom:1px solid #ddd;
+ text-align:left
 }
 
 th{
-  background:#ecfdf5;
-  color:#065f46;
+ background:#075e2d;
+ color:white
 }
 
+.table-scroll{overflow-x:auto}
+
 .empty{
-  text-align:center;
-  padding:25px;
-  color:#777;
+ text-align:center;
+ padding:30px;
+ color:#777
+}
+
+.success{color:#075e2d}
+.error{color:#b42318}
+
+.footer{
+ text-align:center;
+ color:#777;
+ font-size:12px;
+ margin-top:20px
 }
 
 @media(max-width:600px){
-  header h2{
-    font-size:16px;
-  }
-
-  .section{
-    padding:12px;
-  }
-
-  .cards{
-    grid-template-columns:1fr 1fr;
-  }
-
-  .card{
-    padding:15px;
-  }
+ body{padding:8px}
+ .login-box,#app{margin:10px auto;padding:15px}
+ .card{padding:16px}
 }
 </style>
 </head>
 
 <body>
 
-<!-- ================= LOGIN ================= -->
+<!-- LOGIN -->
+<div class="login-box" id="loginBox">
+ <h1>GHANTENDE MICROFINANCE</h1>
+ <div class="subtitle">Mfumo wa Usimamizi wa Mikopo</div>
 
-<div id="loginPage">
+ <form id="loginForm">
+  <label>Gmail</label>
+  <input type="email" id="email" placeholder="Ingiza Gmail yako" required>
 
-  <div class="login-box">
+  <label>Password</label>
+  <input type="password" id="password" placeholder="Ingiza password" required>
 
-    <div class="logo">GM</div>
+  <button class="login-btn" id="loginButton" type="submit">INGIA</button>
+ </form>
 
-    <h1>GHANTENDE</h1>
-    <p>MICROFINANCE</p>
-
-    <input
-      type="email"
-      id="email"
-      class="input"
-      placeholder="Email"
-      autocomplete="email"
-    >
-
-    <input
-      type="password"
-      id="password"
-      class="input"
-      placeholder="Password"
-      autocomplete="current-password"
-    >
-
-    <button class="btn" onclick="login()">
-      INGIA
-    </button>
-
-    <div id="loginMessage" class="message"></div>
-
-  </div>
-
+ <div id="message"></div>
+ <div class="footer">© 2026 GHANTENDE MICROFINANCE</div>
 </div>
 
 
-<!-- ================= APP ================= -->
+<!-- APP -->
+<div id="app" style="display:none">
 
-<div id="app">
-
-<header>
-
+ <div class="top">
   <h2>GHANTENDE MICROFINANCE</h2>
+  <button class="logout" id="logoutButton">TOKA</button>
+ </div>
 
-  <button class="logout" onclick="logout()">
-    Toka
+ <div class="welcome">
+  Karibu kwenye mfumo wa usimamizi wa mikopo.<br>
+  <b id="userEmail"></b>
+  <span id="roleText"></span>
+ </div>
+
+
+ <!-- DASHBOARD CARDS -->
+ <div class="cards">
+
+  <div class="card" onclick="openPage('customersPage','navCustomers')">
+   <h3>Wateja</h3>
+   <strong id="customerCount">0</strong>
+   <div class="muted">Fungua wateja</div>
+  </div>
+
+  <div class="card" onclick="openPage('applicationsPage','navApplications')">
+   <h3>Maombi Pending</h3>
+   <strong id="pendingCount">0</strong>
+   <div class="muted">Maombi ya mkopo</div>
+  </div>
+
+  <div class="card" onclick="openPage('loansPage','navLoans')">
+   <h3>Mikopo Active</h3>
+   <strong id="activeLoanCount">0</strong>
+   <div class="muted">Mikopo iliyo hai</div>
+  </div>
+
+  <div class="card" onclick="openPage('reportsPage','navReports')">
+   <h3>Salio la Mikopo</h3>
+   <strong id="loanBalance">TZS 0</strong>
+   <div class="muted">Ripoti</div>
+  </div>
+
+ </div>
+
+
+ <!-- NAVIGATION -->
+ <div class="nav">
+
+  <button id="navDashboard" onclick="openPage('dashboardPage','navDashboard')">
+   🏠 Dashboard
   </button>
 
-</header>
-
-
-<!-- ================= MENU ================= -->
-
-<div class="menu">
-
-  <button class="active" onclick="showSection('dashboard',this)">
-    Dashboard
+  <button id="navCustomers" onclick="openPage('customersPage','navCustomers')">
+   👥 Wateja
   </button>
 
-  <button onclick="showSection('wateja',this)">
-    Wateja
+  <button id="navApplications" onclick="openPage('applicationsPage','navApplications')">
+   📝 Maombi
   </button>
 
-  <button onclick="showSection('maombi',this)">
-    Maombi ya Mkopo
+  <button id="navLoans" onclick="openPage('loansPage','navLoans')">
+   💰 Mikopo
   </button>
 
-  <button onclick="showSection('mikopo',this)">
-    Mikopo Active
+  <button id="navRepayments" onclick="openPage('repaymentsPage','navRepayments')">
+   💵 Marejesho
   </button>
 
-  <button onclick="showSection('maafisa',this)">
-    Maafisa
+  <button id="navProducts" onclick="openPage('productsPage','navProducts')">
+   📦 Bidhaa
   </button>
 
-</div>
+  <button id="navReports" onclick="openPage('reportsPage','navReports')">
+   📊 Ripoti
+  </button>
+
+ </div>
 
 
-<!-- ================= DASHBOARD ================= -->
+ <!-- DASHBOARD -->
+ <section id="dashboardPage" class="page active">
 
-<section id="dashboard" class="section active">
+  <div class="box">
+   <h2>Dashboard</h2>
+   <p>Muhtasari wa GHANTENDE MICROFINANCE.</p>
+   <button onclick="refreshAll()">🔄 Refresh Taarifa</button>
+  </div>
 
-  <h2>Dashboard</h2>
+ </section>
 
-  <div class="cards">
+
+ <!-- WATEJA -->
+ <section id="customersPage" class="page">
+
+  <div class="page-head">
+   <h2>Wateja</h2>
+   <button onclick="showAddCustomer()">+ ONGEZA MTEJA</button>
+  </div>
+
+  <div class="box">
+   <div id="customersList">Inapakia...</div>
+  </div>
+
+ </section>
+
+
+ <!-- ONGEZA MTEJA -->
+ <section id="addCustomerPage" class="page">
+
+  <div class="page-head">
+   <h2>Ongeza Mteja</h2>
+   <button class="secondary" onclick="openPage('customersPage','navCustomers')">RUDI</button>
+  </div>
+
+  <div class="box">
+
+   <form id="customerForm">
+
+    <label>Customer Number</label>
+    <input id="customerNumber" readonly>
+
+    <label>Jina Kamili</label>
+    <input id="fullName" required placeholder="Mfano: Sabato Mwita">
+
+    <label>Simu</label>
+    <input id="phone" required placeholder="07XXXXXXXX">
+
+    <label>National ID</label>
+    <input id="nationalId" placeholder="Namba ya kitambulisho">
+
+    <label>Address</label>
+    <input id="address" placeholder="Anwani ya mteja">
+
+    <div class="form-actions">
+     <button type="submit" id="saveCustomer">HIFADHI MTEJA</button>
+     <button type="button" class="secondary" onclick="openPage('customersPage','navCustomers')">FUTA</button>
+    </div>
+
+    <div id="customerMessage"></div>
+
+   </form>
+
+  </div>
+
+ </section>
+
+
+ <!-- MAOMBI -->
+ <section id="applicationsPage" class="page">
+
+  <div class="page-head">
+   <h2>Maombi ya Mkopo</h2>
+   <button onclick="showNewApplication()">+ OMBI JIPYA</button>
+  </div>
+
+  <div class="box">
+   <div id="applicationsList">Inapakia...</div>
+  </div>
+
+ </section>
+
+
+ <!-- OMBI JIPYA -->
+ <section id="newApplicationPage" class="page">
+
+  <div class="page-head">
+   <h2>Omba Mkopo</h2>
+   <button class="secondary" onclick="openPage('applicationsPage','navApplications')">RUDI</button>
+  </div>
+
+  <div class="box">
+
+   <form id="applicationForm">
+
+    <label>Mteja</label>
+    <select id="applicationCustomer" required>
+     <option value="">Chagua mteja</option>
+    </select>
+
+    <label>Kiasi cha Mkopo (TZS)</label>
+    <input type="number" id="applicationAmount" min="1" required>
+
+    <label>Madhumuni ya Mkopo</label>
+    <textarea id="applicationPurpose" placeholder="Andika madhumuni"></textarea>
+
+    <label>Tarehe ya Maombi</label>
+    <input type="date" id="applicationDate" required>
+
+    <div class="form-actions">
+     <button type="submit" id="saveApplication">HIFADHI OMBI</button>
+     <button type="button" class="secondary" onclick="openPage('applicationsPage','navApplications')">GHAIRI</button>
+    </div>
+
+    <div id="applicationMessage"></div>
+
+   </form>
+
+  </div>
+
+ </section>
+
+
+ <!-- MIKOPO -->
+ <section id="loansPage" class="page">
+
+  <div class="page-head">
+   <h2>Mikopo</h2>
+  </div>
+
+  <div class="box">
+   <div id="loansList">
+    <div class="empty">
+     Sehemu ya Mikopo itasoma taarifa zilizopo kwenye database.
+    </div>
+   </div>
+  </div>
+
+ </section>
+
+
+ <!-- MAREJESHO -->
+ <section id="repaymentsPage" class="page">
+
+  <div class="page-head">
+   <h2>Marejesho</h2>
+  </div>
+
+  <div class="box">
+
+   <form id="repaymentForm">
+
+    <label>Loan ID</label>
+    <input id="repaymentLoanId" placeholder="Weka Loan ID">
+
+    <label>Kiasi cha Marejesho (TZS)</label>
+    <input type="number" id="repaymentAmount" min="1">
+
+    <label>Tarehe ya Marejesho</label>
+    <input type="date" id="repaymentDate">
+
+    <div class="form-actions">
+     <button type="submit">HIFADHI MAREJESHO</button>
+    </div>
+
+    <div id="repaymentMessage"></div>
+
+   </form>
+
+  </div>
+
+  <div class="box">
+   <div id="repaymentsList">
+    Inapakia...
+   </div>
+  </div>
+
+ </section>
+
+
+ <!-- BIDHAA -->
+ <section id="productsPage" class="page">
+
+  <div class="page-head">
+   <h2>Bidhaa za Mkopo</h2>
+  </div>
+
+  <div class="box">
+   <div id="productsList">
+    Inapakia...
+   </div>
+  </div>
+
+ </section>
+
+
+ <!-- RIPOTI -->
+ <section id="reportsPage" class="page">
+
+  <div class="page-head">
+   <h2>Ripoti</h2>
+  </div>
+
+  <div class="box">
+
+   <div class="grid">
 
     <div class="card">
-      <h3>Jumla ya Wateja</h3>
-      <strong id="totalCustomers">0</strong>
+     <h3>Jumla ya Wateja</h3>
+     <strong id="reportCustomers">0</strong>
     </div>
 
     <div class="card">
-      <h3>Maombi Pending</h3>
-      <strong id="pendingApplications">0</strong>
+     <h3>Maombi Pending</h3>
+     <strong id="reportPending">0</strong>
     </div>
 
     <div class="card">
-      <h3>Mikopo Active</h3>
-      <strong id="activeLoans">0</strong>
+     <h3>Mikopo Active</h3>
+     <strong id="reportActiveLoans">0</strong>
     </div>
 
     <div class="card">
-      <h3>Salio la Mikopo</h3>
-      <strong id="loanBalance">TZS 0</strong>
+     <h3>Jumla ya Maombi</h3>
+     <strong id="reportApplications">0</strong>
     </div>
 
-  </div>
-
-</section>
-
-
-<!-- ================= WATEJA ================= -->
-
-<section id="wateja" class="section">
-
-  <h2>Wateja</h2>
-
-  <div class="table-box">
-
-    <table>
-
-      <thead>
-        <tr>
-          <th>Jina</th>
-          <th>Simu</th>
-          <th>Hali</th>
-        </tr>
-      </thead>
-
-      <tbody id="customersTable">
-
-        <tr>
-          <td colspan="3" class="empty">
-            Hakuna taarifa bado
-          </td>
-        </tr>
-
-      </tbody>
-
-    </table>
+   </div>
 
   </div>
 
-</section>
+ </section>
 
-
-<!-- ================= MAOMBI ================= -->
-
-<section id="maombi" class="section">
-
-  <h2>Maombi ya Mkopo</h2>
-
-  <div class="form-box">
-
-    <label>Jina la Mteja</label>
-    <input id="loanCustomer" type="text" placeholder="Jina kamili">
-
-    <label>Namba ya Simu</label>
-    <input id="loanPhone" type="tel" placeholder="07XXXXXXXX">
-
-    <label>Kiasi cha Mkopo</label>
-    <input id="loanAmount" type="number" placeholder="Kiasi TZS">
-
-    <label>Sababu ya Mkopo</label>
-    <textarea id="loanReason" placeholder="Andika sababu ya mkopo"></textarea>
-
-    <button class="btn" onclick="submitLoan()">
-      TUMA OMBI
-    </button>
-
-    <div id="loanMessage" class="message"></div>
-
-  </div>
-
-</section>
-
-
-<!-- ================= MIKOPO ================= -->
-
-<section id="mikopo" class="section">
-
-  <h2>Mikopo Active</h2>
-
-  <div class="table-box">
-
-    <table>
-
-      <thead>
-        <tr>
-          <th>Mteja</th>
-          <th>Kiasi</th>
-          <th>Hali</th>
-        </tr>
-      </thead>
-
-      <tbody id="loansTable">
-
-        <tr>
-          <td colspan="3" class="empty">
-            Hakuna mikopo active
-          </td>
-        </tr>
-
-      </tbody>
-
-    </table>
-
-  </div>
-
-</section>
-
-
-<!-- ================= MAAFISA ================= -->
-
-<section id="maafisa" class="section">
-
-  <h2>Maafisa</h2>
-
-  <div class="table-box">
-
-    <p>
-      Akaunti hii imeingia kwenye mfumo.
-    </p>
-
-    <p id="userEmail"></p>
-
-  </div>
-
-</section>
+ <div class="footer">
+  GHANTENDE MICROFINANCE — Mfumo wa Usimamizi wa Mikopo
+ </div>
 
 </div>
 
 
 <script>
 
-/* =====================================================
+/* ================================
    SUPABASE
-===================================================== */
-
-const SUPABASE_URL =
-"https://YOUR-PROJECT.supabase.co";
-
-const SUPABASE_ANON_KEY =
-"YOUR_SUPABASE_ANON_KEY";
-
-const supabaseClient =
-supabase.createClient(
-  SUPABASE_URL,
-  SUPABASE_ANON_KEY
-);
-
-
-/* =====================================================
-   LOGIN
-===================================================== */
-
-async function login(){
-
-  const email =
-    document.getElementById("email").value.trim();
-
-  const password =
-    document.getElementById("password").value;
-
-  const message =
-    document.getElementById("loginMessage");
-
-  if(!email || !password){
-
-    message.style.color="red";
-    message.innerText =
-      "Weka email na password.";
-
-    return;
-  }
-
-  message.style.color="#555";
-  message.innerText="Inaingia...";
-
-  const {data,error} =
-    await supabaseClient.auth.signInWithPassword({
-      email:email,
-      password:password
-    });
-
-  if(error){
-
-    message.style.color="red";
-    message.innerText =
-      "Login imegoma: "+error.message;
-
-    return;
-  }
-
-  message.style.color="green";
-  message.innerText="Umefanikiwa kuingia.";
-
-  showApp(data.user);
-
-}
-
-
-/* =====================================================
-   CHECK LOGIN
-===================================================== */
-
-async function checkUser(){
-
-  const {data} =
-    await supabaseClient.auth.getSession();
-
-  if(data.session){
-
-    showApp(data.session.user);
-
-  }else{
-
-    showLogin();
-
-  }
-
-}
-
-
-/* =====================================================
-   SHOW APP
-===================================================== */
-
-function showApp(user){
-
-  document.getElementById("loginPage")
-    .style.display="none";
-
-  document.getElementById("app")
-    .style.display="block";
-
-  if(user){
-
-    document.getElementById("userEmail")
-      .innerText =
-      "Email: "+user.email;
-
-  }
-
-  loadDashboard();
-
-}
-
-
-/* =====================================================
-   SHOW LOGIN
-===================================================== */
-
-function showLogin(){
-
-  document.getElementById("loginPage")
-    .style.display="flex";
-
-  document.getElementById("app")
-    .style.display="none";
-
-}
-
-
-/* =====================================================
-   LOGOUT
-===================================================== */
-
-async function logout(){
-
-  await supabaseClient.auth.signOut();
-
-  showLogin();
-
-}
-
-
-/* =====================================================
-   MENUS ZIMETENGANISHWA
-===================================================== */
-
-function showSection(sectionId,button){
-
-  document.querySelectorAll(".section")
-    .forEach(section=>{
-      section.classList.remove("active");
-    });
-
-  document.getElementById(sectionId)
-    .classList.add("active");
-
-  document.querySelectorAll(".menu button")
-    .forEach(btn=>{
-      btn.classList.remove("active");
-    });
-
-  button.classList.add("active");
-
-}
-
-
-/* =====================================================
-   DASHBOARD
-===================================================== */
-
-async function loadDashboard(){
-
-  /*
-   * Majina ya tables yanayotarajiwa:
-   * customers
-   * loan_applications
-   * loans
-   */
-
-  try{
-
-    const customers =
-      await supabaseClient
-      .from("customers")
-      .select("*");
-
-    if(!customers.error){
-
-      document.getElementById("totalCustomers")
-        .innerText =
-        customers.data.length;
-
-      renderCustomers(customers.data);
-
-    }
-
-
-    const applications =
-      await supabaseClient
-      .from("loan_applications")
-      .select("*")
-      .eq("status","pending");
-
-    if(!applications.error){
-
-      document.getElementById("pendingApplications")
-        .innerText =
-        applications.data.length;
-
-    }
-
-
-    const loans =
-      await supabaseClient
-      .from("loans")
-      .select("*")
-      .eq("status","active");
-
-    if(!loans.error){
-
-      document.getElementById("activeLoans")
-        .innerText =
-        loans.data.length;
-
-      renderLoans(loans.data);
-
-      let total=0;
-
-      loans.data.forEach(loan=>{
-
-        total += Number(
-          loan.balance ||
-          loan.remaining_balance ||
-          loan.amount ||
-          0
-        );
-
-      });
-
-      document.getElementById("loanBalance")
-        .innerText =
-        "TZS "+total.toLocaleString();
-
-    }
-
-  }catch(error){
-
-    console.log(error);
-
-  }
-
-}
-
-
-/* =====================================================
-   CUSTOMERS TABLE
-===================================================== */
-
-function renderCustomers(data){
-
-  const table =
-    document.getElementById("customersTable");
-
-  if(!data || data.length===0){
-
-    table.innerHTML=`
-      <tr>
-        <td colspan="3" class="empty">
-          Hakuna wateja
-        </td>
-      </tr>
-    `;
-
-    return;
-  }
-
-  table.innerHTML="";
-
-  data.forEach(customer=>{
-
-    const name =
-      customer.name ||
-      customer.full_name ||
-      customer.jina ||
-      "-";
-
-    const phone =
-      customer.phone ||
-      customer.phone_number ||
-      customer.simuy ||
-      "-";
-
-    const status =
-      customer.status ||
-      "active";
-
-    table.innerHTML += `
-      <tr>
-        <td>${escapeHtml(name)}</td>
-        <td>${escapeHtml(phone)}</td>
-        <td>${escapeHtml(status)}</td>
-      </tr>
-    `;
-
-  });
-
-}
-
-
-/* =====================================================
-   LOANS TABLE
-===================================================== */
-
-function renderLoans(data){
-
-  const table =
-    document.getElementById("loansTable");
-
-  if(!data || data.length===0){
-
-    table.innerHTML=`
-      <tr>
-        <td colspan="3" class="empty">
-          Hakuna mikopo active
-        </td>
-      </tr>
-    `;
-
-    return;
-  }
-
-  table.innerHTML="";
-
-  data.forEach(loan=>{
-
-    const customer =
-      loan.customer_name ||
-      loan.name ||
-      "-";
-
-    const amount =
-      Number(
-        loan.amount ||
-        loan.loan_amount ||
-        0
-      );
-
-    const status =
-      loan.status ||
-      "active";
-
-    table.innerHTML += `
-      <tr>
-        <td>${escapeHtml(customer)}</td>
-        <td>TZS ${amount.toLocaleString()}</td>
-        <td>${escapeHtml(status)}</td>
-      </tr>
-    `;
-
-  });
-
-}
-
-
-/* =====================================================
-   SUBMIT LOAN
-===================================================== */
-
-async function submitLoan(){
-
-  const name =
-    document.getElementById("loanCustomer")
-      .value.trim();
-
-  const phone =
-    document.getElementById("loanPhone")
-      .value.trim();
-
-  const amount =
-    document.getElementById("loanAmount")
-      .value;
-
-  const reason =
-    document.getElementById("loanReason")
-      .value.trim();
-
-  const message =
-    document.getElementById("loanMessage");
-
-  if(!name || !phone || !amount){
-
-    message.style.color="red";
-
-    message.innerText =
-      "Jaza jina, simu na kiasi cha mkopo.";
-
-    return;
-  }
-
-  message.style.color="#555";
-  message.innerText="Inatuma...";
-
-  const {error} =
-    await supabaseClient
-    .from("loan_applications")
-    .insert([{
-
-      customer_name:name,
-
-      phone:phone,
-
-      amount:Number(amount),
-
-      reason:reason,
-
-      status:"pending"
-
-    }]);
-
-  if(error){
-
-    message.style.color="red";
-
-    message.innerText =
-      "Imeshindikana: "+error.message;
-
-    return;
-  }
-
-  message.style.color="green";
-
-  message.innerText =
-    "Ombi la mkopo limetumwa kikamilifu.";
-
-  document.getElementById("loanCustomer")
-    .value="";
-
-  document.getElementById("loanPhone")
-    .value="";
-
-  document.getElementById("loanAmount")
-    .value="";
-
-  document.getElementById("loanReason")
-    .value="";
-
-  loadDashboard();
-
-}
-
-
-/* =====================================================
-   SECURITY - HTML ESCAPE
-===================================================== */
-
-function escapeHtml(value){
-
-  return String(value)
-    .replaceAll("&","&amp;")
-    .replaceAll("<","&lt;")
-    .replaceAll(">","&gt;")
-    .replaceAll('"',"&quot;")
-    .replaceAll("'","&#039;");
-
-}
-
-
-/* =====================================================
-   AUTH STATE
-===================================================== */
-
-supabaseClient.auth.onAuthStateChange(
-  (event,session)=>{
-
-    if(session){
-
-      showApp(session.user);
-
-    }else{
-
-      showLogin();
-
-    }
-
-  }
-);
-
-
-/* =====================================================
-   START
-===================================================== */
-
-checkUser();
-
-</script>
-
-</body>
-</html>
-
-
-<!-- ================= CARDS ================= -->
-
-<div class="cards">
-
-<!-- WATEJA -->
-
-<div
-class="card"
-id="watejaCard"
->
-
-<h3>Wateja</h3>
-
-<strong id="customerCount">0</strong>
-
-<div class="muted">
-Bonyeza kufungua
-</div>
-
-</div>
-
-
-<!-- MAOMBI PENDING -->
-
-<div
-class="card"
-id="pendingCard"
->
-
-<h3>Maombi Pending</h3>
-
-<strong id="pendingCount">0</strong>
-
-<div class="muted">
-Maombi yanayosubiri
-</div>
-
-</div>
-
-
-<!-- MIKOPO ACTIVE -->
-
-<div
-class="card"
-id="activeLoanCard"
->
-
-<h3>Mikopo Active</h3>
-
-<strong id="activeLoanCount">0</strong>
-
-<div class="muted">
-Mikopo inayoendelea
-</div>
-
-</div>
-
-
-<!-- SALIO -->
-
-<div
-class="card"
-id="balanceCard"
->
-
-<h3>Salio la Mikopo</h3>
-
-<strong id="loanBalance">
-TZS 0
-</strong>
-
-<div class="muted">
-Jumla ya salio
-</div>
-
-</div>
-
-</div>
-
-
-<!-- ================= WATEJA PAGE ================= -->
-
-<div
-id="customersPage"
-class="page"
->
-
-<div class="page-header">
-
-<h2>Wateja</h2>
-
-<button id="addCustomerButton">
-+ ONGEZA MTEJA
-</button>
-
-</div>
-
-<div class="table-box">
-
-<div id="customersList">
-Inapakia...
-</div>
-
-</div>
-
-<button
-class="back-home"
-id="customersHomeButton"
->
-RUDI DASHBOARD
-</button>
-
-</div>
-
-
-<!-- ================= ONGEZA MTEJA ================= -->
-
-<div
-id="addCustomerPage"
-class="page"
->
-
-<div class="page-header">
-
-<h2>Ongeza Mteja</h2>
-
-<button
-class="secondary"
-id="backButton"
->
-RUDI
-</button>
-
-</div>
-
-
-<div class="form-box">
-
-<form id="customerForm">
-
-<label>
-Customer Number
-</label>
-
-<input
-id="customerNumber"
-readonly
->
-
-
-<label>
-Jina Kamili
-</label>
-
-<input
-id="fullName"
-required
-placeholder="Mfano: Sabato Mwita"
->
-
-
-<label>
-Simu
-</label>
-
-<input
-id="phone"
-required
-placeholder="07XXXXXXXX"
->
-
-
-<label>
-National ID
-</label>
-
-<input
-id="nationalId"
-placeholder="Namba ya kitambulisho"
->
-
-
-<label>
-Address
-</label>
-
-<input
-id="address"
-placeholder="Anwani ya mteja"
->
-
-
-<button
-type="submit"
-id="saveCustomer"
->
-HIFADHI MTEJA
-</button>
-
-<div
-class="status"
-id="customerMessage"
-></div>
-
-</form>
-
-</div>
-
-</div>
-
-
-<!-- ================= MAOMBI PAGE ================= -->
-
-<div
-id="applicationsPage"
-class="page"
->
-
-<div class="page-header">
-
-<h2>
-Maombi ya Mkopo
-</h2>
-
-<button
-class="secondary"
-id="applicationsHomeButton"
->
-RUDI DASHBOARD
-</button>
-
-</div>
-
-
-<div class="table-box">
-
-<div id="applicationsList">
-Inapakia maombi...
-</div>
-
-</div>
-
-</div>
-
-
-<!-- ================= ACTIVE LOANS PAGE ================= -->
-
-<div
-id="activeLoansPage"
-class="page"
->
-
-<div class="page-header">
-
-<h2>
-Mikopo Active
-</h2>
-
-<button
-class="secondary"
-id="activeLoansHomeButton"
->
-RUDI DASHBOARD
-</button>
-
-</div>
-
-
-<div class="table-box">
-
-<div id="activeLoansList">
-Inapakia mikopo...
-</div>
-
-</div>
-
-</div>
-
-
-<!-- ================= BALANCE PAGE ================= -->
-
-<div
-id="balancePage"
-class="page"
->
-
-<div class="page-header">
-
-<h2>
-Salio la Mikopo
-</h2>
-
-<button
-class="secondary"
-id="balanceHomeButton"
->
-RUDI DASHBOARD
-</button>
-
-</div>
-
-
-<div class="table-box">
-
-<h3>
-Jumla ya Salio
-</h3>
-
-<strong
-id="balanceTotal"
-style="font-size:30px;color:#075e2d"
->
-TZS 0
-</strong>
-
-</div>
-
-</div>
-
-</div>
-
-
-<script>
-
-/* =========================
-   SUPABASE
-========================= */
+================================ */
 
 const SUPABASE_URL =
 'https://kvcbsebklyuupwixmagd.supabase.co';
@@ -1599,858 +637,1417 @@ const SUPABASE_KEY =
 
 const supabaseClient =
 window.supabase.createClient(
-SUPABASE_URL,
-SUPABASE_KEY
+ SUPABASE_URL,
+ SUPABASE_KEY
 );
 
 
-/* =========================
-   SHORT ID FUNCTION
-========================= */
+/* ================================
+   HELPERS
+================================ */
 
-const $ = id =>
-document.getElementById(id);
+const $ = id => document.getElementById(id);
+
+function esc(value){
+ return String(value ?? '').replace(
+  /[&<>'"]/g,
+  m => ({
+   '&':'&amp;',
+   '<':'&lt;',
+   '>':'&gt;',
+   "'":'&#39;',
+   '"':'&quot;'
+  }[m])
+ );
+}
+
+function money(value){
+ return Number(value || 0).toLocaleString('en-US');
+}
+
+function today(){
+ return new Date().toISOString().split('T')[0];
+}
+
+function timeoutPromise(promise,ms=15000){
+ return Promise.race([
+  promise,
+  new Promise((_,reject)=>
+   setTimeout(
+    ()=>reject(
+     new Error(
+      'Muda wa kuwasiliana na Supabase umeisha. Hakikisha internet ipo.'
+     )
+    ),
+    ms
+   )
+  )
+ ]);
+}
 
 
-/* =========================
-   ESCAPE HTML
-========================= */
+/* ================================
+   NAVIGATION
+================================ */
 
-function esc(v){
+function openPage(pageId,navId){
 
-return String(v ?? '')
-.replace(
-/[&<>'"]/g,
-m => ({
-'&':'&amp;',
-'<':'&lt;',
-'>':'&gt;',
-"'":'&#39;',
-'"':'&quot;'
-}[m])
-);
+ document.querySelectorAll('.page')
+ .forEach(p=>p.classList.remove('active'));
+
+ const page=$(pageId);
+
+ if(page){
+  page.classList.add('active');
+ }
+
+ document.querySelectorAll('.nav button')
+ .forEach(b=>b.classList.remove('active'));
+
+ if(navId && $(navId)){
+  $(navId).classList.add('active');
+ }
+
+ if(pageId==='customersPage'){
+  loadCustomers();
+ }
+
+ if(pageId==='applicationsPage'){
+  loadApplications();
+ }
+
+ if(pageId==='loansPage'){
+  loadLoans();
+ }
+
+ if(pageId==='repaymentsPage'){
+  loadRepayments();
+ }
+
+ if(pageId==='productsPage'){
+  loadProducts();
+ }
+
+ if(pageId==='reportsPage'){
+  loadReports();
+ }
+}
+
+
+/* ================================
+   USER / ROLE
+================================ */
+
+let currentUser=null;
+let currentRole='Officer';
+
+async function loadUserRole(){
+
+ try{
+
+  if(!currentUser) return;
+
+  const result=await timeoutPromise(
+   supabaseClient
+   .from('officers')
+   .select('id,full_name,phone,email,role,user_id')
+   .or(
+    `user_id.eq.${currentUser.id},email.eq.${currentUser.email}`
+   )
+   .limit(1)
+  );
+
+  if(result.error) throw result.error;
+
+  if(result.data && result.data.length){
+
+   currentRole=result.data[0].role || 'Officer';
+
+  }else{
+
+   currentRole='Officer';
+
+  }
+
+  $('roleText').textContent=
+   ' — Role: '+currentRole;
+
+ }catch(e){
+
+  console.error('ROLE ERROR',e);
+
+  currentRole='Officer';
+
+  $('roleText').textContent=
+   ' — Role: Officer';
+
+ }
+
+}
+
+function isAdmin(){
+ return String(currentRole).toLowerCase()==='admin';
+}
+
+
+/* ================================
+   LOGIN
+================================ */
+
+$('loginForm').addEventListener(
+ 'submit',
+ async function(e){
+
+  e.preventDefault();
+
+  const button=$('loginButton');
+  const message=$('message');
+
+  button.disabled=true;
+  button.textContent='Inaingia...';
+
+  message.style.color='';
+  message.textContent='Tafadhali subiri...';
+
+  try{
+
+   const email=$('email').value.trim();
+   const password=$('password').value;
+
+   const result=await timeoutPromise(
+    supabaseClient.auth.signInWithPassword({
+     email,
+     password
+    }),
+    15000
+   );
+
+   if(result.error) throw result.error;
+
+   if(!result.data || !result.data.session){
+    throw new Error(
+     'Session haijapatikana.'
+    );
+   }
+
+   currentUser=result.data.user;
+
+   message.style.color='#075e2d';
+   message.textContent='Umefanikiwa kuingia!';
+
+   await showApp();
+
+  }catch(error){
+
+   console.error('LOGIN ERROR:',error);
+
+   message.style.color='#b42318';
+   message.textContent=
+    'Imeshindikana kuingia: '+
+    (error.message || 'Kuna tatizo');
+
+   button.disabled=false;
+   button.textContent='INGIA';
+
+  }
+
+ });
+
+
+async function showApp(){
+
+ $('loginBox').style.display='none';
+ $('app').style.display='block';
+
+ $('userEmail').textContent=
+  currentUser?.email || '';
+
+ await loadUserRole();
+
+ await refreshAll();
+
+ openPage(
+  'dashboardPage',
+  'navDashboard'
+ );
 
 }
 
 
-/* =========================
-   PAGE NAVIGATION
-========================= */
+/* ================================
+   LOGOUT
+================================ */
 
-function showPage(pageId){
+$('logoutButton').onclick=async()=>{
 
-const pages =
-document.querySelectorAll('.page');
+ await supabaseClient.auth.signOut();
 
-pages.forEach(page => {
+ location.reload();
 
-page.classList.remove('active');
-
-});
-
-const page =
-$(pageId);
-
-if(page){
-
-page.classList.add('active');
-
-}
-
-}
+};
 
 
-/* =========================
-   DASHBOARD HOME
-========================= */
+/* ================================
+   DASHBOARD
+================================ */
 
-function showHome(){
+async function refreshAll(){
 
-document
-.querySelectorAll('.page')
-.forEach(page => {
-
-page.classList.remove('active');
-
-});
+ await Promise.all([
+  loadCustomerCount(),
+  loadLoanStats(),
+  loadActiveLoansCount()
+ ]);
 
 }
 
 
-/* =========================
-   LOAD CUSTOMERS
-========================= */
+/* ================================
+   CUSTOMERS
+================================ */
+
+async function loadCustomerCount(){
+
+ try{
+
+  const result=await timeoutPromise(
+   supabaseClient
+   .from('customers')
+   .select('id',{count:'exact',head:true})
+  );
+
+  if(result.error) throw result.error;
+
+  $('customerCount').textContent=
+   result.count || 0;
+
+ }catch(e){
+
+  console.error(e);
+  $('customerCount').textContent='0';
+
+ }
+
+}
+
 
 async function loadCustomers(){
 
-const box =
-$('customersList');
+ const box=$('customersList');
 
-box.textContent =
-'Inapakia...';
+ box.textContent='Inapakia...';
 
+ try{
 
-const {data,error} =
-await supabaseClient
+  const result=await timeoutPromise(
+   supabaseClient
+   .from('customers')
+   .select(
+    'id,customer_number,full_name,phone,national_id,address'
+   )
+   .order('id',{ascending:false})
+  );
 
-.from('customers')
+  if(result.error) throw result.error;
 
-.select(
-'id,customer_number,full_name,phone,national_id,address'
-)
+  const data=result.data || [];
 
-.order(
-'id',
-{
-ascending:false
-}
-);
+  $('customerCount').textContent=data.length;
 
+  if(!data.length){
 
-if(error){
+   box.innerHTML=
+    '<div class="empty">'+
+    'Hakuna mteja bado.'+
+    '</div>';
 
-box.innerHTML =
-'<span class="danger">' +
-'Imeshindwa kusoma Wateja: ' +
-esc(error.message) +
-'</span>';
+   return;
 
-return;
+  }
 
-}
+  box.innerHTML=data.map(
+   (c,i)=>`
 
+    <div class="item">
 
-$('customerCount').textContent =
-data?.length || 0;
+     <div class="item-title">
+      ${i+1}. ${esc(c.full_name)}
+     </div>
 
+     <div>
+      Customer No:
+      <b>${esc(c.customer_number || '-')}</b>
+     </div>
 
-if(!data?.length){
+     <div>
+      Simu: ${esc(c.phone || '-')}
+     </div>
 
-box.innerHTML =
-'<div class="empty">' +
-'Hakuna mteja bado.<br>' +
-'Bonyeza + ONGEZA MTEJA.' +
-'</div>';
+     <div>
+      National ID:
+      ${esc(c.national_id || '-')}
+     </div>
 
-return;
+     <div>
+      Address:
+      ${esc(c.address || '-')}
+     </div>
 
-}
+     ${
+      isAdmin()
+      ? `
+       <div class="actions">
+        <button onclick="editCustomer('${c.id}')">
+         HARIRI
+        </button>
 
+        <button class="danger"
+         onclick="deleteCustomer('${c.id}')">
+         FUTA
+        </button>
+       </div>
+      `
+      : ''
+     }
 
-box.innerHTML =
-data.map((c,i) =>
+    </div>
 
-'<div class="customer">' +
+   `
+  ).join('');
 
-'<b>' +
-(i+1) +
-'. ' +
-esc(c.full_name) +
-'</b><br>' +
+ }catch(e){
 
-'Customer No: ' +
-esc(c.customer_number || '-') +
-'<br>' +
+  box.innerHTML=
+   '<div class="error">'+
+   'Imeshindwa kusoma Wateja: '+
+   esc(e.message)+
+   '</div>';
 
-'Simu: ' +
-esc(c.phone || '-') +
-'<br>' +
-
-'National ID: ' +
-esc(c.national_id || '-') +
-'<br>' +
-
-'Address: ' +
-esc(c.address || '-') +
-
-'</div>'
-
-).join('');
-
-}
-
-
-/* =========================
-   LOAD PENDING
-========================= */
-
-async function loadPendingApplications(){
-
-const {count,error} =
-await supabaseClient
-
-.from('loan_applications')
-
-.select(
-'*',
-{
-count:'exact',
-head:true
-}
-)
-
-.eq(
-'status',
-'Pending'
-);
-
-
-if(error){
-
-console.error(
-'Pending applications error:',
-error
-);
-
-$('pendingCount').textContent =
-'0';
-
-return;
+ }
 
 }
 
 
-$('pendingCount').textContent =
-count || 0;
+function showAddCustomer(){
+
+ $('customerForm').reset();
+
+ $('customerNumber').value=
+  'CUS-'+Date.now().toString().slice(-8);
+
+ $('customerMessage').textContent='';
+
+ openPage(
+  'addCustomerPage',
+  null
+ );
+
+ $('fullName').focus();
 
 }
 
 
-/* =========================
-   SHOW PENDING APPLICATIONS
-========================= */
+$('customerForm').addEventListener(
+ 'submit',
+ async function(e){
+
+  e.preventDefault();
+
+  const button=$('saveCustomer');
+  const msg=$('customerMessage');
+
+  button.disabled=true;
+  button.textContent='Inahifadhi...';
+
+  const payload={
+   customer_number:$('customerNumber').value.trim(),
+   full_name:$('fullName').value.trim(),
+   phone:$('phone').value.trim(),
+   national_id:$('nationalId').value.trim() || null,
+   address:$('address').value.trim() || null
+  };
+
+  try{
+
+   const result=await timeoutPromise(
+    supabaseClient
+    .from('customers')
+    .insert([payload]),
+    15000
+   );
+
+   if(result.error) throw result.error;
+
+   msg.className='success';
+   msg.textContent=
+    'Mteja amehifadhiwa kikamilifu!';
+
+   await loadCustomers();
+   await loadCustomerCount();
+
+   setTimeout(()=>{
+    openPage(
+     'customersPage',
+     'navCustomers'
+    );
+   },700);
+
+  }catch(error){
+
+   msg.className='error';
+   msg.textContent=
+    'Imeshindikana kuhifadhi: '+
+    error.message;
+
+  }finally{
+
+   button.disabled=false;
+   button.textContent='HIFADHI MTEJA';
+
+  }
+
+});
+
+
+async function editCustomer(id){
+
+ if(!isAdmin()){
+  alert('Ni Admin pekee anayeruhusiwa kuhariri.');
+  return;
+ }
+
+ const name=prompt(
+  'Ingiza jina jipya la mteja:'
+ );
+
+ if(!name) return;
+
+ const phone=prompt(
+  'Ingiza simu mpya:'
+ );
+
+ try{
+
+  const result=await timeoutPromise(
+   supabaseClient
+   .from('customers')
+   .update({
+    full_name:name.trim(),
+    phone:(phone || '').trim()
+   })
+   .eq('id',id),
+   15000
+  );
+
+  if(result.error) throw result.error;
+
+  alert('Mteja amehaririwa.');
+
+  loadCustomers();
+
+ }catch(e){
+
+  alert('Imeshindikana: '+e.message);
+
+ }
+
+}
+
+
+async function deleteCustomer(id){
+
+ if(!isAdmin()){
+  alert('Ni Admin pekee anayeruhusiwa kufuta.');
+  return;
+ }
+
+ if(!confirm(
+  'Una uhakika unataka kumfuta mteja huyu?'
+ )) return;
+
+ try{
+
+  const result=await timeoutPromise(
+   supabaseClient
+   .from('customers')
+   .delete()
+   .eq('id',id),
+   15000
+  );
+
+  if(result.error) throw result.error;
+
+  alert('Mteja amefutwa.');
+
+  loadCustomers();
+  loadCustomerCount();
+
+ }catch(e){
+
+  alert(
+   'Imeshindikana kufuta mteja: '+
+   e.message
+  );
+
+ }
+
+}
+
+
+/* ================================
+   LOAN APPLICATIONS
+================================ */
+
+async function loadLoanStats(){
+
+ try{
+
+  const result=await timeoutPromise(
+   supabaseClient
+   .from('loan_applications')
+   .select('status')
+  );
+
+  if(result.error) throw result.error;
+
+  const rows=result.data || [];
+
+  const pending=rows.filter(
+   r =>
+   String(r.status || '')
+   .trim()
+   .toLowerCase()==='pending'
+  ).length;
+
+  $('pendingCount').textContent=pending;
+
+  $('reportPending').textContent=pending;
+  $('reportApplications').textContent=rows.length;
+
+ }catch(e){
+
+  console.error('LOAN STATS ERROR',e);
+
+  $('pendingCount').textContent='0';
+  $('reportPending').textContent='0';
+  $('reportApplications').textContent='0';
+
+ }
+
+}
+
 
 async function loadApplications(){
 
-const box =
-$('applicationsList');
+ const box=$('applicationsList');
 
-box.textContent =
-'Inapakia maombi...';
+ box.textContent='Inapakia...';
 
+ try{
 
-const {data,error} =
-await supabaseClient
+  const result=await timeoutPromise(
+   supabaseClient
+   .from('loan_applications')
+   .select(
+    'id,customer_id,officer_id,amount,purpose,application_date,status'
+   )
+   .order('id',{ascending:false}),
+   15000
+  );
 
-.from('loan_applications')
+  if(result.error) throw result.error;
 
-.select('*')
+  const rows=result.data || [];
 
-.eq(
-'status',
-'Pending'
-)
+  if(!rows.length){
 
-.order(
-'id',
-{
-ascending:false
-}
-);
+   box.innerHTML=
+    '<div class="empty">'+
+    'Hakuna maombi ya mkopo.'+
+    '</div>';
 
+   return;
 
-if(error){
+  }
 
-box.innerHTML =
-'<span class="danger">' +
-'Imeshindwa kusoma maombi: ' +
-esc(error.message) +
-'</span>';
+  const customerIds=[
+   ...new Set(
+    rows
+    .map(r=>r.customer_id)
+    .filter(Boolean)
+   )
+  ];
 
-return;
+  let customers=[];
 
-}
+  if(customerIds.length){
 
+   const cr=await supabaseClient
+    .from('customers')
+    .select('id,full_name,customer_number')
+    .in('id',customerIds);
 
-if(!data?.length){
+   if(!cr.error){
+    customers=cr.data || [];
+   }
 
-box.innerHTML =
-'<div class="empty">' +
-'Hakuna maombi ya mkopo Pending.' +
-'</div>';
+  }
 
-return;
+  const customerMap={};
 
-}
+  customers.forEach(c=>{
+   customerMap[c.id]=c;
+  });
 
+  box.innerHTML=rows.map(
+   (r,i)=>{
 
-box.innerHTML =
-data.map((a,i) => {
+    const customer=
+     customerMap[r.customer_id];
 
-return (
+    const status=
+     String(r.status || 'pending')
+     .toLowerCase();
 
-'<div class="application">' +
+    return `
 
-'<b>Ombi #' +
-(i+1) +
-'</b><br>' +
+     <div class="item">
 
-'Jina: ' +
-esc(
-a.full_name ||
-a.customer_name ||
-'-'
-) +
+      <div class="item-title">
+       ${i+1}. ${esc(
+        customer?.full_name ||
+        'Mteja #'+r.customer_id
+       )}
+      </div>
 
-'<br>' +
+      <div>
+       Kiasi:
+       <b>TZS ${money(r.amount)}</b>
+      </div>
 
-'Kiasi: TZS ' +
-esc(
-a.amount ||
-a.loan_amount ||
-'0'
-) +
+      <div>
+       Madhumuni:
+       ${esc(r.purpose || '-')}
+      </div>
 
-'<br>' +
+      <div>
+       Tarehe:
+       ${esc(r.application_date || '-')}
+      </div>
 
-'Hali: ' +
-esc(a.status || 'Pending') +
+      <div style="margin-top:7px">
+       Hali:
+       <span class="badge ${status}">
+        ${esc(status.toUpperCase())}
+       </span>
+      </div>
 
-'</div>'
+      ${
+       status==='pending'
+       ? `
+        <div class="actions">
 
-);
+         <button
+          onclick="changeApplicationStatus('${r.id}','approved')">
+          ✓ APPROVE
+         </button>
 
-}).join('');
+         <button class="danger"
+          onclick="changeApplicationStatus('${r.id}','rejected')">
+          ✕ REJECT
+         </button>
 
-}
+        </div>
+       `
+       : ''
+      }
 
+      ${
+       isAdmin()
+       ? `
+        <div class="actions">
+         <button class="danger"
+          onclick="deleteApplication('${r.id}')">
+          FUTA
+         </button>
+        </div>
+       `
+       : ''
+      }
 
-/* =========================
-   LOAD ACTIVE LOANS
-========================= */
+     </div>
+    `;
 
-async function loadActiveLoans(){
+   }
+  ).join('');
 
-const {count,error} =
-await supabaseClient
+ }catch(e){
 
-.from('loans')
+  box.innerHTML=
+   '<div class="error">'+
+   'Imeshindwa kusoma maombi: '+
+   esc(e.message)+
+   '</div>';
 
-.select(
-'*',
-{
-count:'exact',
-head:true
-}
-)
-
-.eq(
-'status',
-'Active'
-);
-
-
-if(error){
-
-console.error(
-'Active loans error:',
-error
-);
-
-$('activeLoanCount').textContent =
-'0';
-
-return;
-
-}
-
-
-$('activeLoanCount').textContent =
-count || 0;
-
-}
-
-
-/* =========================
-   ACTIVE LOANS PAGE
-========================= */
-
-async function loadActiveLoansPage(){
-
-const box =
-$('activeLoansList');
-
-box.textContent =
-'Inapakia mikopo...';
-
-
-const {data,error} =
-await supabaseClient
-
-.from('loans')
-
-.select('*')
-
-.eq(
-'status',
-'Active'
-)
-
-.order(
-'id',
-{
-ascending:false
-}
-);
-
-
-if(error){
-
-box.innerHTML =
-'<span class="danger">' +
-'Imeshindwa kusoma mikopo: ' +
-esc(error.message) +
-'</span>';
-
-return;
+ }
 
 }
 
 
-if(!data?.length){
+async function showNewApplication(){
 
-box.innerHTML =
-'<div class="empty">' +
-'Hakuna mikopo Active.' +
-'</div>';
+ await loadCustomerOptions();
 
-return;
+ $('applicationAmount').value='';
+ $('applicationPurpose').value='';
+ $('applicationDate').value=today();
 
-}
-
-
-box.innerHTML =
-data.map((loan,i) =>
-
-'<div class="application">' +
-
-'<b>Mkopo #' +
-(i+1) +
-'</b><br>' +
-
-'Mteja: ' +
-esc(
-loan.full_name ||
-loan.customer_name ||
-'-'
-) +
-
-'<br>' +
-
-'Kiasi: TZS ' +
-esc(
-loan.amount ||
-loan.loan_amount ||
-'0'
-) +
-
-'<br>' +
-
-'Hali: ' +
-esc(
-loan.status ||
-'Active'
-) +
-
-'</div>'
-
-).join('');
+ openPage(
+  'newApplicationPage',
+  null
+ );
 
 }
 
 
-/* =========================
-   SHOW DASHBOARD
-========================= */
+async function loadCustomerOptions(){
 
-function showDashboard(email){
+ const select=$('applicationCustomer');
 
-$('loginBox').style.display =
-'none';
+ select.innerHTML=
+  '<option value="">Inapakia wateja...</option>';
 
-$('dashboard').style.display =
-'block';
+ try{
 
-$('userEmail').textContent =
-email || '';
+  const result=await timeoutPromise(
+   supabaseClient
+   .from('customers')
+   .select('id,customer_number,full_name')
+   .order('full_name'),
+   15000
+  );
 
-showHome();
+  if(result.error) throw result.error;
 
-loadCustomers();
+  const rows=result.data || [];
 
-loadPendingApplications();
+  select.innerHTML=
+   '<option value="">Chagua mteja</option>'+
+   rows.map(
+    c=>`
+     <option value="${c.id}">
+      ${esc(c.customer_number || '')}
+      — ${esc(c.full_name)}
+     </option>
+    `
+   ).join('');
 
-loadActiveLoans();
+ }catch(e){
+
+  select.innerHTML=
+   '<option value="">Imeshindwa kupakia</option>';
+
+ }
 
 }
 
 
-/* =========================
-   LOGIN
-========================= */
+$('applicationForm').addEventListener(
+ 'submit',
+ async function(e){
 
-$('loginForm').addEventListener(
-'submit',
-async e => {
+  e.preventDefault();
 
-e.preventDefault();
+  const button=$('saveApplication');
+  const msg=$('applicationMessage');
 
-const button =
-$('loginButton');
+  button.disabled=true;
+  button.textContent='Inahifadhi...';
 
-$('message').textContent =
-'';
+  const payload={
+   customer_id:$('applicationCustomer').value,
+   officer_id:null,
+   amount:Number($('applicationAmount').value),
+   purpose:$('applicationPurpose').value.trim() || null,
+   application_date:$('applicationDate').value,
+   status:'pending'
+  };
 
-button.disabled =
-true;
+  try{
 
-button.textContent =
-'Inaingia...';
+   if(!payload.customer_id){
+    throw new Error('Chagua mteja.');
+   }
 
+   /*
+    officer_id inaweza kuwa required kwenye database.
+    Tukipata officer anayelingana na user,
+    tutatumia ID yake.
+   */
 
-try{
+   try{
 
-const {data,error} =
-await supabaseClient.auth
-.signInWithPassword({
+    const officerResult=
+     await supabaseClient
+     .from('officers')
+     .select('id')
+     .or(
+      `user_id.eq.${currentUser.id},email.eq.${currentUser.email}`
+     )
+     .limit(1);
 
-email:
-$('email').value.trim(),
+    if(
+     !officerResult.error &&
+     officerResult.data &&
+     officerResult.data.length
+    ){
+     payload.officer_id=
+      officerResult.data[0].id;
+    }
 
-password:
-$('password').value
+   }catch(_){}
+
+   if(!payload.officer_id){
+
+    /*
+     Kama officer_id ni NOT NULL kwenye database,
+     database yenyewe itaonyesha kosa.
+    */
+
+   }
+
+   const result=await timeoutPromise(
+    supabaseClient
+    .from('loan_applications')
+    .insert([payload]),
+    15000
+   );
+
+   if(result.error) throw result.error;
+
+   msg.className='success';
+   msg.textContent=
+    'Ombi la mkopo limehifadhiwa!';
+
+   await loadLoanStats();
+
+   setTimeout(()=>{
+    openPage(
+     'applicationsPage',
+     'navApplications'
+    );
+   },700);
+
+  }catch(error){
+
+   msg.className='error';
+   msg.textContent=
+    'Imeshindikana kuhifadhi ombi: '+
+    error.message;
+
+  }finally{
+
+   button.disabled=false;
+   button.textContent='HIFADHI OMBI';
+
+  }
 
 });
 
 
-if(error)
-throw error;
+async function changeApplicationStatus(id,status){
 
+ if(!confirm(
+  'Unataka kubadilisha hali ya ombi kuwa '+
+  status.toUpperCase()+'?'
+ )) return;
 
-showDashboard(
-data.user.email
-);
+ try{
 
+  const result=await timeoutPromise(
+   supabaseClient
+   .from('loan_applications')
+   .update({status})
+   .eq('id',id),
+   15000
+  );
 
-}catch(err){
+  if(result.error) throw result.error;
 
-console.error(err);
+  alert(
+   'Ombi limebadilishwa kuwa '+
+   status.toUpperCase()
+  );
 
-$('message').style.color =
-'red';
+  await loadApplications();
+  await loadLoanStats();
 
-$('message').textContent =
-'Gmail au password si sahihi.';
+ }catch(e){
 
-button.disabled =
-false;
+  alert(
+   'Imeshindikana kubadilisha ombi: '+
+   e.message
+  );
 
-button.textContent =
-'INGIA';
+ }
 
 }
+
+
+async function deleteApplication(id){
+
+ if(!isAdmin()){
+  alert('Ni Admin pekee anayeruhusiwa kufuta.');
+  return;
+ }
+
+ if(!confirm(
+  'Una uhakika unataka kufuta ombi hili?'
+ )) return;
+
+ try{
+
+  const result=await timeoutPromise(
+   supabaseClient
+   .from('loan_applications')
+   .delete()
+   .eq('id',id),
+   15000
+  );
+
+  if(result.error) throw result.error;
+
+  alert('Ombi limefutwa.');
+
+  loadApplications();
+  loadLoanStats();
+
+ }catch(e){
+
+  alert(
+   'Imeshindikana kufuta: '+
+   e.message
+  );
+
+ }
+
+}
+
+
+/* ================================
+   ACTIVE LOANS
+================================ */
+
+async function loadActiveLoansCount(){
+
+ try{
+
+  /*
+   Tunajaribu kutumia table loans.
+   Kama bado haipo, tunarudisha 0 bila
+   kuvunja mfumo.
+  */
+
+  const result=await timeoutPromise(
+   supabaseClient
+   .from('loans')
+   .select('id,status,amount,balance'),
+   10000
+  );
+
+  if(result.error){
+
+   $('activeLoanCount').textContent='0';
+   $('reportActiveLoans').textContent='0';
+   $('loanBalance').textContent='TZS 0';
+
+   return;
+  }
+
+  const rows=result.data || [];
+
+  const active=rows.filter(
+   r =>
+   String(r.status || '')
+   .toLowerCase()==='active'
+  );
+
+  $('activeLoanCount').textContent=
+   active.length;
+
+  $('reportActiveLoans').textContent=
+   active.length;
+
+  const balance=active.reduce(
+   (sum,r)=>
+    sum+Number(
+     r.balance ??
+     r.amount ??
+     0
+    ),
+   0
+  );
+
+  $('loanBalance').textContent=
+   'TZS '+money(balance);
+
+ }catch(e){
+
+  $('activeLoanCount').textContent='0';
+  $('reportActiveLoans').textContent='0';
+  $('loanBalance').textContent='TZS 0';
+
+ }
+
+}
+
+
+async function loadLoans(){
+
+ const box=$('loansList');
+
+ box.textContent='Inapakia...';
+
+ try{
+
+  const result=await timeoutPromise(
+   supabaseClient
+   .from('loans')
+   .select('*')
+   .order('id',{ascending:false}),
+   10000
+  );
+
+  if(result.error){
+
+   box.innerHTML=
+    '<div class="empty">'+
+    'Hakuna table ya <b>loans</b> iliyounganishwa bado.'+
+    '<br><br>'+
+    'Maombi yaliyo APPROVED yanaweza baadaye kugeuzwa kuwa mikopo.'+
+    '</div>';
+
+   return;
+  }
+
+  const rows=result.data || [];
+
+  if(!rows.length){
+
+   box.innerHTML=
+    '<div class="empty">Hakuna mikopo.</div>';
+
+   return;
+  }
+
+  box.innerHTML=
+   '<div class="table-scroll">'+
+   '<table>'+
+   '<thead><tr>'+
+   '<th>ID</th>'+
+   '<th>Customer</th>'+
+   '<th>Kiasi</th>'+
+   '<th>Status</th>'+
+   '<th>Salio</th>'+
+   '</tr></thead>'+
+   '<tbody>'+
+   rows.map(
+    r=>`
+     <tr>
+      <td>${esc(r.id)}</td>
+      <td>${esc(r.customer_id || '-')}</td>
+      <td>TZS ${money(r.amount)}</td>
+      <td>${esc(r.status || '-')}</td>
+      <td>TZS ${money(r.balance || 0)}</td>
+     </tr>
+    `
+   ).join('')+
+   '</tbody></table></div>';
+
+ }catch(e){
+
+  box.innerHTML=
+   '<div class="error">'+
+   esc(e.message)+
+   '</div>';
+
+ }
+
+}
+
+
+/* ================================
+   REPAYMENTS
+================================ */
+
+async function loadRepayments(){
+
+ const box=$('repaymentsList');
+
+ try{
+
+  const result=await timeoutPromise(
+   supabaseClient
+   .from('payments')
+   .select('*')
+   .order('id',{ascending:false}),
+   10000
+  );
+
+  if(result.error){
+
+   box.innerHTML=
+    '<div class="empty">'+
+    'Hakuna taarifa za marejesho zinazopatikana.'+
+    '</div>';
+
+   return;
+  }
+
+  const rows=result.data || [];
+
+  if(!rows.length){
+
+   box.innerHTML=
+    '<div class="empty">Hakuna marejesho.</div>';
+
+   return;
+  }
+
+  box.innerHTML=rows.map(
+   r=>`
+    <div class="item">
+
+     <div class="item-title">
+      Marejesho #${esc(r.id)}
+     </div>
+
+     <div>
+      Loan ID: ${esc(r.loan_id || '-')}
+     </div>
+
+     <div>
+      Kiasi:
+      <b>TZS ${money(r.amount || r.payment_amount)}</b>
+     </div>
+
+     <div>
+      Tarehe:
+      ${esc(
+       r.payment_date ||
+       r.date ||
+       '-'
+      )}
+     </div>
+
+    </div>
+   `
+  ).join('');
+
+ }catch(e){
+
+  box.innerHTML=
+   '<div class="empty">'+
+   'Hakuna taarifa za marejesho.'+
+   '</div>';
+
+ }
+
+}
+
+
+$('repaymentForm').addEventListener(
+ 'submit',
+ async function(e){
+
+  e.preventDefault();
+
+  const msg=$('repaymentMessage');
+
+  const loan_id=
+   $('repaymentLoanId').value.trim();
+
+  const amount=
+   Number($('repaymentAmount').value);
+
+  const payment_date=
+   $('repaymentDate').value || today();
+
+  if(!loan_id || !amount){
+
+   msg.className='error';
+   msg.textContent=
+    'Weka Loan ID na kiasi cha marejesho.';
+
+   return;
+
+  }
+
+  try{
+
+   const result=await timeoutPromise(
+    supabaseClient
+    .from('payments')
+    .insert([{
+     loan_id,
+     amount,
+     payment_date
+    }]),
+    15000
+   );
+
+   if(result.error) throw result.error;
+
+   msg.className='success';
+   msg.textContent=
+    'Marejesho yamehifadhiwa!';
+
+   $('repaymentForm').reset();
+
+   await loadRepayments();
+
+  }catch(e){
+
+   msg.className='error';
+   msg.textContent=
+    'Imeshindikana kuhifadhi marejesho: '+
+    e.message;
+
+  }
 
 });
 
 
-/* =========================
-   WATEJA CARD
-========================= */
+/* ================================
+   PRODUCTS
+================================ */
 
-$('watejaCard').onclick =
-() => {
+async function loadProducts(){
 
-showPage(
-'customersPage'
-);
+ const box=$('productsList');
 
-loadCustomers();
+ try{
 
-};
+  const result=await timeoutPromise(
+   supabaseClient
+   .from('loan_products')
+   .select('*')
+   .order('id',{ascending:false}),
+   10000
+  );
 
+  if(result.error){
 
-/* =========================
-   PENDING CARD
-========================= */
+   box.innerHTML=
+    '<div class="empty">'+
+    'Hakuna taarifa za bidhaa za mkopo zinazopatikana bado.'+
+    '</div>';
 
-$('pendingCard').onclick =
-() => {
+   return;
+  }
 
-showPage(
-'applicationsPage'
-);
+  const rows=result.data || [];
 
-loadApplications();
+  if(!rows.length){
 
-};
+   box.innerHTML=
+    '<div class="empty">Hakuna bidhaa.</div>';
 
+   return;
+  }
 
-/* =========================
-   ACTIVE LOANS CARD
-========================= */
+  box.innerHTML=rows.map(
+   r=>`
+    <div class="item">
 
-$('activeLoanCard').onclick =
-() => {
+     <div class="item-title">
+      ${esc(
+       r.name ||
+       r.product_name ||
+       'Bidhaa'
+      )}
+     </div>
 
-showPage(
-'activeLoansPage'
-);
+     <div>
+      ${esc(
+       r.description ||
+       r.details ||
+       ''
+      )}
+     </div>
 
-loadActiveLoansPage();
+     ${
+      r.amount
+      ? `<div>Kiasi: TZS ${money(r.amount)}</div>`
+      : ''
+     }
 
-};
+    </div>
+   `
+  ).join('');
 
+ }catch(e){
 
-/* =========================
-   BALANCE CARD
-========================= */
+  box.innerHTML=
+   '<div class="empty">'+
+   'Hakuna taarifa za bidhaa.'+
+   '</div>';
 
-$('balanceCard').onclick =
-() => {
-
-showPage(
-'balancePage'
-);
-
-};
-
-
-/* =========================
-   ADD CUSTOMER
-========================= */
-
-$('addCustomerButton').onclick =
-() => {
-
-showPage(
-'addCustomerPage'
-);
-
-$('customerNumber').value =
-'CUS-' +
-Date.now()
-.toString()
-.slice(-8);
-
-$('fullName').focus();
-
-};
-
-
-/* =========================
-   BACK FROM ADD CUSTOMER
-========================= */
-
-$('backButton').onclick =
-() => {
-
-showPage(
-'customersPage'
-);
-
-loadCustomers();
-
-};
-
-
-/* =========================
-   CUSTOMER HOME
-========================= */
-
-$('customersHomeButton').onclick =
-() => {
-
-showHome();
-
-};
-
-
-/* =========================
-   APPLICATION HOME
-========================= */
-
-$('applicationsHomeButton').onclick =
-() => {
-
-showHome();
-
-};
-
-
-/* =========================
-   ACTIVE LOANS HOME
-========================= */
-
-$('activeLoansHomeButton').onclick =
-() => {
-
-showHome();
-
-};
-
-
-/* =========================
-   BALANCE HOME
-========================= */
-
-$('balanceHomeButton').onclick =
-() => {
-
-showHome();
-
-};
-
-
-/* =========================
-   SAVE CUSTOMER
-========================= */
-
-$('customerForm').addEventListener(
-'submit',
-async e => {
-
-e.preventDefault();
-
-const button =
-$('saveCustomer');
-
-const msg =
-$('customerMessage');
-
-button.disabled =
-true;
-
-button.textContent =
-'Inahifadhi...';
-
-msg.textContent =
-'';
-
-
-const payload = {
-
-customer_number:
-$('customerNumber').value.trim(),
-
-full_name:
-$('fullName').value.trim(),
-
-phone:
-$('phone').value.trim(),
-
-national_id:
-$('nationalId').value.trim() ||
-null,
-
-address:
-$('address').value.trim() ||
-null
-
-};
-
-
-const {error} =
-await supabaseClient
-
-.from('customers')
-
-.insert([
-payload
-]);
-
-
-if(error){
-
-msg.style.color =
-'red';
-
-msg.textContent =
-'Imeshindikana kuhifadhi: ' +
-error.message;
-
-button.disabled =
-false;
-
-button.textContent =
-'HIFADHI MTEJA';
-
-return;
+ }
 
 }
 
 
-msg.style.color =
-'green';
+/* ================================
+   REPORTS
+================================ */
 
-msg.textContent =
-'Mteja amehifadhiwa kikamilifu!';
+async function loadReports(){
 
-
-$('customerForm').reset();
-
-
-button.disabled =
-false;
-
-button.textContent =
-'HIFADHI MTEJA';
-
-
-await loadCustomers();
-
-
-setTimeout(() => {
-
-showPage(
-'customersPage'
-);
-
-loadCustomers();
-
-},700);
-
-});
-
-
-/* =========================
-   LOGOUT
-========================= */
-
-$('logoutButton').onclick =
-async () => {
-
-await supabaseClient
-.auth
-.signOut();
-
-location.reload();
-
-};
-
-
-/* =========================
-   CHECK SESSION
-========================= */
-
-(async() => {
-
-const {data} =
-await supabaseClient
-.auth
-.getSession();
-
-
-if(data.session){
-
-showDashboard(
-data.session.user.email
-);
+ await loadCustomerCount();
+ await loadLoanStats();
+ await loadActiveLoansCount();
 
 }
+
+
+/* ================================
+   SESSION
+================================ */
+
+(async()=>{
+
+ try{
+
+  const result=
+   await timeoutPromise(
+    supabaseClient.auth.getSession(),
+    10000
+   );
+
+  const session=
+   result.data?.session;
+
+  if(session){
+
+   currentUser=session.user;
+
+   await showApp();
+
+  }
+
+ }catch(e){
+
+  console.error(
+   'SESSION ERROR:',
+   e
+  );
+
+ }
 
 })();
 
 </script>
 
 </body>
-</html>
+    </html>
