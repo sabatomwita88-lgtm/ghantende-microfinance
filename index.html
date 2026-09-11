@@ -652,12 +652,68 @@ if(requireAdmin())await loadUsers();
 
 /* DASHBOARD */
 async function loadDashboard(){
-await loadCustomerMap();
-await loadLoanMap();
-await loadPendingApplications();
-await loadActiveLoans();
-}
+try{
 
+const customersResult=await supabaseClient
+.from("customers")
+.select("id",{count:"exact",head:true});
+
+if(customersResult.error)throw customersResult.error;
+
+const pendingResult=await supabaseClient
+.from("loan_applications")
+.select("id",{count:"exact",head:true})
+.eq("status","pending");
+
+if(pendingResult.error)throw pendingResult.error;
+
+const activeResult=await supabaseClient
+.from("loan_applications")
+.select("id",{count:"exact",head:true})
+.eq("status","approved");
+
+if(activeResult.error)throw activeResult.error;
+
+const approvedResult=await supabaseClient
+.from("loan_applications")
+.select("amount")
+.eq("status","approved");
+
+if(approvedResult.error)throw approvedResult.error;
+
+const paymentsResult=await supabaseClient
+.from("payments")
+.select("amount");
+
+if(paymentsResult.error)throw paymentsResult.error;
+
+const totalApproved=(approvedResult.data||[])
+.reduce((sum,row)=>sum+Number(row.amount||0),0);
+
+const totalPaid=(paymentsResult.data||[])
+.reduce((sum,row)=>sum+Number(row.amount||0),0);
+
+const balance=Math.max(0,totalApproved-totalPaid);
+
+$("customerCount").textContent=customersResult.count??0;
+$("pendingCount").textContent=pendingResult.count??0;
+$("activeLoanCount").textContent=activeResult.count??0;
+
+$("loanBalance").textContent=money(balance);
+$("balanceTotal").textContent=money(balance);
+
+}catch(e){
+
+console.error("DASHBOARD ERROR:",e);
+
+$("customerCount").textContent="0";
+$("pendingCount").textContent="0";
+$("activeLoanCount").textContent="0";
+$("loanBalance").textContent="TZS 0";
+$("balanceTotal").textContent="TZS 0";
+
+}
+}
 /* CUSTOMERS */
 async function loadCustomers(){
 await loadCustomerMap();
