@@ -2026,7 +2026,9 @@ if(page==="activeLoansPage"){
 await loadLoanMap();
 await loadActiveLoans();
 }
-if(page==="balancePage")await loadActiveLoans();
+if(page==="balancePage"){
+  await loadDashboard();
+}
 });
 });
 
