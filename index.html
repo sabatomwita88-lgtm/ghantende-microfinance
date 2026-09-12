@@ -54,7 +54,7 @@ header h2{margin:0;font-size:19px}
 .success{color:#087f3d}
 .status{margin-top:10px;font-weight:bold}
 .badge{display:inline-block;padding:5px 9px;border-radius:20px;background:#ecfdf5;color:#065f46;font-size:12px;font-weight:bold}
-.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}
+.actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.edit-btn{background:#2563eb}.delete-btn{background:#dc2626}
 @media(max-width:600px){
  header h2{font-size:16px}
  .section{padding:12px}
@@ -534,6 +534,10 @@ async function loadCustomers(){
         Simu: ${esc(c.phone || "-")}<br>
         National ID: ${esc(c.national_id || "-")}<br>
         Address: ${esc(c.address || "-")}
+        ${isAdmin ? `<div class="actions">
+          <button type="button" class="edit-btn" onclick="editCustomer('${c.id}')">HARIRI</button>
+          <button type="button" class="delete-btn" onclick="deleteCustomer('${c.id}')">DELETE</button>
+        </div>` : ""}
       </div>
     `).join("");
 
@@ -747,6 +751,39 @@ $("customerForm").addEventListener("submit", async e => {
   button.textContent = "HIFADHI MTEJA";
 });
 
+/* ================= ADMIN CUSTOMER ACTIONS ================= */
+async function editCustomer(id){
+  if(!requireAdmin())return;
+  const {data,error}=await supabaseClient.from("customers")
+    .select("id,full_name,phone,national_id,address").eq("id",id).single();
+  if(error){alert("Imeshindikana kusoma mteja: "+error.message);return;}
+
+  const name=prompt("Jina kamili:",data.full_name||"");
+  if(name===null)return;
+  const phone=prompt("Simu:",data.phone||"");
+  if(phone===null)return;
+  const nationalId=prompt("National ID:",data.national_id||"");
+  if(nationalId===null)return;
+  const address=prompt("Address:",data.address||"");
+  if(address===null)return;
+
+  const {error:updateError}=await supabaseClient.from("customers").update({
+    full_name:name.trim(),phone:phone.trim(),national_id:nationalId.trim()||null,address:address.trim()||null
+  }).eq("id",id);
+  if(updateError){alert("Imeshindikana kuhariri: "+updateError.message);return;}
+  alert("Mteja amehaririwa.");
+  await loadCustomers();
+}
+
+async function deleteCustomer(id){
+  if(!requireAdmin())return;
+  if(!confirm("Una uhakika unataka DELETE mteja huyu?"))return;
+  const {error}=await supabaseClient.from("customers").delete().eq("id",id);
+  if(error){alert("Imeshindikana kufuta mteja: "+error.message);return;}
+  alert("Mteja amefutwa.");
+  await loadCustomers();
+}
+
 /* ================= LOAN APPLICATION ================= */
 $("loanForm").addEventListener("submit", async e => {
   e.preventDefault();
@@ -865,29 +902,42 @@ async function loadOfficerRole(authUser = null){
       user = result.data?.user;
     }
     if(!user){
-      currentOfficer = null;
-      isAdmin = false;
-      return;
+      currentOfficer=null; isAdmin=false; return;
     }
-    const {data,error} = await supabaseClient
+
+    let officer=null;
+    const officerResult = await supabaseClient
       .from("officers")
       .select("id,full_name,email,role,user_id")
       .eq("user_id",user.id)
       .maybeSingle();
-    if(error) throw error;
-    currentOfficer = data || null;
-    isAdmin = String(data?.role || "").toLowerCase() === "admin";
-    const badge = $("adminBadge");
-    const name = $("adminName");
-    if(badge) badge.style.display = isAdmin ? "block" : "none";
-    if(name) name.textContent = isAdmin ? (data?.full_name || "Admin") : "";
-    console.log("OFFICER ROLE:",data?.role,"ADMIN:",isAdmin);
+
+    if(!officerResult.error) officer = officerResult.data || null;
+
+    let profile=null;
+    const profileResult = await supabaseClient
+      .from("user_profiles")
+      .select("full_name,role")
+      .eq("id",user.id)
+      .maybeSingle();
+
+    if(!profileResult.error) profile = profileResult.data || null;
+
+    currentOfficer = officer;
+    const role = String(officer?.role || profile?.role || "").toLowerCase();
+    isAdmin = role === "admin";
+
+    const badge=$("adminBadge"), name=$("adminName"), usersMenu=$("usersMenu");
+    if(badge) badge.style.display=isAdmin ? "block" : "none";
+    if(name) name.textContent=isAdmin ? (officer?.full_name || profile?.full_name || user.email || "Admin") : "";
+    if(usersMenu) usersMenu.style.display=isAdmin ? "block" : "none";
+
+    console.log("ROLE:",role,"ADMIN:",isAdmin);
   }catch(error){
-    console.error("LOAD OFFICER ERROR:",error);
-    currentOfficer = null;
-    isAdmin = false;
-    const badge = $("adminBadge");
-    if(badge) badge.style.display = "none";
+    console.error("LOAD OFFICER/ROLE ERROR:",error);
+    currentOfficer=null; isAdmin=false;
+    if($("adminBadge")) $("adminBadge").style.display="none";
+    if($("usersMenu")) $("usersMenu").style.display="none";
   }
 }
 
@@ -913,49 +963,46 @@ async function getActiveLoansWithBalances(){
 
 async function loadActiveLoans(){
   try{
-    const {data,error}=await supabaseClient
+    const {data:loans,error}=await supabaseClient
       .from("loans")
       .select("*")
       .eq("loan_status","active")
       .order("id",{ascending:false});
-
     if(error) throw error;
 
-    let loans=data||[];
+    const rows=loans||[];
+    const ids=rows.map(l=>l.id).filter(Boolean);
     const paidByLoan={};
-    const ids=loans.map(l=>l.id).filter(Boolean);
 
     if(ids.length){
-      const {data:payments,error:payError}=await supabaseClient
+      const r=await supabaseClient
         .from("payments")
         .select("loan_id,amount")
         .in("loan_id",ids);
-
-      if(payError){
-        console.error("PAYMENTS ERROR:",payError);
-      }else{
-        (payments||[]).forEach(p=>{
+      if(!r.error){
+        (r.data||[]).forEach(p=>{
           paidByLoan[p.loan_id]=(paidByLoan[p.loan_id]||0)+Number(p.amount||0);
         });
+      }else{
+        console.warn("PAYMENTS WARNING:",r.error.message);
       }
     }
 
-    loans=loans.map(l=>{
+    const enriched=rows.map(l=>{
       const principal=Number(l.total_amount??l.loan_amount??l.amount??0);
       const paid=paidByLoan[l.id]||0;
       return {...l,computedPrincipal:principal,paid,computedBalance:Math.max(0,principal-paid)};
     });
 
-    $("activeLoanCount").textContent=loans.length;
-    const total=loans.reduce((sum,l)=>sum+l.computedBalance,0);
+    $("activeLoanCount").textContent=enriched.length;
+    const total=enriched.reduce((s,l)=>s+l.computedBalance,0);
     $("loanBalance").textContent=money(total);
     $("balanceTotal").textContent=money(total);
-
-    renderActiveLoans(loans,"activeLoansList");
-    renderActiveLoans(loans,"activeLoansPageList");
+    renderActiveLoans(enriched,"activeLoansList");
+    renderActiveLoans(enriched,"activeLoansPageList");
   }catch(e){
     console.error("ACTIVE LOANS ERROR:",e);
-    // Usifute takwimu za dashboard kwa kuweka 0 ikiwa kuna hitilafu ya muda.
+    // Usifute takwimu kwa kuweka 0 endapo hitilafu ya muda imetokea.
   }
 }
 
@@ -991,9 +1038,48 @@ const oldMenuHandler=document.querySelectorAll(".menu button");oldMenuHandler.fo
 async function loadUsers(){
   const box=$("usersList");
   if(!box || !isAdmin)return;
-  const {data,error}=await supabaseClient.from("officers").select("full_name,email,phone,role,created_at").order("created_at",{ascending:false});
+  const {data,error}=await supabaseClient.from("officers").select("id,full_name,email,phone,role,created_at").order("created_at",{ascending:false});
   if(error){box.innerHTML='<div class="danger">Imeshindwa kusoma users: '+esc(error.message)+'</div>';return;}
-  box.innerHTML=data?.length?data.map((u,i)=>`<div class="application"><b>${i+1}. ${esc(u.full_name||"-")}</b><br>Gmail: ${esc(u.email||"-")}<br>Simu: ${esc(u.phone||"-")}<br>Role: <span class="badge">${esc(u.role||"-")}</span></div>`).join(""):'<div class="empty">Hakuna users.</div>';
+  box.innerHTML=data?.length?data.map((u,i)=>`<div class="application"><b>${i+1}. ${esc(u.full_name||"-")}</b><br>Gmail: ${esc(u.email||"-")}<br>Simu: ${esc(u.phone||"-")}<br>Role: <span class="badge">${esc(u.role||"-")}</span><div class="actions"><button type="button" class="edit-btn" onclick="editUser('${u.id}')">HARIRI</button><button type="button" class="delete-btn" onclick="deleteUser('${u.id}')">DELETE</button></div></div>`).join(""):'<div class="empty">Hakuna users.</div>';
+}
+
+async function editUser(id){
+  if(!requireAdmin())return;
+  const {data,error}=await supabaseClient.from("officers")
+    .select("id,full_name,phone,role").eq("id",id).single();
+  if(error){alert("Imeshindikana kusoma user: "+error.message);return;}
+
+  const name=prompt("Jina kamili:",data.full_name||"");
+  if(name===null)return;
+  const phone=prompt("Simu:",data.phone||"");
+  if(phone===null)return;
+  const role=prompt("Role (admin/officer/cashier):",data.role||"officer");
+  if(role===null)return;
+  const cleanRole=role.trim().toLowerCase();
+  if(!["admin","officer","cashier"].includes(cleanRole)){
+    alert("Role si sahihi.");return;
+  }
+
+  const {error:updateError}=await supabaseClient.from("officers").update({
+    full_name:name.trim(),phone:phone.trim()||null,role:cleanRole
+  }).eq("id",id);
+  if(updateError){alert("Imeshindikana kuhariri user: "+updateError.message);return;}
+  alert("User amehaririwa.");
+  await loadUsers();
+}
+
+async function deleteUser(id){
+  if(!requireAdmin())return;
+  if(!confirm("Una uhakika unataka DELETE user huyu?"))return;
+
+  const {data,error}=await supabaseClient.functions.invoke("delete-user",{body:{officer_id:id}});
+  if(error){
+    alert("Imeshindikana kufuta Auth user. Hakikisha Edge Function 'delete-user' ipo: "+error.message);
+    return;
+  }
+  if(data?.error){alert("Imeshindikana: "+data.error);return;}
+  alert("User amefutwa.");
+  await loadUsers();
 }
 
 $("userForm").addEventListener("submit",async e=>{
