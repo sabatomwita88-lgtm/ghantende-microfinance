@@ -551,7 +551,9 @@ document.querySelectorAll(".menu button").forEach(button => {
     if(button.dataset.section === "watumiaji" && isAdmin){
       loadUsers();
     }
-  });
+  });if(button.dataset.section === "maafisa"){
+  loadMaafisa();
+}
 });
 
 /* ================= DASHBOARD ================= */
