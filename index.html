@@ -788,6 +788,7 @@ async function loadPendingApplications(){
 
 /* ================= APPROVE / REJECT ================= */
 async function approveApplication(applicationId){
+ if(!requireAdmin()) return;
   if(!confirm("Una uhakika unataka ku-APPROVE mkopo huu?")) return;
 
   try{
@@ -808,6 +809,7 @@ async function approveApplication(applicationId){
 }
 
 async function rejectApplication(applicationId){
+ if(!requireAdmin()) return;
   if(!confirm("Una uhakika unataka kukataa ombi hili?")) return;
 
   try{
