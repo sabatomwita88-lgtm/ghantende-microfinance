@@ -1195,16 +1195,49 @@ async function loadMaafisa(){
 
       <br>
       📅 Tarehe:
-      ${u.created_at
+      ${
+        u.created_at
         ? new Date(u.created_at).toLocaleString("sw-TZ")
         : "-"
+      }
+
+      ${
+        isAdmin
+        ? `
+          <div class="actions">
+
+            <button
+              type="button"
+              class="edit-btn"
+              onclick="editUser('${u.id}')"
+            >
+              ✏️ HARIRI
+            </button>
+
+            <button
+              type="button"
+              class="delete-btn"
+              onclick="deleteUser('${u.id}')"
+            >
+              🗑️ DELETE
+            </button>
+
+            <button
+              type="button"
+              onclick='changeUserPassword(${JSON.stringify(u.user_id || "")}, ${JSON.stringify(u.full_name || "user")})'
+            >
+              🔑 BADILI PASSWORD
+            </button>
+
+          </div>
+        `
+        : ""
       }
 
     </div>
 
   `).join("");
 }
-
 
 /* ================= USER MANAGEMENT ================= */
 
