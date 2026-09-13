@@ -477,6 +477,7 @@ function showLogin(){
   $("app").style.display = "none";
 }
 
+<script>
 /* ================= LOGIN ================= */
 $("loginForm").addEventListener("submit", async e => {
   e.preventDefault();
@@ -486,7 +487,7 @@ $("loginForm").addEventListener("submit", async e => {
   const message = $("message");
   const button = $("loginButton");
 
-  if(!email || !password){
+  if (!email || !password) {
     message.style.color = "red";
     message.textContent = "Weka email na password.";
     return;
@@ -495,37 +496,64 @@ $("loginForm").addEventListener("submit", async e => {
   button.disabled = true;
   button.textContent = "INAINGIA...";
   message.style.color = "#555";
-  message.textContent = "Inawasiliana na Supabase...";
+  message.textContent = "Inawasiliana na mfumo...";
 
-  try{
-    const {data, error} = await supabaseClient.auth.signInWithPassword({
-      email,
-      password
-    });
+  try {
 
-    if(error) throw error;
+    const { data, error } =
+      await supabaseClient.auth.signInWithPassword({
+        email: email,
+        password: password
+      });
+
+    if (error) {
+      throw error;
+    }
+
+    if (!data || !data.user) {
+      throw new Error("USER_NOT_FOUND");
+    }
 
     message.style.color = "green";
     message.textContent = "Umefanikiwa kuingia.";
 
+    /* MUHIMU:
+       Fungua Dashboard baada ya login kufanikiwa
+    */
+    await showApp(data.user);
 
-  }catch(error){
+  } catch (error) {
+
     console.error("LOGIN ERROR:", error);
 
     message.style.color = "red";
 
-    if(error.message === "Failed to fetch"){
-      message.textContent = "Imeshindikana kuwasiliana na Supabase. Hakikisha internet iko sawa.";
-    }else{
-      message.textContent = "Gmail au password si sahihi.";
+    if (error.message === "Failed to fetch") {
+      message.textContent =
+        "Imeshindikana kuwasiliana na Supabase. Hakikisha internet iko sawa.";
+    }
+    else if (error.message === "Invalid login credentials") {
+      message.textContent =
+        "Gmail au password si sahihi.";
+    }
+    else if (error.message === "Email not confirmed") {
+      message.textContent =
+        "Email haijathibitishwa kwenye Supabase.";
+    }
+    else {
+      message.textContent =
+        "Imeshindikana kuingia: " +
+        (error.message || "Tatizo lisilojulikana.");
     }
 
-  }finally{
+  } finally {
+
     button.disabled = false;
     button.textContent = "INGIA";
+
   }
 });
-
+</script>
 /* ================= LOGOUT ================= */
 $("logoutButton").addEventListener("click", async () => {
   await supabaseClient.auth.signOut();
