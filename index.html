@@ -1178,9 +1178,9 @@ async function loadMaafisa(){
   `).join("");
 }
 
+
 /* ================= USER MANAGEMENT ================= */
 
-async function loadUsers(){
 /* ================= BADILI PASSWORD ================= */
 
 async function changeUserPassword(userId, userName){
@@ -1201,9 +1201,7 @@ async function changeUserPassword(userId, userName){
     ":\n\nPassword lazima iwe na angalau herufi 6."
   );
 
-  if(newPassword === null){
-    return;
-  }
+  if(newPassword === null) return;
 
   const password = newPassword.trim();
 
@@ -1216,9 +1214,7 @@ async function changeUserPassword(userId, userName){
     "Rudia password mpya kuthibitisha:"
   );
 
-  if(confirmPassword === null){
-    return;
-  }
+  if(confirmPassword === null) return;
 
   if(password !== confirmPassword.trim()){
     alert("❌ Password mbili hazifanani.");
@@ -1247,11 +1243,10 @@ async function changeUserPassword(userId, userName){
       );
 
     if(error){
-      console.error("PASSWORD ERROR:", error);
       throw new Error(error.message);
     }
 
-    if(!data || !data.success){
+    if(!data || data.success !== true){
       throw new Error(
         data?.message ||
         "Imeshindikana kubadilisha password."
@@ -1265,14 +1260,20 @@ async function changeUserPassword(userId, userName){
 
   }catch(error){
 
-    console.error("CHANGE PASSWORD ERROR:", error);
+    console.error("CHANGE PASSWORD ERROR:",error);
 
     alert(
       "❌ Imeshindikana kubadilisha password:\n" +
-      error.message
+      (error.message || "Tatizo lisilojulikana.")
     );
   }
 }
+
+
+/* ================= LOAD USERS ================= */
+
+async function loadUsers(){
+
   const box = $("usersList");
 
   if(!box || !isAdmin) return;
@@ -1281,13 +1282,18 @@ async function changeUserPassword(userId, userName){
 
   const { data, error } = await supabaseClient
     .from("officers")
-    .select("id,full_name,email,phone,role,created_at,user_id")
+    .select(
+      "id,full_name,email,phone,role,created_at,user_id"
+    )
     .order("created_at", { ascending:false });
 
   if(error){
 
+    console.error("LOAD USERS ERROR:",error);
+
     box.innerHTML =
-      '<div class="danger">Imeshindwa kusoma users: ' +
+      '<div class="danger">' +
+      'Imeshindwa kusoma users: ' +
       esc(error.message) +
       '</div>';
 
@@ -1297,7 +1303,9 @@ async function changeUserPassword(userId, userName){
   if(!data || data.length === 0){
 
     box.innerHTML =
-      '<div class="empty">Hakuna users waliosajiliwa.</div>';
+      '<div class="empty">' +
+      'Hakuna users waliosajiliwa.' +
+      '</div>';
 
     return;
   }
@@ -1309,33 +1317,35 @@ async function changeUserPassword(userId, userName){
       <b>${i+1}. ${esc(u.full_name || "-")}</b>
 
       <br>
-      Gmail:
+      📧 Gmail:
       ${esc(u.email || "-")}
 
       <br>
-      Simu:
+      📱 Simu:
       ${esc(u.phone || "-")}
 
       <br>
-      Role:
+      👤 Role:
       <span class="badge">
         ${esc(u.role || "-")}
       </span>
 
       <br>
-      <small>
-        ${u.created_at
-          ? new Date(u.created_at).toLocaleString("sw-TZ")
-          : ""}
-      </small>
+      📅 Tarehe:
+      ${
+        u.created_at
+        ? new Date(u.created_at).toLocaleString("sw-TZ")
+        : "-"
+      }
 
       ${
         isAdmin
         ? `
-          <div style="margin-top:8px">
+          <div class="actions">
 
             <button
               type="button"
+              class="edit-btn"
               onclick="editUser('${u.id}')"
             >
               HARIRI
@@ -1343,30 +1353,31 @@ async function changeUserPassword(userId, userName){
 
             <button
               type="button"
+              class="delete-btn"
               onclick="deleteUser('${u.id}')"
             >
               DELETE
             </button>
 
+            <button
+              type="button"
+              onclick="changeUserPassword(
+                '${u.user_id || ""}',
+                ${JSON.stringify(u.full_name || "user")}
+              )"
+            >
+              🔑 BADILI PASSWORD
+            </button>
+
           </div>
-        `<button
-  type="button"
-  onclick="changeUserPassword(
-    '${u.user_id || ""}',
-    '${esc(u.full_name || "")}'
-  )">
-  🔑 BADILI PASSWORD
-</button>
+        `
         : ""
       }
 
     </div>
 
   `).join("");
-
 }
-
-
 /* ================= EDIT USER ================= */
 
 async function editUser(id){
