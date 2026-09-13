@@ -665,45 +665,125 @@ async function loadCustomerOptions(customers){
     ).join("");
 }
 
-/* ================= PENDING APPLICATIONS ================= */
+/* ================= ALL LOAN APPLICATIONS ================= */
 async function loadPendingApplications(){
 
-  const {data, error, count} = await supabaseClient
+  const {data, error} = await supabaseClient
     .from("loan_applications")
-    .select("*", {count:"exact"})
-    .eq("status","pending")
+    .select("*")
     .order("id", {ascending:false});
 
   if(error){
     console.error("APPLICATIONS ERROR:", error.message);
+
     $("pendingCount").textContent = "0";
+
     $("applicationsList").innerHTML =
-      '<div class="danger">Imeshindwa kusoma maombi: ' + esc(error.message) + '</div>';
+      '<div class="danger">Imeshindwa kusoma maombi: ' +
+      esc(error.message) +
+      '</div>';
+
     return;
   }
 
-  $("pendingCount").textContent = count ?? data.length;
+  const applications = data || [];
 
-  if(!data?.length){
+  // Pending count ya Dashboard
+  const pending = applications.filter(
+    a => String(a.status).toLowerCase() === "pending"
+  );
+
+  $("pendingCount").textContent = pending.length;
+
+  if(!applications.length){
     $("applicationsList").innerHTML =
-      '<div class="empty">Hakuna maombi ya mkopo Pending.</div>';
+      '<div class="empty">Hakuna maombi ya mkopo.</div>';
     return;
   }
 
-  $("applicationsList").innerHTML = data.map((a,i) => `
-    <div class="application">
-      <b>Ombi #${i+1}</b><br>
-      Customer ID: ${esc(a.customer_id || "-")}<br>
-      Kiasi: ${money(a.amount)}<br>
-      Sababu: ${esc(a.purpose || "-")}<br>
-      Tarehe: ${esc(a.application_date || "-")}<br>
-      Hali: <span class="badge">${esc(a.status)}</span>
-      <div class="actions">
-        <button type="button" onclick="approveApplication('${a.id}')">APPROVE</button>
-        <button type="button" class="secondary" onclick="rejectApplication('${a.id}')">REJECT</button>
+  $("applicationsList").innerHTML = applications.map((a,i) => {
+
+    const status = String(a.status || "").toLowerCase();
+
+    let statusText = "";
+    let statusClass = "badge";
+
+    if(status === "pending"){
+      statusText = "🟡 INASUBIRI";
+    }
+    else if(status === "approved"){
+      statusText = "🟢 IMEKUBALIWA";
+    }
+    else if(status === "rejected"){
+      statusText = "🔴 IMEKATALIWA";
+    }
+    else if(status === "cancelled"){
+      statusText = "⚪ IMEFUTWA";
+    }
+    else{
+      statusText = status.toUpperCase();
+    }
+
+    // Vitufe vya Admin tu
+    let adminButtons = "";
+
+    if(status === "pending" && isAdmin){
+      adminButtons = `
+        <div class="actions">
+          <button type="button"
+            onclick="approveApplication('${a.id}')">
+            APPROVE
+          </button>
+
+          <button type="button"
+            class="secondary"
+            onclick="rejectApplication('${a.id}')">
+            REJECT
+          </button>
+        </div>
+      `;
+    }
+
+    // Afisa ataona hali lakini hawezi kuamua
+    let officerMessage = "";
+
+    if(status === "pending" && !isAdmin){
+      officerMessage = `
+        <div class="empty">
+          🔒 Inasubiri uamuzi wa Admin
+        </div>
+      `;
+    }
+
+    return `
+      <div class="application">
+
+        <b>Ombi #${i + 1}</b><br>
+
+        Customer ID:
+        ${esc(a.customer_id || "-")}<br>
+
+        Kiasi:
+        ${money(a.amount)}<br>
+
+        Sababu:
+        ${esc(a.purpose || "-")}<br>
+
+        Tarehe:
+        ${esc(a.application_date || "-")}<br>
+
+        Hali:
+        <span class="${statusClass}">
+          ${statusText}
+        </span>
+
+        ${adminButtons}
+        ${officerMessage}
+
       </div>
-    </div>
-  `).join("");
+    `;
+
+  }).join("");
 }
 
 /* ================= APPROVE / REJECT ================= */
