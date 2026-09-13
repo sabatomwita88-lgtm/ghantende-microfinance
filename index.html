@@ -1190,7 +1190,7 @@ async function loadUsers(){
 
   const { data, error } = await supabaseClient
     .from("officers")
-    .select("id,full_name,email,phone,role,created_at")
+    .select("id,full_name,email,phone,role,created_at,user_id")
     .order("created_at", { ascending:false });
 
   if(error){
