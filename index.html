@@ -534,29 +534,36 @@ $("logoutButton").addEventListener("click", async () => {
 
 /* ================= MENU ================= */
 document.querySelectorAll(".menu button").forEach(button => {
-  button.addEventListener("click", () => {
-    showSection(button.dataset.section);
 
-    if(button.dataset.section === "wateja"){
-      loadCustomers();
+  button.addEventListener("click", async () => {
+
+    const section = button.dataset.section;
+
+    showSection(section);
+
+    if(section === "wateja"){
+      await loadCustomers();
     }
 
-    if(button.dataset.section === "maombi"){
-      loadCustomerOptions();
+    if(section === "maombi"){
+      await loadCustomerOptions();
     }
 
-    if(button.dataset.section === "mikopo"){
-      loadActiveLoansPage("activeLoansList");
+    if(section === "mikopo"){
+      await loadActiveLoansPage("activeLoansList");
     }
 
-    if(button.dataset.section === "watumiaji" && isAdmin){
-      loadUsers();
+    if(section === "maafisa"){
+      await loadMaafisa();
     }
-  });if(button.dataset.section === "maafisa"){
-  loadMaafisa();
-}
+
+    if(section === "watumiaji" && isAdmin){
+      await loadUsers();
+    }
+
+  });
+
 });
-
 /* ================= DASHBOARD ================= */
 async function loadDashboard(){
   await loadCustomers();
