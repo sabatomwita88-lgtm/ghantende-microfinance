@@ -335,108 +335,40 @@ header h2{margin:0;font-size:19px}
   <div class="table-box" style="margin-top:14px"><h3>Historia ya Malipo</h3><input id="paymentSearch" placeholder="Tafuta kwa tarehe, njia au loan ID"><div id="paymentsList">Inapakia...</div></div>
 </section>
 
-async function generateSchedules(){
-  if(!requireAdmin()) return;
+<!-- ================= RATIBA ================= -->
+<section id="ratiba" class="section">
 
-  try{
-    const loans = await getActiveLoansWithBalances();
+  <div class="section-header">
+    <div>
+      <h2>Ratiba ya Marejesho</h2>
+      <p>Malipo ya kila siku kwa siku 30</p>
+    </div>
 
-    if(!loans.length){
-      alert("Hakuna mkopo Active wa kutengeneza ratiba.");
-      return;
-    }
+    <button id="generateSchedules" class="btn-primary">
+      TENGENEZA RATIBA
+    </button>
+  </div>
 
-    let made = 0;
+  <div class="card" style="margin-bottom:15px;">
+    <label for="scheduleStatus"><b>Chuja Ratiba</b></label>
 
-    for(const l of loans){
+    <select id="scheduleStatus" class="input">
+      <option value="all">Ratiba Zote</option>
+      <option value="due">Bado Haijalipwa</option>
+      <option value="paid">Zilizolipwa</option>
+      <option value="overdue">Zilizochelewa</option>
+    </select>
+  </div>
 
-      const principal = Number(
-        l.loan_amount ??
-        l.amount ??
-        l.computedPrincipal ??
-        l.total_amount ??
-        0
-      );
+  <div id="schedulesList">
 
-      if(principal <= 0) continue;
+    <div class="empty">
+      Hakuna ratiba bado.
+    </div>
 
-      /* RIBA 10% */
-      const interest = principal * 0.10;
+  </div>
 
-      /* JUMLA YA DENI */
-      const totalDebt = principal + interest;
-
-      /* MALIPO KILA SIKU KWA SIKU 30 */
-      const dailyPayment = totalDebt / 30;
-
-      /* TAREHE YA KUANZA */
-      const start = new Date(
-        l.start_date ||
-        l.loan_start_date ||
-        today()
-      );
-
-      for(let day = 1; day <= 30; day++){
-
-        const dueDate = new Date(start);
-
-        /* Siku ya 1 iwe tarehe ya kuanza */
-        dueDate.setDate(start.getDate() + (day - 1));
-
-        const row = {
-          loan_id: l.id,
-
-          installment_no: day,
-
-          due_date:
-            dueDate.toISOString().slice(0,10),
-
-          amount_due:
-            Math.round(dailyPayment * 100) / 100,
-
-          amount_paid: 0,
-
-          status: "due"
-        };
-
-        const {error} =
-          await supabaseClient
-            .from("loan_schedules")
-            .upsert(
-              row,
-              {
-                onConflict:
-                  "loan_id,installment_no"
-              }
-            );
-
-        if(error) throw error;
-
-        made++;
-      }
-    }
-
-    alert(
-      "Ratiba imetengenezwa kikamilifu.\n\n" +
-      "Jumla ya siku zilizotengenezwa: " +
-      made
-    );
-
-    await loadSchedules();
-
-  }catch(e){
-
-    console.error(
-      "GENERATE SCHEDULE ERROR:",
-      e
-    );
-
-    alert(
-      "Imeshindikana kutengeneza ratiba:\n" +
-      e.message
-    );
-  }
-}
+</section>
 
 <!-- ================= RIPOTI ================= -->
 <section id="ripoti" class="section">
