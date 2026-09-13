@@ -1349,7 +1349,14 @@ async function changeUserPassword(userId, userName){
             </button>
 
           </div>
-        `
+        `<button
+  type="button"
+  onclick="changeUserPassword(
+    '${u.user_id || ""}',
+    '${esc(u.full_name || "")}'
+  )">
+  🔑 BADILI PASSWORD
+</button>
         : ""
       }
 
