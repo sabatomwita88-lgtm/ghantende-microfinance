@@ -1088,7 +1088,85 @@ $("generateSchedules").addEventListener("click",generateSchedules);$("saveDailyR
 $("paymentForm").addEventListener("submit",async e=>{e.preventDefault();if(!requireAdmin())return;const loanId=$("paymentLoan").value,amount=Number($("paymentAmount").value);if(!loanId||amount<=0)return;const btn=$("savePayment");btn.disabled=true;try{const {error}=await supabaseClient.from("payments").insert([{loan_id:loanId,amount,payment_date:$("paymentDate").value,payment_method:$("paymentMethod").value,notes:$("paymentNotes").value.trim()||null}]);if(error)throw error;$("paymentMessage").style.color="green";$("paymentMessage").textContent="Malipo yamehifadhiwa.";$("paymentForm").reset();$("paymentDate").value=today();await loadPayments();await loadPaymentLoans();await loadActiveLoans();await loadSchedules();}catch(e){$("paymentMessage").style.color="red";$("paymentMessage").textContent="Imeshindikana: "+e.message;}finally{btn.disabled=false;}});
 
 
-const oldMenuHandler=document.querySelectorAll(".menu button");oldMenuHandler.forEach(b=>b.addEventListener("click",async()=>{if(b.dataset.section==="marejesho"){await loadPaymentLoans();await loadPayments();}if(b.dataset.section==="ratiba")await loadSchedules();if(b.dataset.section==="ripoti")await loadReports();}));
+const oldMenuHandler=document.querySelectorAll(".menu button");oldMenuHandler.forEach(b=>b.addEventListener("click",async()=>{if(b.dataset.section==="marejesho"){await loadPaymentLoans();await loadPayments();}if(b.dataset.section==="ratiba")await loadSchedules();if(b.dataset.section==="ripoti")await loadReports();}));/* ================= MAAFISA ================= */
+
+async function loadMaafisa(){
+
+  const box = $("maafisaList");
+  const stats = $("maafisaStats");
+
+  if(!box) return;
+
+  box.innerHTML = "Inapakia maafisa...";
+  if(stats) stats.textContent = "Inapakia...";
+
+  const { data, error } = await supabaseClient
+    .from("officers")
+    .select("id,full_name,phone,email,role,created_at,user_id")
+    .order("created_at", { ascending:false });
+
+  if(error){
+
+    console.error("MAAFISA ERROR:", error);
+
+    box.innerHTML =
+      '<div class="danger">Imeshindwa kusoma maafisa: ' +
+      esc(error.message) +
+      '</div>';
+
+    return;
+  }
+
+  const maafisa = data || [];
+
+  if(stats){
+    stats.textContent =
+      "Jumla ya Maafisa: " + maafisa.length;
+  }
+
+  if(maafisa.length === 0){
+
+    box.innerHTML =
+      '<div class="empty">Hakuna maafisa waliosajiliwa.</div>';
+
+    return;
+  }
+
+  box.innerHTML = maafisa.map((u,i) => `
+
+    <div class="application">
+
+      <b>${i+1}. ${esc(u.full_name || "-")}</b>
+
+      <br>
+      📧 Gmail:
+      ${esc(u.email || "-")}
+
+      <br>
+      📱 Simu:
+      ${esc(u.phone || "-")}
+
+      <br>
+      👤 Role:
+      <span class="badge">
+        ${esc(u.role || "-")}
+      </span>
+
+      <br>
+      🆔 User ID:
+      <small>${esc(u.user_id || "-")}</small>
+
+      <br>
+      📅 Tarehe:
+      ${u.created_at
+        ? new Date(u.created_at).toLocaleString("sw-TZ")
+        : "-"
+      }
+
+    </div>
+
+  `).join("");
+}
 
 /* ================= USER MANAGEMENT ================= */
 
