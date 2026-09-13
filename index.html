@@ -232,34 +232,76 @@ header h2{margin:0;font-size:19px}
 
 <!-- ================= WATUMIAJI ================= -->
 <section id="watumiaji" class="section">
+
   <div class="page-header">
     <h2>👥 Watumiaji</h2>
   </div>
+
+  <!-- ONGEZA USER -->
   <div class="form-box">
     <h3>Ongeza User Mpya</h3>
+
     <form id="userForm">
+
       <label>Jina Kamili</label>
-      <input id="newUserName" required placeholder="Mfano: Juma Mwita">
+      <input
+        id="newUserName"
+        type="text"
+        required
+        placeholder="Mfano: Juma Mwita"
+      >
+
       <label>Simu</label>
-      <input id="newUserPhone" placeholder="07XXXXXXXX">
+      <input
+        id="newUserPhone"
+        type="tel"
+        placeholder="07XXXXXXXX"
+      >
+
       <label>Gmail</label>
-      <input id="newUserEmail" type="email" required placeholder="mfano@gmail.com">
+      <input
+        id="newUserEmail"
+        type="email"
+        required
+        placeholder="mfano@gmail.com"
+      >
+
       <label>Password</label>
-      <input id="newUserPassword" type="password" minlength="6" required placeholder="Angalau herufi 6">
+      <input
+        id="newUserPassword"
+        type="password"
+        minlength="6"
+        required
+        placeholder="Angalau herufi 6"
+      >
+
       <label>Role</label>
       <select id="newUserRole" required>
         <option value="officer">Officer</option>
         <option value="cashier">Cashier</option>
         <option value="admin">Admin</option>
       </select>
-      <button id="createUserButton" type="submit">ONGEZA USER</button>
+
+      <button id="createUserButton" type="submit">
+        ONGEZA USER
+      </button>
+
       <div id="userMessage" class="status"></div>
+
     </form>
   </div>
+
+  <!-- USERS WALIOSAJILIWA -->
   <div class="table-box" style="margin-top:14px">
+
     <h3>Watumiaji Waliosajiliwa</h3>
-    <div id="usersList">Inapakia...</div>
+
+    <div id="usersList">
+      Inapakia...
+    </div>
+
   </div>
+
 </section>
 
 <!-- ================= MAREJESHO ================= -->
