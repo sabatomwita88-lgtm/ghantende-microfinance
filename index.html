@@ -552,7 +552,7 @@ $("loginForm").addEventListener("submit", async e => {
 
   }
 });
-</script>
+
 /* ================= LOGOUT ================= */
 $("logoutButton").addEventListener("click", async () => {
   await supabaseClient.auth.signOut();
