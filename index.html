@@ -1035,88 +1035,365 @@ $("paymentForm").addEventListener("submit",async e=>{e.preventDefault();if(!requ
 const oldMenuHandler=document.querySelectorAll(".menu button");oldMenuHandler.forEach(b=>b.addEventListener("click",async()=>{if(b.dataset.section==="marejesho"){await loadPaymentLoans();await loadPayments();}if(b.dataset.section==="ratiba")await loadSchedules();if(b.dataset.section==="ripoti")await loadReports();}));
 
 /* ================= USER MANAGEMENT ================= */
+
 async function loadUsers(){
-  const box=$("usersList");
-  if(!box || !isAdmin)return;
-  const {data,error}=await supabaseClient.from("officers").select("id,full_name,email,phone,role,created_at").order("created_at",{ascending:false});
-  if(error){box.innerHTML='<div class="danger">Imeshindwa kusoma users: '+esc(error.message)+'</div>';return;}
-  box.innerHTML=data?.length?data.map((u,i)=>`<div class="application"><b>${i+1}. ${esc(u.full_name||"-")}</b><br>Gmail: ${esc(u.email||"-")}<br>Simu: ${esc(u.phone||"-")}<br>Role: <span class="badge">${esc(u.role||"-")}</span><div class="actions"><button type="button" class="edit-btn" onclick="editUser('${u.id}')">HARIRI</button><button type="button" class="delete-btn" onclick="deleteUser('${u.id}')">DELETE</button></div></div>`).join(""):'<div class="empty">Hakuna users.</div>';
-}
 
-async function editUser(id){
-  if(!requireAdmin())return;
-  const {data,error}=await supabaseClient.from("officers")
-    .select("id,full_name,phone,role").eq("id",id).single();
-  if(error){alert("Imeshindikana kusoma user: "+error.message);return;}
+  const box = $("usersList");
 
-  const name=prompt("Jina kamili:",data.full_name||"");
-  if(name===null)return;
-  const phone=prompt("Simu:",data.phone||"");
-  if(phone===null)return;
-  const role=prompt("Role (admin/officer/cashier):",data.role||"officer");
-  if(role===null)return;
-  const cleanRole=role.trim().toLowerCase();
-  if(!["admin","officer","cashier"].includes(cleanRole)){
-    alert("Role si sahihi.");return;
-  }
+  if(!box || !isAdmin) return;
 
-  const {error:updateError}=await supabaseClient.from("officers").update({
-    full_name:name.trim(),phone:phone.trim()||null,role:cleanRole
-  }).eq("id",id);
-  if(updateError){alert("Imeshindikana kuhariri user: "+updateError.message);return;}
-  alert("User amehaririwa.");
-  await loadUsers();
-}
+  box.innerHTML = "Inapakia users...";
 
-async function deleteUser(id){
-  if(!requireAdmin())return;
-  if(!confirm("Una uhakika unataka DELETE user huyu?"))return;
+  const { data, error } = await supabaseClient
+    .from("officers")
+    .select("id,full_name,email,phone,role,created_at")
+    .order("created_at", { ascending:false });
 
-  const {data,error}=await supabaseClient.functions.invoke("delete-user",{body:{officer_id:id}});
   if(error){
-    alert("Imeshindikana kufuta Auth user. Hakikisha Edge Function 'delete-user' ipo: "+error.message);
+
+    box.innerHTML =
+      '<div class="danger">Imeshindwa kusoma users: ' +
+      esc(error.message) +
+      '</div>';
+
     return;
   }
-  if(data?.error){alert("Imeshindikana: "+data.error);return;}
-  alert("User amefutwa.");
+
+  if(!data || data.length === 0){
+
+    box.innerHTML =
+      '<div class="empty">Hakuna users waliosajiliwa.</div>';
+
+    return;
+  }
+
+  box.innerHTML = data.map((u,i)=>`
+
+    <div class="application" style="margin-bottom:10px">
+
+      <b>${i+1}. ${esc(u.full_name || "-")}</b>
+
+      <br>
+      Gmail:
+      ${esc(u.email || "-")}
+
+      <br>
+      Simu:
+      ${esc(u.phone || "-")}
+
+      <br>
+      Role:
+      <span class="badge">
+        ${esc(u.role || "-")}
+      </span>
+
+      <br>
+      <small>
+        ${u.created_at
+          ? new Date(u.created_at).toLocaleString("sw-TZ")
+          : ""}
+      </small>
+
+      ${
+        isAdmin
+        ? `
+          <div style="margin-top:8px">
+
+            <button
+              type="button"
+              onclick="editUser('${u.id}')"
+            >
+              HARIRI
+            </button>
+
+            <button
+              type="button"
+              onclick="deleteUser('${u.id}')"
+            >
+              DELETE
+            </button>
+
+          </div>
+        `
+        : ""
+      }
+
+    </div>
+
+  `).join("");
+
+}
+
+
+/* ================= EDIT USER ================= */
+
+async function editUser(id){
+
+  if(!requireAdmin()) return;
+
+  const { data, error } = await supabaseClient
+    .from("officers")
+    .select("id,full_name,phone,role")
+    .eq("id",id)
+    .single();
+
+  if(error){
+
+    alert(
+      "Imeshindikana kupata taarifa za user: " +
+      error.message
+    );
+
+    return;
+  }
+
+  const name = prompt(
+    "Jina kamili:",
+    data.full_name || ""
+  );
+
+  if(name === null) return;
+
+  const phone = prompt(
+    "Simu:",
+    data.phone || ""
+  );
+
+  if(phone === null) return;
+
+  const role = prompt(
+    "Role (admin/officer/cashier):",
+    data.role || "officer"
+  );
+
+  if(role === null) return;
+
+  const cleanRole = role
+    .trim()
+    .toLowerCase();
+
+  if(!["admin","officer","cashier"].includes(cleanRole)){
+
+    alert("Role si sahihi.");
+
+    return;
+  }
+
+  const { error:updateError } =
+    await supabaseClient
+      .from("officers")
+      .update({
+        full_name:name.trim(),
+        phone:phone.trim() || null,
+        role:cleanRole
+      })
+      .eq("id",id);
+
+  if(updateError){
+
+    alert(
+      "Imeshindikana kuhariri user: " +
+      updateError.message
+    );
+
+    return;
+  }
+
+  alert("User amehaririwa.");
+
   await loadUsers();
 }
 
-$("userForm").addEventListener("submit",async e=>{
-  e.preventDefault();
-  if(!requireAdmin())return;
-  const btn=$("createUserButton"),msg=$("userMessage");
-  btn.disabled=true;btn.textContent="INAONGEZA...";msg.textContent="";
-  try{
-    const {data,error}=await supabaseClient.functions.invoke("create-user",{
-      body:{
-        full_name:$("newUserName").value.trim(),
-        phone:$("newUserPhone").value.trim(),
-        email:$("newUserEmail").value.trim(),
-        password:$("newUserPassword").value,
-        role:$("newUserRole").value
-      }
-    });
-    if(error)throw error;
-    if(data?.error)throw new Error(data.error);
-    msg.style.color="green";msg.textContent="USER AMEONGEZWA KIKAMILIFU.";
-    $("userForm").reset();
-    await loadUsers();
-  }catch(e){
-    console.error("CREATE USER ERROR:",e);
-    msg.style.color="red";
-    msg.textContent="Imeshindikana: "+e.message;
-  }finally{btn.disabled=false;btn.textContent="ONGEZA USER";}
-});
 
-/* ================= AUTH SESSION ================= */
-supabaseClient.auth.onAuthStateChange((event, session) => {
-  if(session){
-    showApp(session.user);
-  }else if(event === "SIGNED_OUT"){
-    showLogin();
+/* ================= DELETE USER ================= */
+
+async function deleteUser(id){
+
+  if(!requireAdmin()) return;
+
+  const confirmDelete = confirm(
+    "Una uhakika unataka DELETE user huyu?"
+  );
+
+  if(!confirmDelete) return;
+
+  const { data, error } =
+    await supabaseClient.functions.invoke(
+      "delete-user",
+      {
+        body:{
+          officer_id:id
+        }
+      }
+    );
+
+  if(error){
+
+    alert(
+      "Imeshindikana kufuta user: " +
+      error.message
+    );
+
+    return;
   }
-});
+
+  if(data?.error){
+
+    alert(
+      "Imeshindikana: " +
+      data.error
+    );
+
+    return;
+  }
+
+  alert("User amefutwa.");
+
+  await loadUsers();
+}
+
+
+/* ================= ONGEZA USER ================= */
+
+$("userForm").addEventListener(
+  "submit",
+  async function(e){
+
+    e.preventDefault();
+
+    /* Admin pekee */
+    if(!requireAdmin()) return;
+
+    const btn = $("createUserButton");
+    const msg = $("userMessage");
+
+    const fullName =
+      $("newUserName").value.trim();
+
+    const phone =
+      $("newUserPhone").value.trim();
+
+    const email =
+      $("newUserEmail").value.trim();
+
+    const password =
+      $("newUserPassword").value;
+
+    const role =
+      $("newUserRole").value;
+
+    /* Validation */
+
+    if(!fullName){
+
+      msg.style.color = "red";
+      msg.textContent =
+        "Jina kamili linahitajika.";
+
+      return;
+    }
+
+    if(!email){
+
+      msg.style.color = "red";
+      msg.textContent =
+        "Gmail inahitajika.";
+
+      return;
+    }
+
+    if(password.length < 6){
+
+      msg.style.color = "red";
+      msg.textContent =
+        "Password iwe na angalau herufi 6.";
+
+      return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = "INAONGEZA...";
+
+    msg.textContent = "";
+
+    try{
+
+      /*
+       * MUHIMU:
+       * Tunatumia rapid-function
+       */
+
+      const { data, error } =
+        await supabaseClient.functions.invoke(
+          "rapid-function",
+          {
+            body:{
+              full_name:fullName,
+              phone:phone,
+              email:email,
+              password:password,
+              role:role
+            }
+          }
+        );
+
+      if(error){
+
+        throw new Error(error.message);
+      }
+
+      if(!data){
+
+        throw new Error(
+          "Hakuna response kutoka rapid-function."
+        );
+      }
+
+      if(data.success !== true){
+
+        throw new Error(
+          data.message ||
+          data.error ||
+          "Imeshindikana kuongeza User."
+        );
+      }
+
+      /* SUCCESS */
+
+      msg.style.color = "green";
+
+      msg.textContent =
+        "USER AMEONGEZWA KIKAMILIFU.";
+
+      $("userForm").reset();
+
+      await loadUsers();
+
+    }catch(error){
+
+      console.error(
+        "CREATE USER ERROR:",
+        error
+      );
+
+      msg.style.color = "red";
+
+      msg.textContent =
+        "Imeshindikana: " +
+        (error.message ||
+         "Tatizo lisilojulikana.");
+
+    }finally{
+
+      btn.disabled = false;
+
+      btn.textContent =
+        "ONGEZA USER";
+
+    }
+
+  }
+);
 
 /* ================= START ================= */
 (async function(){
