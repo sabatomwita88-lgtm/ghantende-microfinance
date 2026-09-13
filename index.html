@@ -1181,7 +1181,98 @@ async function loadMaafisa(){
 /* ================= USER MANAGEMENT ================= */
 
 async function loadUsers(){
+/* ================= BADILI PASSWORD ================= */
 
+async function changeUserPassword(userId, userName){
+
+  if(!isAdmin){
+    alert("Ruhusa hii ni ya Admin pekee.");
+    return;
+  }
+
+  if(!userId){
+    alert("User ID haijapatikana.");
+    return;
+  }
+
+  const newPassword = prompt(
+    "Weka password mpya ya " +
+    (userName || "user") +
+    ":\n\nPassword lazima iwe na angalau herufi 6."
+  );
+
+  if(newPassword === null){
+    return;
+  }
+
+  const password = newPassword.trim();
+
+  if(password.length < 6){
+    alert("❌ Password lazima iwe na angalau herufi 6.");
+    return;
+  }
+
+  const confirmPassword = prompt(
+    "Rudia password mpya kuthibitisha:"
+  );
+
+  if(confirmPassword === null){
+    return;
+  }
+
+  if(password !== confirmPassword.trim()){
+    alert("❌ Password mbili hazifanani.");
+    return;
+  }
+
+  if(!confirm(
+    "Una uhakika unataka kubadilisha password ya " +
+    (userName || "user") + "?"
+  )){
+    return;
+  }
+
+  try{
+
+    const { data, error } =
+      await supabaseClient.functions.invoke(
+        "rapid-function",
+        {
+          body:{
+            action:"update-password",
+            user_id:userId,
+            password:password
+          }
+        }
+      );
+
+    if(error){
+      console.error("PASSWORD ERROR:", error);
+      throw new Error(error.message);
+    }
+
+    if(!data || !data.success){
+      throw new Error(
+        data?.message ||
+        "Imeshindikana kubadilisha password."
+      );
+    }
+
+    alert(
+      "✅ Password imebadilishwa kikamilifu kwa " +
+      (userName || "user") + "."
+    );
+
+  }catch(error){
+
+    console.error("CHANGE PASSWORD ERROR:", error);
+
+    alert(
+      "❌ Imeshindikana kubadilisha password:\n" +
+      error.message
+    );
+  }
+}
   const box = $("usersList");
 
   if(!box || !isAdmin) return;
