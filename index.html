@@ -1341,10 +1341,120 @@ async function loadSchedules(){
     `;
 
   }).join("");
+
+async function generateSchedules(){
+
+  if(!requireAdmin()) return;
+
+  try{
+
+    const loans = await getActiveLoansWithBalances();
+
+    if(!loans.length){
+      alert("Hakuna mkopo Active wa kutengeneza ratiba.");
+      return;
+    }
+
+    let made = 0;
+
+    for(const loan of loans){
+
+      const principal = Number(loan.computedPrincipal || 0);
+
+      if(principal <= 0) continue;
+
+      // Riba 10% kwa mwezi
+      const interest = principal * 0.10;
+
+      // Jumla ya deni
+      const totalDebt = principal + interest;
+
+      // Malipo ya kila siku kwa siku 30
+      const dailyPayment = totalDebt / 30;
+
+      const start = new Date(
+        loan.start_date ||
+        loan.loan_start_date ||
+        today()
+      );
+
+      for(let day = 1; day <= 30; day++){
+
+        const dueDate = new Date(start);
+
+        // Siku ya 1 inaanza tarehe ya kuanza mkopo
+        dueDate.setDate(
+          start.getDate() + (day - 1)
+        );
+
+        let amountDue =
+          Math.round(dailyPayment * 100) / 100;
+
+        // Kurekebisha siku ya 30 ili jumla iwe sahihi kabisa
+        if(day === 30){
+
+          const previous =
+            dailyPayment * 29;
+
+          amountDue =
+            Math.round(
+              (totalDebt - previous) * 100
+            ) / 100;
+        }
+
+        const row = {
+
+          loan_id: loan.id,
+
+          installment_no: day,
+
+          due_date:
+            dueDate.toISOString().slice(0,10),
+
+          amount_due: amountDue,
+
+          amount_paid: 0,
+
+          status: "due"
+        };
+
+        const {error} =
+          await supabaseClient
+            .from("loan_schedules")
+            .upsert(
+              row,
+              {
+                onConflict:
+                  "loan_id,installment_no"
+              }
+            );
+
+        if(error) throw error;
+
+        made++;
+      }
+    }
+
+    alert(
+      "✅ Ratiba imetengenezwa kikamilifu.\n\n" +
+      "Siku zilizotengenezwa: " + made
+    );
+
+    await loadSchedules();
+
+  }catch(error){
+
+    console.error(
+      "GENERATE SCHEDULE ERROR:",
+      error
+    );
+
+    alert(
+      "❌ Imeshindikana kutengeneza ratiba:\n" +
+      error.message
+    );
+  }
 }
-
-async function generateSchedules(){if(!requireAdmin())return;try{const loans=await getActiveLoansWithBalances();let made=0;for(const l of loans){const total=Number(l.computedPrincipal);const installments=Number(l.installments||l.number_of_installments||l.repayment_period||4);const start=new Date(l.start_date||l.loan_start_date||today());const per=total/installments;for(let i=1;i<=installments;i++){const d=new Date(start);d.setDate(d.getDate()+30*i);const row={loan_id:l.id,installment_no:i,due_date:d.toISOString().slice(0,10),amount_due:Math.round(per*100)/100,amount_paid:0,status:"due"};const {error}=await supabaseClient.from("loan_schedules").upsert(row,{onConflict:"loan_id,installment_no"});if(error)throw error;made++;}}alert("Ratiba imetengenezwa: "+made+" awamu.");await loadSchedules();}catch(e){alert("Imeshindikana kutengeneza ratiba: "+e.message);}}
-
 function calcDailyReport(){const income=["rSales","rFine","rOtherIncome"].reduce((a,id)=>a+Number($(id)?.value||0),0);const opening=Number($("rOpening")?.value||0);const expenses=["rMd","rStore","rBank","rTransport","rFood","rCommunication","rMaintenance","rOtherExpense"].reduce((a,id)=>a+Number($(id)?.value||0),0);$("totalIncome").textContent=money(income);$("totalExpense").textContent=money(expenses);$("dailyBalance").textContent=money(opening+income-expenses);return {opening,income,expenses,balance:opening+income-expenses};}
 async function saveDailyReport(){if(!requireAdmin())return;const c=calcDailyReport();const row={report_date:$("reportDate").value||today(),opening_balance:c.opening,sales:Number($("rSales").value||0),fine:Number($("rFine").value||0),other_income:Number($("rOtherIncome").value||0),total_income:c.income,md:Number($("rMd").value||0),store:Number($("rStore").value||0),bank:Number($("rBank").value||0),transport:Number($("rTransport").value||0),food:Number($("rFood").value||0),communication:Number($("rCommunication").value||0),maintenance:Number($("rMaintenance").value||0),other_expense:Number($("rOtherExpense").value||0),total_expense:c.expenses,balance:c.balance};const {error}=await supabaseClient.from("daily_reports").upsert(row,{onConflict:"report_date"});$("reportMessage").textContent=error?"Imeshindikana: "+error.message:"Ripoti imehifadhiwa.";$("reportMessage").style.color=error?"red":"green";if(!error)loadReports();}
 async function loadReports(){const box=$("reportsList");if(!box)return;const {data,error}=await supabaseClient.from("daily_reports").select("*").order("report_date",{ascending:false});if(error){box.innerHTML='<div class="danger">Imeshindwa kusoma ripoti: '+esc(error.message)+'</div>';return;}box.innerHTML=data?.length?data.map((r,i)=>`<div class="application"><b>${i+1}. Ripoti ${esc(r.report_date)}</b><br>Jumla ya Mapato: ${money(r.total_income)}<br>Jumla ya Matumizi: ${money(r.total_expense)}<br>Balance: <b>${money(r.balance)}</b></div>`).join(""):'<div class="empty">Hakuna ripoti.</div>';}
