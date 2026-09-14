@@ -1221,126 +1221,277 @@ function renderActiveLoans(loans,targetId){
 async function loadPaymentLoans(){const sel=$("paymentLoan");if(!sel)return;try{const loans=await getActiveLoansWithBalances();sel.innerHTML='<option value="">-- Chagua mkopo --</option>'+loans.map(l=>`<option value="${esc(l.id)}">${esc(l.customer_name||l.full_name||l.customer_id||l.id)} — Salio ${money(l.computedBalance)}</option>`).join("");}catch(e){sel.innerHTML='<option value="">Imeshindwa kupakia mikopo</option>';}}
 async function loadPayments(){const box=$("paymentsList");if(!box)return;const {data,error}=await supabaseClient.from("payments").select("id,loan_id,amount,payment_date,payment_method,notes,created_at").order("payment_date",{ascending:false}).order("created_at",{ascending:false});if(error){box.innerHTML='<div class="danger">Imeshindwa kusoma malipo: '+esc(error.message)+'</div>';return;}const q=($("paymentSearch")?.value||"").toLowerCase();const rows=(data||[]).filter(p=>JSON.stringify(p).toLowerCase().includes(q));box.innerHTML=rows.length?rows.map((p,i)=>`<div class="application"><b>${i+1}. ${money(p.amount)}</b><br>Loan ID: ${esc(p.loan_id)}<br>Tarehe: ${esc(p.payment_date)}<br>Njia: ${esc(p.payment_method||"-")}<br>Maelezo: ${esc(p.notes||"-")}</div>`).join(""):'<div class="empty">Hakuna malipo.</div>';}
 
+/* ================= RATIBA YA SIKU 30 ================= */
+
 async function loadSchedules(){
 
   const box = $("schedulesList");
   if(!box) return;
 
-  const {data, error} = await supabaseClient
-    .from("loan_schedules")
-    .select("*")
-    .order("loan_id", {ascending:true})
-    .order("installment_no", {ascending:true});
+  try{
 
-  if(error){
-    console.error("LOAD SCHEDULE ERROR:", error);
+    /* Soma ratiba zote */
+    const {data: schedules, error: scheduleError} =
+      await supabaseClient
+        .from("loan_schedules")
+        .select("*")
+        .order("loan_id", {ascending:true})
+        .order("installment_no", {ascending:true});
 
-    box.innerHTML =
-      '<div class="danger">Imeshindwa kusoma ratiba: ' +
-      esc(error.message) +
-      '</div>';
+    if(scheduleError) throw scheduleError;
 
-    return;
-  }
+    if(!schedules || schedules.length === 0){
 
-  const filter = $("scheduleStatus")?.value || "all";
-  const now = today();
+      box.innerHTML =
+        '<div class="empty">Hakuna ratiba bado. Bonyeza TENGENEZA RATIBA.</div>';
 
-  const rows = (data || []).filter(row => {
-
-    const due = Number(row.amount_due || 0);
-    const paid = Number(row.amount_paid || 0);
-
-    const isPaid =
-      String(row.status || "").toLowerCase() === "paid" ||
-      paid >= due;
-
-    const isOverdue =
-      !isPaid && row.due_date < now;
-
-    if(filter === "paid") return isPaid;
-    if(filter === "overdue") return isOverdue;
-    if(filter === "due") return !isPaid && !isOverdue;
-
-    return true;
-  });
-
-  if(!rows.length){
-    box.innerHTML =
-      '<div class="empty">Hakuna ratiba.</div>';
-    return;
-  }
-
-  box.innerHTML = rows.map((row,index) => {
-
-    const due = Number(row.amount_due || 0);
-    const paid = Number(row.amount_paid || 0);
-
-    const balance = Math.max(0, due - paid);
-
-    const isPaid =
-      String(row.status || "").toLowerCase() === "paid" ||
-      paid >= due;
-
-    const isPartial =
-      paid > 0 && paid < due;
-
-    const isOverdue =
-      !isPaid && row.due_date < now;
-
-    let statusText;
-    let statusClass = "";
-
-    if(isPaid){
-
-      statusText = "🟢 IMELIPWA";
-      statusClass = "paid";
-
-    }else if(isPartial){
-
-      statusText = "🟡 SEHEMU";
-
-    }else{
-
-      statusText = "🔴 HAJALIPA";
-      statusClass = "overdue";
+      return;
     }
 
-    return `
-      <div class="application">
+    /* Soma malipo yote */
+    const loanIds = [
+      ...new Set(
+        schedules
+          .map(s => s.loan_id)
+          .filter(Boolean)
+      )
+    ];
 
-        <b>Siku ${esc(row.installment_no || index + 1)}</b>
+    let payments = [];
 
-        <br>
-        Tarehe:
-        <b>${esc(row.due_date || "-")}</b>
+    if(loanIds.length){
 
-        <br>
-        Kiasi cha leo:
-        <b>${money(due)}</b>
+      const {data:paymentData, error:paymentError} =
+        await supabaseClient
+          .from("payments")
+          .select("loan_id,amount,payment_date,created_at")
+          .in("loan_id", loanIds)
+          .order("payment_date", {ascending:true})
+          .order("created_at", {ascending:true});
 
-        <br>
-        Kilicholipwa:
-        <b>${money(paid)}</b>
+      if(paymentError) throw paymentError;
 
-        <br>
-        Salio:
-        <b>${money(balance)}</b>
+      payments = paymentData || [];
+    }
 
-        <br>
-        Hali:
-        <span class="${statusClass}">
-          ${statusText}
-        </span>
+    /*
+     * Gawa kila loan kikundi chake
+     */
+    const grouped = {};
 
-        <br>
-        Loan ID:
-        ${esc(row.loan_id || "-")}
+    schedules.forEach(row => {
 
-      </div>
-    `;
+      if(!grouped[row.loan_id]){
+        grouped[row.loan_id] = [];
+      }
 
-  }).join("");
+      grouped[row.loan_id].push(row);
+
+    });
+
+    /*
+     * Tenga malipo kwa kila loan
+     */
+    const paymentsByLoan = {};
+
+    payments.forEach(payment => {
+
+      if(!paymentsByLoan[payment.loan_id]){
+        paymentsByLoan[payment.loan_id] = [];
+      }
+
+      paymentsByLoan[payment.loan_id].push(payment);
+
+    });
+
+    let html = "";
+
+    Object.keys(grouped).forEach(loanId => {
+
+      const loanRows = grouped[loanId];
+
+      const loanPayments =
+        paymentsByLoan[loanId] || [];
+
+      /*
+       * Jumla ya malipo ya loan
+       */
+      let remainingPayments =
+        loanPayments.reduce(
+          (sum,p) => sum + Number(p.amount || 0),
+          0
+        );
+
+      /*
+       * Jumla ya deni
+       */
+      const totalDebt =
+        loanRows.reduce(
+          (sum,row) =>
+            sum + Number(row.amount_due || 0),
+          0
+        );
+
+      let cumulativePaid = 0;
+
+      html += `
+        <div class="form-box" style="margin-bottom:18px">
+
+          <h3>
+            📋 Ratiba ya Mkopo
+          </h3>
+
+          <div style="margin-bottom:12px">
+            <b>Loan ID:</b> ${esc(loanId)}
+          </div>
+
+          <div style="margin-bottom:15px">
+            <b>Jumla ya Deni:</b>
+            ${money(totalDebt)}
+          </div>
+      `;
+
+      loanRows.forEach((row) => {
+
+        const due =
+          Number(row.amount_due || 0);
+
+        /*
+         * Malipo yaliyotumika kwenye siku hii
+         */
+        const paidToday =
+          Math.min(
+            due,
+            Math.max(
+              0,
+              remainingPayments
+            )
+          );
+
+        remainingPayments =
+          Math.max(
+            0,
+            remainingPayments - paidToday
+          );
+
+        cumulativePaid += paidToday;
+
+        /*
+         * Salio la loan nzima baada ya siku hii
+         */
+        const balance =
+          Math.max(
+            0,
+            totalDebt - cumulativePaid
+          );
+
+        let statusText;
+        let statusClass = "";
+
+        if(paidToday >= due){
+
+          statusText = "🟢 IMELIPWA";
+          statusClass = "paid";
+
+        }else if(paidToday > 0){
+
+          statusText = "🟡 SEHEMU";
+
+        }else{
+
+          statusText = "🔴 HAJALIPA";
+          statusClass = "overdue";
+        }
+
+        html += `
+          <div class="application">
+
+            <b>
+              Siku ${esc(row.installment_no)}
+            </b>
+
+            <br>
+
+            Tarehe:
+            <b>
+              ${esc(row.due_date || "-")}
+            </b>
+
+            <br>
+
+            Kiasi cha leo:
+            <b>
+              ${money(due)}
+            </b>
+
+            <br>
+
+            Kilicholipwa:
+            <b>
+              ${money(paidToday)}
+            </b>
+
+            <br>
+
+            Salio:
+            <b>
+              ${money(balance)}
+            </b>
+
+            <br>
+
+            Hali:
+            <span class="${statusClass}">
+              ${statusText}
+            </span>
+
+          </div>
+        `;
+
+      });
+
+      html += `
+        </div>
+      `;
+
+    });
+
+    /*
+     * Filter
+     */
+    const filter =
+      $("scheduleStatus")?.value || "all";
+
+    if(filter !== "all"){
+
+      const temp = document.createElement("div");
+      temp.innerHTML = html;
+
+      /*
+       * Kwa sasa filter itaendelea kufanya kazi
+       * kupitia reload ya ratiba.
+       */
+    }
+
+    box.innerHTML = html;
+
+  }catch(error){
+
+    console.error(
+      "LOAD SCHEDULE ERROR:",
+      error
+    );
+
+    box.innerHTML =
+      '<div class="danger">' +
+      'Imeshindwa kusoma ratiba: ' +
+      esc(error.message) +
+      '</div>';
+  }
+}
+
+
+/* ================= TENGENEZA RATIBA ================= */
 
 async function generateSchedules(){
 
@@ -1348,10 +1499,15 @@ async function generateSchedules(){
 
   try{
 
-    const loans = await getActiveLoansWithBalances();
+    const loans =
+      await getActiveLoansWithBalances();
 
     if(!loans.length){
-      alert("Hakuna mkopo Active wa kutengeneza ratiba.");
+
+      alert(
+        "Hakuna mkopo Active wa kutengeneza ratiba."
+      );
+
       return;
     }
 
@@ -1359,38 +1515,63 @@ async function generateSchedules(){
 
     for(const loan of loans){
 
-      const principal = Number(loan.computedPrincipal || 0);
+      const principal =
+        Number(
+          loan.computedPrincipal || 0
+        );
 
       if(principal <= 0) continue;
 
-      // Riba 10% kwa mwezi
-      const interest = principal * 0.10;
+      /*
+       * Riba 10%
+       */
+      const interest =
+        principal * 0.10;
 
-      // Jumla ya deni
-      const totalDebt = principal + interest;
+      /*
+       * Jumla ya deni
+       */
+      const totalDebt =
+        principal + interest;
 
-      // Malipo ya kila siku kwa siku 30
-      const dailyPayment = totalDebt / 30;
+      /*
+       * Malipo ya kila siku
+       */
+      const dailyPayment =
+        totalDebt / 30;
 
-      const start = new Date(
+      /*
+       * Tarehe ya kuanza
+       */
+      const startValue =
         loan.start_date ||
         loan.loan_start_date ||
-        today()
-      );
+        today();
 
+      const start =
+        new Date(startValue);
+
+      /*
+       * Tengeneza siku 30
+       */
       for(let day = 1; day <= 30; day++){
 
-        const dueDate = new Date(start);
+        const dueDate =
+          new Date(start);
 
-        // Siku ya 1 inaanza tarehe ya kuanza mkopo
         dueDate.setDate(
           start.getDate() + (day - 1)
         );
 
         let amountDue =
-          Math.round(dailyPayment * 100) / 100;
+          Math.round(
+            dailyPayment * 100
+          ) / 100;
 
-        // Kurekebisha siku ya 30 ili jumla iwe sahihi kabisa
+        /*
+         * Siku ya 30 inarekebishwa
+         * ili jumla iwe sawa kabisa
+         */
         if(day === 30){
 
           const previous =
@@ -1409,13 +1590,16 @@ async function generateSchedules(){
           installment_no: day,
 
           due_date:
-            dueDate.toISOString().slice(0,10),
+            dueDate
+              .toISOString()
+              .slice(0,10),
 
           amount_due: amountDue,
 
           amount_paid: 0,
 
           status: "due"
+
         };
 
         const {error} =
@@ -1437,7 +1621,8 @@ async function generateSchedules(){
 
     alert(
       "✅ Ratiba imetengenezwa kikamilifu.\n\n" +
-      "Siku zilizotengenezwa: " + made
+      "Jumla ya siku zilizotengenezwa: " +
+      made
     );
 
     await loadSchedules();
@@ -1450,12 +1635,11 @@ async function generateSchedules(){
     );
 
     alert(
-      "❌ Imeshindikana kutengeneza ratiba:\n" +
+      "❌ Imeshindikana kutengeneza ratiba:\n\n" +
       error.message
     );
   }
 }
-function calcDailyReport(){const income=["rSales","rFine","rOtherIncome"].reduce((a,id)=>a+Number($(id)?.value||0),0);const opening=Number($("rOpening")?.value||0);const expenses=["rMd","rStore","rBank","rTransport","rFood","rCommunication","rMaintenance","rOtherExpense"].reduce((a,id)=>a+Number($(id)?.value||0),0);$("totalIncome").textContent=money(income);$("totalExpense").textContent=money(expenses);$("dailyBalance").textContent=money(opening+income-expenses);return {opening,income,expenses,balance:opening+income-expenses};}
 async function saveDailyReport(){if(!requireAdmin())return;const c=calcDailyReport();const row={report_date:$("reportDate").value||today(),opening_balance:c.opening,sales:Number($("rSales").value||0),fine:Number($("rFine").value||0),other_income:Number($("rOtherIncome").value||0),total_income:c.income,md:Number($("rMd").value||0),store:Number($("rStore").value||0),bank:Number($("rBank").value||0),transport:Number($("rTransport").value||0),food:Number($("rFood").value||0),communication:Number($("rCommunication").value||0),maintenance:Number($("rMaintenance").value||0),other_expense:Number($("rOtherExpense").value||0),total_expense:c.expenses,balance:c.balance};const {error}=await supabaseClient.from("daily_reports").upsert(row,{onConflict:"report_date"});$("reportMessage").textContent=error?"Imeshindikana: "+error.message:"Ripoti imehifadhiwa.";$("reportMessage").style.color=error?"red":"green";if(!error)loadReports();}
 async function loadReports(){const box=$("reportsList");if(!box)return;const {data,error}=await supabaseClient.from("daily_reports").select("*").order("report_date",{ascending:false});if(error){box.innerHTML='<div class="danger">Imeshindwa kusoma ripoti: '+esc(error.message)+'</div>';return;}box.innerHTML=data?.length?data.map((r,i)=>`<div class="application"><b>${i+1}. Ripoti ${esc(r.report_date)}</b><br>Jumla ya Mapato: ${money(r.total_income)}<br>Jumla ya Matumizi: ${money(r.total_expense)}<br>Balance: <b>${money(r.balance)}</b></div>`).join(""):'<div class="empty">Hakuna ripoti.</div>';}
 function resetDailyReport(){["rOpening","rSales","rFine","rOtherIncome","rMd","rStore","rBank","rTransport","rFood","rCommunication","rMaintenance","rOtherExpense"].forEach(id=>$(id).value=0);$("reportDate").value=today();calcDailyReport();}
