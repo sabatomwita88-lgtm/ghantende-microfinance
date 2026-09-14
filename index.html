@@ -1221,7 +1221,127 @@ function renderActiveLoans(loans,targetId){
 async function loadPaymentLoans(){const sel=$("paymentLoan");if(!sel)return;try{const loans=await getActiveLoansWithBalances();sel.innerHTML='<option value="">-- Chagua mkopo --</option>'+loans.map(l=>`<option value="${esc(l.id)}">${esc(l.customer_name||l.full_name||l.customer_id||l.id)} — Salio ${money(l.computedBalance)}</option>`).join("");}catch(e){sel.innerHTML='<option value="">Imeshindwa kupakia mikopo</option>';}}
 async function loadPayments(){const box=$("paymentsList");if(!box)return;const {data,error}=await supabaseClient.from("payments").select("id,loan_id,amount,payment_date,payment_method,notes,created_at").order("payment_date",{ascending:false}).order("created_at",{ascending:false});if(error){box.innerHTML='<div class="danger">Imeshindwa kusoma malipo: '+esc(error.message)+'</div>';return;}const q=($("paymentSearch")?.value||"").toLowerCase();const rows=(data||[]).filter(p=>JSON.stringify(p).toLowerCase().includes(q));box.innerHTML=rows.length?rows.map((p,i)=>`<div class="application"><b>${i+1}. ${money(p.amount)}</b><br>Loan ID: ${esc(p.loan_id)}<br>Tarehe: ${esc(p.payment_date)}<br>Njia: ${esc(p.payment_method||"-")}<br>Maelezo: ${esc(p.notes||"-")}</div>`).join(""):'<div class="empty">Hakuna malipo.</div>';}
 
-async function loadSchedules(){const box=$("schedulesList");if(!box)return;const {data,error}=await supabaseClient.from("loan_schedules").select("*").order("due_date",{ascending:true});if(error){box.innerHTML='<div class="danger">Imeshindwa kusoma ratiba. Run SQL ya mfumo kwanza.</div>';return;}const filter=$("scheduleStatus").value;const now=today();const rows=(data||[]).filter(r=>{const paid=String(r.status||"").toLowerCase()==="paid"||Number(r.amount_paid||0)>=Number(r.amount_due||0);const overdue=!paid&&r.due_date<now;return filter==="all"||filter==="paid"&&paid||filter==="overdue"&&overdue||filter==="due"&&!paid&&!overdue;});box.innerHTML=rows.length?rows.map((r,i)=>{const paid=String(r.status||"").toLowerCase()==="paid"||Number(r.amount_paid||0)>=Number(r.amount_due||0);const late=!paid&&r.due_date<now;return `<div class="application"><b>Awamu #${i+1}</b><br>Loan ID: ${esc(r.loan_id)}<br>Tarehe ya malipo: ${esc(r.due_date)}<br>Kiasi kinachotarajiwa: ${money(r.amount_due)}<br>Kiasi kilicholipwa: ${money(r.amount_paid||0)}<br>Hali: <span class="${paid?'paid':late?'overdue':''}">${paid?'IMELIPWA':late?'AMECHELEWA':'INADAIWA'}</span></div>`}).join(""):'<div class="empty">Hakuna ratiba.</div>';}
+async function loadSchedules(){
+
+  const box = $("schedulesList");
+  if(!box) return;
+
+  const {data, error} = await supabaseClient
+    .from("loan_schedules")
+    .select("*")
+    .order("loan_id", {ascending:true})
+    .order("installment_no", {ascending:true});
+
+  if(error){
+    console.error("LOAD SCHEDULE ERROR:", error);
+
+    box.innerHTML =
+      '<div class="danger">Imeshindwa kusoma ratiba: ' +
+      esc(error.message) +
+      '</div>';
+
+    return;
+  }
+
+  const filter = $("scheduleStatus")?.value || "all";
+  const now = today();
+
+  const rows = (data || []).filter(row => {
+
+    const due = Number(row.amount_due || 0);
+    const paid = Number(row.amount_paid || 0);
+
+    const isPaid =
+      String(row.status || "").toLowerCase() === "paid" ||
+      paid >= due;
+
+    const isOverdue =
+      !isPaid && row.due_date < now;
+
+    if(filter === "paid") return isPaid;
+    if(filter === "overdue") return isOverdue;
+    if(filter === "due") return !isPaid && !isOverdue;
+
+    return true;
+  });
+
+  if(!rows.length){
+    box.innerHTML =
+      '<div class="empty">Hakuna ratiba.</div>';
+    return;
+  }
+
+  box.innerHTML = rows.map((row,index) => {
+
+    const due = Number(row.amount_due || 0);
+    const paid = Number(row.amount_paid || 0);
+
+    const balance = Math.max(0, due - paid);
+
+    const isPaid =
+      String(row.status || "").toLowerCase() === "paid" ||
+      paid >= due;
+
+    const isPartial =
+      paid > 0 && paid < due;
+
+    const isOverdue =
+      !isPaid && row.due_date < now;
+
+    let statusText;
+    let statusClass = "";
+
+    if(isPaid){
+
+      statusText = "🟢 IMELIPWA";
+      statusClass = "paid";
+
+    }else if(isPartial){
+
+      statusText = "🟡 SEHEMU";
+
+    }else{
+
+      statusText = "🔴 HAJALIPA";
+      statusClass = "overdue";
+    }
+
+    return `
+      <div class="application">
+
+        <b>Siku ${esc(row.installment_no || index + 1)}</b>
+
+        <br>
+        Tarehe:
+        <b>${esc(row.due_date || "-")}</b>
+
+        <br>
+        Kiasi cha leo:
+        <b>${money(due)}</b>
+
+        <br>
+        Kilicholipwa:
+        <b>${money(paid)}</b>
+
+        <br>
+        Salio:
+        <b>${money(balance)}</b>
+
+        <br>
+        Hali:
+        <span class="${statusClass}">
+          ${statusText}
+        </span>
+
+        <br>
+        Loan ID:
+        ${esc(row.loan_id || "-")}
+
+      </div>
+    `;
+
+  }).join("");
+}
 
 async function generateSchedules(){if(!requireAdmin())return;try{const loans=await getActiveLoansWithBalances();let made=0;for(const l of loans){const total=Number(l.computedPrincipal);const installments=Number(l.installments||l.number_of_installments||l.repayment_period||4);const start=new Date(l.start_date||l.loan_start_date||today());const per=total/installments;for(let i=1;i<=installments;i++){const d=new Date(start);d.setDate(d.getDate()+30*i);const row={loan_id:l.id,installment_no:i,due_date:d.toISOString().slice(0,10),amount_due:Math.round(per*100)/100,amount_paid:0,status:"due"};const {error}=await supabaseClient.from("loan_schedules").upsert(row,{onConflict:"loan_id,installment_no"});if(error)throw error;made++;}}alert("Ratiba imetengenezwa: "+made+" awamu.");await loadSchedules();}catch(e){alert("Imeshindikana kutengeneza ratiba: "+e.message);}}
 
