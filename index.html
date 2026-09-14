@@ -2233,7 +2233,27 @@ $("userForm").addEventListener(
 
   }
 );
+/* ================= RATIBA BUTTON ================= */
 
+document.addEventListener("DOMContentLoaded", function(){
+
+  const btn = document.getElementById("generateSchedules");
+
+  if(btn){
+    btn.addEventListener("click", function(){
+      generateSchedules();
+    });
+  }
+
+  const filter = document.getElementById("scheduleStatus");
+
+  if(filter){
+    filter.addEventListener("change", function(){
+      loadSchedules();
+    });
+  }
+
+});
 /* ================= START ================= */
 (async function(){
   try{
