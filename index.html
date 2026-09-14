@@ -336,20 +336,456 @@ header h2{margin:0;font-size:19px}
 </section>
 
 <!-- ================= RATIBA ================= -->
+
 <section id="ratiba" class="section">
 
   <div class="section-header">
     <div>
-      <h2>Ratiba ya Marejesho</h2>
-      <p>Malipo ya kila siku kwa siku 30</p>
+      <h2>📅 Ratiba ya Marejesho</h2>
+      <p>Malipo ya kila siku kwa siku 30 • Riba 10%</p>
     </div>
-<button
-  id="generateSchedules"
-  class="btn-primary"
-  type="button"
-  onclick="generateSchedules()">
-  TENGENEZA RATIBA
-</button>
+
+    <button
+      id="generateSchedules"
+      class="btn-primary"
+      type="button"
+      onclick="generateSchedules()">
+      TENGENEZA RATIBA
+    </button>
+  </div>
+
+
+  <!-- CHUJA RATIBA -->
+
+  <div class="card" style="margin-bottom:15px;">
+
+    <label for="scheduleStatus">
+      <b>Chuja Ratiba</b>
+    </label>
+
+    <select
+      id="scheduleStatus"
+      class="input"
+      onchange="loadSchedules()">
+
+      <option value="all">
+        Ratiba Zote
+      </option>
+
+      <option value="due">
+        Bado Haijalipwa
+      </option>
+
+      <option value="paid">
+        Zilizolipwa
+      </option>
+
+      <option value="overdue">
+        Zilizochelewa
+      </option>
+
+    </select>
+
+  </div>
+
+
+  <!-- RATIBA ZENYEWE -->
+
+  <div id="schedulesList">
+
+    <div class="empty">
+      Inapakia ratiba...
+    </div>
+
+  </div>
+
+</section>
+
+
+<script>
+
+/* =====================================================
+   RATIBA YA MAREJESHO
+   SIKU 30 + RIBA 10%
+===================================================== */
+
+
+/* ================= LOAD SCHEDULES ================= */
+
+async function loadSchedules(){
+
+  const list =
+    document.getElementById("schedulesList");
+
+  if(!list) return;
+
+  list.innerHTML =
+    `<div class="empty">⏳ Inapakia ratiba...</div>`;
+
+
+  try{
+
+    const filter =
+      document.getElementById("scheduleStatus")?.value
+      || "all";
+
+
+    const { data, error } =
+      await supabaseClient
+        .from("loan_schedules")
+        .select("*")
+        .order("due_date", {
+          ascending: true
+        })
+        .order("installment_no", {
+          ascending: true
+        });
+
+
+    if(error){
+
+      console.error(
+        "SCHEDULE ERROR:",
+        error
+      );
+
+      list.innerHTML = `
+        <div class="empty" style="color:red;">
+          ❌ Imeshindikana kupakia ratiba.<br><br>
+          ${error.message}
+        </div>
+      `;
+
+      return;
+    }
+
+
+    if(!data || data.length === 0){
+
+      list.innerHTML = `
+        <div class="empty">
+
+          <h3>Hakuna ratiba bado.</h3>
+
+          <p>
+            Bonyeza
+            <b>TENGENEZA RATIBA</b>
+            kutengeneza ratiba za mikopo active.
+          </p>
+
+        </div>
+      `;
+
+      return;
+    }
+
+
+    /* ================= FILTER ================= */
+
+    const today =
+      new Date()
+        .toISOString()
+        .split("T")[0];
+
+
+    let rows =
+      data.filter(r => {
+
+        const paid =
+          Number(r.amount_paid || 0);
+
+        const due =
+          Number(r.amount_due || 0);
+
+
+        if(filter === "paid"){
+
+          return paid >= due && due > 0;
+
+        }
+
+
+        if(filter === "overdue"){
+
+          return (
+            r.due_date < today &&
+            paid < due
+          );
+
+        }
+
+
+        if(filter === "due"){
+
+          return paid < due;
+
+        }
+
+
+        return true;
+
+      });
+
+
+    if(rows.length === 0){
+
+      list.innerHTML = `
+        <div class="empty">
+          Hakuna ratiba kwenye kichujio hiki.
+        </div>
+      `;
+
+      return;
+    }
+
+
+    /* ================= TABLE ================= */
+
+    list.innerHTML = `
+
+      <div style="overflow-x:auto;">
+
+        <table style="
+          width:100%;
+          border-collapse:collapse;
+          min-width:850px;
+        ">
+
+          <thead>
+
+            <tr>
+
+              <th>Siku</th>
+              <th>Loan ID</th>
+              <th>Tarehe</th>
+              <th>Kiasi cha Leo</th>
+              <th>Kilicholipwa</th>
+              <th>Salio</th>
+              <th>Hali</th>
+
+            </tr>
+
+          </thead>
+
+
+          <tbody>
+
+            ${rows.map(r => {
+
+              const due =
+                Number(r.amount_due || 0);
+
+              const paid =
+                Number(r.amount_paid || 0);
+
+              const balance =
+                Math.max(due - paid, 0);
+
+
+              let status =
+                "HAJALIPA";
+
+
+              if(
+                paid >= due &&
+                due > 0
+              ){
+
+                status =
+                  "IMELIPWA";
+
+              }
+              else if(
+                paid > 0 &&
+                paid < due
+              ){
+
+                status =
+                  "SEHEMU";
+
+              }
+              else if(
+                r.due_date < today
+              ){
+
+                status =
+                  "HAJALIPA";
+
+              }
+
+
+              return `
+
+                <tr>
+
+                  <td>
+                    ${r.installment_no || "-"}
+                  </td>
+
+                  <td style="font-size:12px;">
+                    ${r.loan_id || "-"}
+                  </td>
+
+                  <td>
+                    ${r.due_date || "-"}
+                  </td>
+
+                  <td>
+                    ${due.toLocaleString()} TZS
+                  </td>
+
+                  <td>
+                    ${paid.toLocaleString()} TZS
+                  </td>
+
+                  <td>
+                    ${balance.toLocaleString()} TZS
+                  </td>
+
+                  <td>
+                    <b>${status}</b>
+                  </td>
+
+                </tr>
+
+              `;
+
+            }).join("")}
+
+          </tbody>
+
+        </table>
+
+      </div>
+
+
+      <div style="
+        margin-top:15px;
+        font-weight:bold;
+      ">
+
+        Jumla ya ratiba:
+        ${rows.length}
+
+      </div>
+
+    `;
+
+  }
+  catch(error){
+
+    console.error(
+      "LOAD SCHEDULE ERROR:",
+      error
+    );
+
+    list.innerHTML = `
+      <div class="empty" style="color:red;">
+        ❌ ${error.message}
+      </div>
+    `;
+
+  }
+
+}
+
+
+/* =====================================================
+   TENGENEZA RATIBA
+===================================================== */
+
+async function generateSchedules(){
+
+  const button =
+    document.getElementById(
+      "generateSchedules"
+    );
+
+
+  if(button){
+
+    button.disabled = true;
+
+    button.textContent =
+      "⏳ INATENGENEZA...";
+
+  }
+
+
+  try{
+
+    const { data, error } =
+      await supabaseClient
+        .rpc(
+          "generate_all_active_loan_schedules"
+        );
+
+
+    if(error){
+
+      throw error;
+
+    }
+
+
+    alert(
+      "✅ Ratiba imetengenezwa kikamilifu."
+    );
+
+
+    await loadSchedules();
+
+  }
+  catch(error){
+
+    console.error(
+      "GENERATE SCHEDULE ERROR:",
+      error
+    );
+
+    alert(
+      "❌ Imeshindikana kutengeneza ratiba:\n\n"
+      + error.message
+    );
+
+  }
+  finally{
+
+    if(button){
+
+      button.disabled = false;
+
+      button.textContent =
+        "TENGENEZA RATIBA";
+
+    }
+
+  }
+
+}
+
+
+/* ================= ANZA KUPAKIA ================= */
+
+if(
+  document.readyState === "loading"
+){
+
+  document.addEventListener(
+    "DOMContentLoaded",
+    loadSchedules
+  );
+
+}
+else{
+
+  loadSchedules();
+
+}
+
+</script>
+
+<!-- ================= MWISHO WA RATIBA ================= -->
 
 
   <div class="card" style="margin-bottom:15px;">
