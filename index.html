@@ -1932,86 +1932,58 @@ async function loadSchedules(){
 
 /* ================= TENGENEZA RATIBA ================= */
 
-async function generateSchedules(){
+async function generateSchedules() {
 
-  if(!requireAdmin()) return;
+  try {
 
-  try{
+    const { data: loans, error: loanError } =
+      await supabaseClient
+        .from("loans")
+        .select("id, loan_amount, approved_date, application_date")
+        .eq("loan_status", "active");
 
-    const loans =
-      await getActiveLoansWithBalances();
+    if (loanError) throw loanError;
 
-    if(!loans.length){
-
-      alert(
-        "Hakuna mkopo Active wa kutengeneza ratiba."
-      );
-
+    if (!loans || loans.length === 0) {
+      alert("Hakuna mikopo Active ya kutengeneza ratiba.");
       return;
     }
 
     let made = 0;
 
-    for(const loan of loans){
+    for (const loan of loans) {
 
-      const principal =
-        Number(
-          loan.computedPrincipal || 0
-        );
+      const principal = Number(loan.loan_amount || 0);
 
-      if(principal <= 0) continue;
+      if (principal <= 0) continue;
 
-      /*
-       * Riba 10%
-       */
-      const interest =
-        principal * 0.10;
-
-      /*
-       * Jumla ya deni
-       */
+      // Riba 10%
       const totalDebt =
-        principal + interest;
+        Math.round(principal * 1.10 * 100) / 100;
 
-      /*
-       * Malipo ya kila siku
-       */
+      // Malipo ya siku 30
       const dailyPayment =
-        totalDebt / 30;
+        Math.round((totalDebt / 30) * 100) / 100;
 
-      /*
-       * Tarehe ya kuanza
-       */
-      const startValue =
-        loan.start_date ||
-        loan.loan_start_date ||
-        today();
+      // Tarehe ya kuanzia
+      const startDate = new Date(
+        loan.approved_date ||
+        loan.application_date ||
+        new Date()
+      );
 
-      const start =
-        new Date(startValue);
+      for (let day = 1; day <= 30; day++) {
 
-      /*
-       * Tengeneza siku 30
-       */
-      for(let day = 1; day <= 30; day++){
-
-        const dueDate =
-          new Date(start);
+        const dueDate = new Date(startDate);
 
         dueDate.setDate(
-          start.getDate() + (day - 1)
+          dueDate.getDate() + (day - 1)
         );
 
-        let amountDue =
-          Math.round(
-            dailyPayment * 100
-          ) / 100;
+        let amountDue = dailyPayment;
 
-        /*
-         * Siku ya 30 inarekebishwa
-         * ili jumla iwe sawa kabisa
-         */
-        if(day === 30){
+        // Siku ya 30 inachukua tofauti ya rounding
+        if (day === 30) {
 
           const previous =
             dailyPayment * 29;
@@ -2022,6 +1994,16 @@ async function generateSchedules(){
             ) / 100;
         }
 
+        /*
+         * MUHIMU:
+         * Hatuweki amount_paid wala status hapa.
+         *
+         * Hii inamaanisha:
+         * - Ratiba mpya -> database default itatumia 0 / due
+         * - Ratiba iliyolipwa -> amount_paid na status
+         *   vitaendelea kubaki kama vilivyo.
+         */
+
         const row = {
 
           loan_id: loan.id,
@@ -2031,17 +2013,13 @@ async function generateSchedules(){
           due_date:
             dueDate
               .toISOString()
-              .slice(0,10),
+              .slice(0, 10),
 
-          amount_due: amountDue,
-
-          amount_paid: 0,
-
-          status: "due"
+          amount_due: amountDue
 
         };
 
-        const {error} =
+        const { error } =
           await supabaseClient
             .from("loan_schedules")
             .upsert(
@@ -2052,7 +2030,7 @@ async function generateSchedules(){
               }
             );
 
-        if(error) throw error;
+        if (error) throw error;
 
         made++;
       }
@@ -2066,7 +2044,7 @@ async function generateSchedules(){
 
     await loadSchedules();
 
-  }catch(error){
+  } catch (error) {
 
     console.error(
       "GENERATE SCHEDULE ERROR:",
