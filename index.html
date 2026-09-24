@@ -3,38 +3,36 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>GHANTENDE MICROFINANCE V3.3 FINAL</title>
+<title>GHANTENDE V3.4 - Majina Ratiba</title>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
 <style>
 *{box-sizing:border-box;font-family:Arial,sans-serif}
 body{margin:0;min-height:100vh;background:linear-gradient(135deg,#064e3b,#0f766e);color:#222}
-button{border:0;border-radius:9px;padding:12px 16px;background:#047857;color:#fff;font-size:15px;font-weight:bold;cursor:pointer}
-input,select,textarea{width:100%;padding:13px;border:1px solid #ccc;border-radius:9px;font-size:16px;margin:6px 0 14px}
-label{display:block;font-weight:bold;margin-top:8px}
+button{border:0;border-radius:9px;padding:10px 14px;background:#047857;color:#fff;font-weight:bold;cursor:pointer}
+input,select,textarea{width:100%;padding:12px;border:1px solid #ccc;border-radius:8px;margin:6px 0 12px}
 #loginPage{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px}
-.login-box{width:100%;max-width:410px;background:#fff;border-radius:18px;padding:30px 24px;box-shadow:0 10px 35px rgba(0,0,0,.25)}
+.login-box{width:100%;max-width:410px;background:#fff;border-radius:18px;padding:26px}
 #app{display:none;min-height:100vh;background:#f3f4f6}
-header{background:#065f46;color:#fff;padding:14px 16px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:10}
-.menu{background:#fff;display:flex;gap:8px;padding:10px;overflow-x:auto;border-bottom:1px solid #ddd;position:sticky;top:56px;z-index:9}
-.menu button{background:#e5e7eb;color:#222;white-space:nowrap;padding:10px 14px}
+header{background:#065f46;color:#fff;padding:12px 14px;display:flex;justify-content:space-between;position:sticky;top:0;z-index:10}
+.menu{background:#fff;display:flex;gap:6px;padding:8px;overflow-x:auto;border-bottom:1px solid #ddd;position:sticky;top:52px;z-index:9}
+.menu button{background:#e5e7eb;color:#222;white-space:nowrap;padding:9px 12px;font-size:13px}
 .menu button.active{background:#047857;color:#fff}
-.section{display:none;padding:18px;max-width:1100px;margin:auto}
+.section{display:none;padding:14px;max-width:1100px;margin:auto}
 .section.active{display:block}
-.form-box,.table-box{background:#fff;padding:18px;border-radius:14px;box-shadow:0 3px 12px rgba(0,0,0,.08);margin-top:14px}
-.application{padding:12px 0;border-bottom:1px solid #eee}
-.badge{display:inline-block;padding:5px 9px;border-radius:20px;background:#ecfdf5;color:#065f46;font-size:12px;font-weight:bold}
-.actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
-.edit-btn{background:#2563eb}.delete-btn{background:#dc2626}.block-btn{background:#ff9800}.unblock-btn{background:#16a34a}.pwd-btn{background:#7c3aed}
-.balance-box{background:linear-gradient(90deg,#16a34a,#2563eb);color:white;padding:20px;border-radius:16px;text-align:center;margin-top:14px}
-.history-item{cursor:pointer;transition:.2s}
+.form-box,.table-box{background:#fff;padding:14px;border-radius:12px;margin-top:12px;box-shadow:0 2px 8px rgba(0,0,0,.07)}
+.balance-box{background:linear-gradient(90deg,#16a34a,#2563eb);color:#fff;padding:18px;border-radius:14px;text-align:center;margin-top:12px}
+.block-btn{background:#ff9800}.unblock-btn{background:#16a34a}.delete-btn{background:#dc2626}.pwd-btn{background:#7c3aed}
+.history-item{cursor:pointer}
 .history-item:hover{background:#ecfdf5!important}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th{background:#f3f4f6;padding:8px;text-align:left}
+td{padding:8px;border-bottom:1px solid #eee}
 </style>
 </head>
 <body>
-<div id="loginPage"><div class="login-box"><div style="width:70px;height:70px;margin:0 auto 10px;border-radius:50%;background:#047857;color:#fff;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:bold">GM</div><h2 style="text-align:center;color:#065f46;margin:5px 0">GHANTENDE V3.3</h2><p style="text-align:center;color:#666;font-size:13px">ADMIN FULL - Historia Inayofunguka</p><form id="loginForm"><label>Gmail</label><input id="email" type="email" required><label>Password</label><input id="password" type="password" required><button id="loginButton" type="submit" style="width:100%">INGIA</button><div id="message" style="text-align:center;margin-top:10px;font-weight:bold;min-height:20px"></div></form></div></div>
-
+<div id="loginPage"><div class="login-box"><h2 style="text-align:center;color:#065f46">GHANTENDE V3.4</h2><p style="text-align:center;font-size:12px;color:#666">Ratiba kwa Majina + Historia Inayofunguka</p><form id="loginForm"><label>Gmail</label><input id="email" type="email" required><label>Password</label><input id="password" type="password" required><button type="submit" style="width:100%">INGIA</button><div id="message" style="text-align:center;margin-top:8px;font-weight:bold"></div></form></div></div>
 <div id="app">
-<header><h2>GHANTENDE MICROFINANCE</h2><div style="display:flex;gap:6px"><button onclick="changeMyPassword()" style="background:#fff;color:#065f46;padding:8px 12px;font-size:13px">🔑 Password</button><button id="logoutButton" style="background:#dc2626;padding:8px 12px">TOKA</button></div></header>
+<header><h2>GHANTENDE</h2><div><button onclick="changeMyPassword()" style="background:#fff;color:#065f46;padding:7px 10px;font-size:12px">🔑 Password</button> <button id="logoutButton" style="background:#dc2626;padding:7px 10px">TOKA</button></div></header>
 <div class="menu">
 <button class="active" data-section="dashboard">Dashboard</button>
 <button data-section="wateja">Wateja</button>
@@ -43,28 +41,24 @@ header{background:#065f46;color:#fff;padding:14px 16px;display:flex;justify-cont
 <button data-section="marejesho">Marejesho</button>
 <button data-section="ratiba">Ratiba</button>
 <button data-section="ripoti">Ripoti</button>
-<button data-section="maafisa">Maafisa</button>
-<button id="usersMenu" data-section="watumiaji" style="display:none">👑 Watumiaji</button>
+<button data-section="watumiaji" id="usersMenu" style="display:none">👑 Watumiaji</button>
 </div>
 
-<section id="dashboard" class="section active"><div style="background:#047857;color:#fff;padding:16px;border-radius:12px"><b id="welcomeEmail"></b><div id="adminBadge" style="display:none;margin-top:10px;background:#fff;color:#065f46;padding:8px 12px;border-radius:8px;font-weight:bold">🔐 ADMIN: <span id="adminName"></span></div></div><div id="customersList" style="margin-top:12px"></div></section>
-<section id="wateja" class="section"><button id="addCustomerButton">+ ONGEZA MTEJA</button><div id="watejaList"></div></section>
-<section id="maombi" class="section"><div class="form-box"><label>Mteja</label><select id="loanCustomer"></select><label>Kiasi</label><input id="loanAmount" type="number"><label>Sababu</label><textarea id="loanPurpose"></textarea><button id="submitLoanButton" style="width:100%">TUMA OMBI</button></div><div id="applicationsList"></div></section>
-<section id="mikopo" class="section"><div id="activeLoansList"></div></section>
-<section id="marejesho" class="section"><div class="form-box"><select id="paymentLoan"></select><input id="paymentAmount" type="number" placeholder="Kiasi"><input id="paymentDate" type="date"><button id="savePayment" style="width:100%">HIFADHI MALIPO</button></div><div id="paymentsList"></div></section>
-<section id="ratiba" class="section"><button id="generateSchedules">TENGENEZA RATIBA</button><div id="schedulesList"></div></section>
-
+<section id="dashboard" class="section active"><b id="welcomeEmail"></b><div id="adminBadge" style="display:none;background:#ecfdf5;padding:8px;border-radius:8px;margin-top:8px">🔐 ADMIN: <span id="adminName"></span></div><div id="dashStats" class="table-box"></div></section>
+<section id="wateja" class="section"><div id="watejaList" class="table-box">Inapakia...</div></section>
+<section id="mikopo" class="section"><div id="activeLoansList" class="table-box">Inapakia...</div></section>
+<section id="ratiba" class="section">
+<div style="display:flex;justify-content:space-between;align-items:center"><h2>📅 Ratiba - Kwa Majina</h2><button id="generateSchedules">TENGENEZA RATIBA</button></div>
+<div class="form-box"><input id="scheduleSearch" placeholder="Tafuta jina la mteja..."><select id="scheduleStatus"><option value="all">Zote</option><option value="due">Bado</option><option value="paid">Zilizolipwa</option><option value="overdue">Zilizochelewa</option></select></div>
+<div id="schedulesList" class="table-box">Inapakia ratiba...</div>
+</section>
 <section id="ripoti" class="section">
-<div style="display:flex;justify-content:space-between;align-items:center"><h2>📊 RIPOTI</h2><button id="newDailyReport" style="background:#666">RIPOTI MPYA</button></div>
-<div class="form-box">
-<label>Tarehe</label><input id="reportDate" type="date">
-<h3>📥 MAPATO</h3>
+<h2>📊 Ripoti</h2><input id="reportDate" type="date">
 <label>Lala jana</label><input id="rOpening" type="number" value="0">
 <label>Mauzo</label><input id="rSales" type="number" value="0">
-<label>Fomu/Fine</label><input id="rFine" type="number" value="0">
-<label>Mapato mengine</label><input id="rOtherIncome" type="number" value="0">
-<p><b>Jumla Mapato: <span id="totalIncome">TZS 0</span></b></p>
-<h3>📤 MATUMIZI</h3>
+<label>Fomu</label><input id="rFine" type="number" value="0">
+<label>Mengine</label><input id="rOtherIncome" type="number" value="0">
+<p>Jumla Mapato: <b id="totalIncome">TZS 0</b></p>
 <label>MD</label><input id="rMd" type="number" value="0">
 <label>Store</label><input id="rStore" type="number" value="0">
 <label>Bank</label><input id="rBank" type="number" value="0">
@@ -73,22 +67,20 @@ header{background:#065f46;color:#fff;padding:14px 16px;display:flex;justify-cont
 <label>Mawasiliano</label><input id="rCommunication" type="number" value="0">
 <label>Matengenezo</label><input id="rMaintenance" type="number" value="0">
 <label>Mengine</label><input id="rOtherExpense" type="number" value="0">
-<p><b>Jumla Matumizi: <span id="totalExpense">TZS 0</span></b></p>
-<div class="balance-box"><small>BALANCE = Lala + Mapato - Matumizi</small><div id="dailyBalance" style="font-size:34px;font-weight:bold">TZS 0</div><small>Auto-calc kila unapoandika</small></div>
-<button id="saveDailyReport" style="width:100%;margin-top:12px">💾 HIFADHI RIPOTI</button>
-<button onclick="tumaRipotiSMS()" style="width:100%;margin-top:8px;background:#0f766e">📲 TUMA RIPOTI SMS</button>
-<div id="reportMessage" style="text-align:center;margin-top:8px;font-weight:bold"></div>
-</div>
-<div class="table-box"><h3>📜 Historia (Bonyeza kufungua)</h3><div id="reportsList">Inapakia...</div></div>
+<p>Jumla Matumizi: <b id="totalExpense">TZS 0</b></p>
+<div class="balance-box"><div id="dailyBalance" style="font-size:32px">TZS 0</div><small>Lala + Mapato - Matumizi (auto)</small></div>
+<button id="saveDailyReport" style="width:100%;margin-top:10px">💾 HIFADHI RIPOTI</button>
+<div id="reportMessage" style="text-align:center;font-weight:bold;margin-top:6px"></div>
+<div class="table-box"><h3>📜 Historia - Bonyeza kufungua</h3><div id="reportsList"></div></div>
 </section>
-
 <section id="watumiaji" class="section">
-<h2>👑 ADMIN FULL</h2>
-<div class="form-box" style="border-left:5px solid #047857"><h3>➕ Ongeza User</h3><form id="userForm"><input id="newUserName" placeholder="Jina Kamili" required><input id="newUserPhone" placeholder="Simu"><input id="newUserEmail" type="email" placeholder="Gmail" required><input id="newUserPassword" type="password" placeholder="Password min 6" required><select id="newUserRole"><option value="officer">Officer</option><option value="cashier">Cashier</option><option value="admin">Admin</option></select><button type="submit" style="width:100%;margin-top:8px">ONGEZA USER</button><div id="userMessage"></div></form></div>
-<div class="form-box" style="background:#fff7ed;border-left:5px solid #ff9800"><h3>🔑 Badili Password</h3><select id="editUserSelect"><option value="">-- Chagua User --</option></select><input id="adminNewPassword" placeholder="Password mpya min 6"><div style="display:flex;gap:8px"><button onclick="adminChangePassword()" style="flex:1;background:#7c3aed">BADILI</button><button onclick="adminSendReset()" style="flex:1;background:#333">EMAIL RESET</button></div><div id="adminPassMessage"></div></div>
-<div class="table-box"><h3>Watumiaji (Block/Unblock/Futa)</h3><div id="usersList"></div></div>
+<h2>👑 Watumiaji - Password Tu</h2>
+<div class="form-box"><form id="userForm"><input id="newUserName" placeholder="Jina" required><input id="newUserPhone" placeholder="Simu"><input id="newUserEmail" type="email" placeholder="Gmail" required><input id="newUserPassword" type="password" placeholder="Password min 6" required><select id="newUserRole"><option value="officer">Officer</option><option value="cashier">Cashier</option><option value="admin">Admin</option></select><button type="submit" style="width:100%">ONGEZA USER</button></form></div>
+<div class="form-box" style="background:#fff7ed"><select id="editUserSelect"><option value="">-- Chagua User --</option></select><input id="adminNewPassword" placeholder="Password mpya"><div style="display:flex;gap:6px"><button onclick="adminChangePassword()" style="flex:1;background:#7c3aed">BADILI PWD</button><button onclick="adminSendReset()" style="flex:1;background:#333">EMAIL RESET</button></div></div>
+<div id="usersList" class="table-box"></div>
 </section>
-<section id="maafisa" class="section"><div id="maafisaList"></div></section>
+<section id="maombi" class="section"><div class="form-box"><select id="loanCustomer"></select><input id="loanAmount" type="number" placeholder="Kiasi"><button id="submitLoanButton">TUMA OMBI</button></div><div id="applicationsList" class="table-box"></div></section>
+<section id="marejesho" class="section"><select id="paymentLoan"></select><input id="paymentAmount" type="number" placeholder="Kiasi"><input id="paymentDate" type="date"><button id="savePayment">HIFADHI</button><div id="paymentsList" class="table-box"></div></section>
 </div>
 
 <script>
@@ -96,41 +88,89 @@ const SUPABASE_URL="https://kvcbsebklyuupwixmagd.supabase.co";
 const SUPABASE_ANON_KEY="sb_publishable_CaipCB_cvv1uPsqtt4Yalg_cFWGSP2t";
 const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
 const $=id=>document.getElementById(id);
-function money(v){return "TZS "+Number(v||0).toLocaleString()}
-function showSection(id){document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));const sec=$(id);if(sec)sec.classList.add("active");document.querySelectorAll(".menu button").forEach(b=>b.classList.remove("active"));const mb=document.querySelector(`.menu button[data-section="${id}"]`);if(mb)mb.classList.add("active")}
-let isAdmin=false;
+const money=v=>"TZS "+Number(v||0).toLocaleString();
+function showSection(id){document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));$(id).classList.add("active");document.querySelectorAll(".menu button").forEach(b=>b.classList.remove("active"));const m=document.querySelector(`.menu button[data-section="${id}"]`);if(m)m.classList.add("active")}
 function today(){return new Date().toISOString().slice(0,10)}
-$("reportDate").value=today();
+if($("reportDate"))$("reportDate").value=today();if($("paymentDate"))$("paymentDate").value=today();
+let isAdmin=false;let customersCache=[];let loansCache=[];
 
 $("loginForm").addEventListener("submit",async e=>{
-  e.preventDefault();
-  const email=$("email").value.trim(),password=$("password").value;
-  $("message").textContent="Inaingia...";
-  try{
-    const {data,error}=await supabaseClient.auth.signInWithPassword({email,password});
-    if(error) throw error;
-    const {data:off}=await supabaseClient.from("officers").select("is_blocked").eq("user_id",data.user.id).maybeSingle();
-    if(off&&off.is_blocked){await supabaseClient.auth.signOut();throw new Error("⛔ Account yako BLOCKED na Admin")}
-    $("loginPage").style.display="none";$("app").style.display="block";$("welcomeEmail").textContent=data.user.email;
-    const {data:officer}=await supabaseClient.from("officers").select("role,full_name").eq("user_id",data.user.id).maybeSingle();
-    isAdmin=(officer?.role==="admin");$("usersMenu").style.display=isAdmin?"block":"none";$("adminBadge").style.display=isAdmin?"block":"none";$("adminName").textContent=officer?.full_name||data.user.email;
-    showSection("dashboard");loadReports();if(isAdmin)loadUsers();
-  }catch(err){$("message").textContent=err.message;$("message").style.color="red"}
+ e.preventDefault();
+ const email=$("email").value.trim(),password=$("password").value;
+ $("message").textContent="Inaingia...";
+ try{
+  const {data,error}=await supabaseClient.auth.signInWithPassword({email,password});if(error)throw error;
+  const {data:off}=await supabaseClient.from("officers").select("is_blocked").eq("user_id",data.user.id).maybeSingle();
+  if(off&&off.is_blocked){await supabaseClient.auth.signOut();throw new Error("⛔ Account BLOCKED na Admin")}
+  $("loginPage").style.display="none";$("app").style.display="block";$("welcomeEmail").textContent=data.user.email;
+  const {data:officer}=await supabaseClient.from("officers").select("role,full_name").eq("user_id",data.user.id).maybeSingle();
+  isAdmin=(officer?.role==="admin");$("usersMenu").style.display=isAdmin?"block":"none";$("adminBadge").style.display=isAdmin?"block":"none";$("adminName").textContent=officer?.full_name||"";showSection("dashboard");
+  await loadCustomers();await loadLoans();await loadReports();await loadSchedules();if(isAdmin)await loadUsers();
+ }catch(err){$("message").textContent=err.message;$("message").style.color="red"}
 });
 $("logoutButton").addEventListener("click",async()=>{await supabaseClient.auth.signOut();location.reload()});
-document.querySelectorAll(".menu button").forEach(b=>b.addEventListener("click",()=>{showSection(b.dataset.section);if(b.dataset.section==="ripoti")loadReports();if(b.dataset.section==="watumiaji")loadUsers()}));
-function calc(){const g=id=>Number($(id)?.value||0);const inc=g("rSales")+g("rFine")+g("rOtherIncome");const exp=g("rMd")+g("rStore")+g("rBank")+g("rTransport")+g("rFood")+g("rCommunication")+g("rMaintenance")+g("rOtherExpense");const bal=g("rOpening")+inc-exp;$("totalIncome").textContent=money(inc);$("totalExpense").textContent=money(exp);$("dailyBalance").textContent=money(bal);return {opening:g("rOpening"),inc,exp,bal}}
-document.querySelectorAll("#ripoti input[type='number']").forEach(i=>i.addEventListener("input",calc));
+document.querySelectorAll(".menu button").forEach(b=>b.addEventListener("click",()=>{showSection(b.dataset.section);if(b.dataset.section==="ratiba")loadSchedules();if(b.dataset.section==="ripoti")loadReports();if(b.dataset.section==="watumiaji")loadUsers()}));
 
-async function saveDailyReport(){
-  const c=calc();const row={report_date:$("reportDate").value||today(),opening_balance:c.opening,sales:Number($("rSales").value||0),fine:Number($("rFine").value||0),other_income:Number($("rOtherIncome").value||0),total_income:c.inc,md:Number($("rMd").value||0),store:Number($("rStore").value||0),bank:Number($("rBank").value||0),transport:Number($("rTransport").value||0),food:Number($("rFood").value||0),communication:Number($("rCommunication").value||0),maintenance:Number($("rMaintenance").value||0),other_expense:Number($("rOtherExpense").value||0),total_expense:c.exp,balance:c.bal};
-  const {error}=await supabaseClient.from("daily_reports").upsert(row,{onConflict:"report_date"});$("reportMessage").textContent=error?error.message:"✅ Imehifadhiwa!";$("reportMessage").style.color=error?"red":"green";if(!error)loadReports()
+async function loadCustomers(){const {data}=await supabaseClient.from("customers").select("*").order("id",{ascending:false});customersCache=data||[];if($("watejaList"))$("watejaList").innerHTML=customersCache.map((c,i)=>`${i+1}. <b>${c.full_name}</b> - ${c.phone} (${c.customer_number})`).join("<br>")||"Hakuna";if($("loanCustomer"))$("loanCustomer").innerHTML='<option value="">-- Chagua Mteja --</option>'+customersCache.map(c=>`<option value="${c.id}">${c.full_name} - ${c.phone}</option>`).join("");if($("dashStats"))$("dashStats").innerHTML=`Wateja: <b>${customersCache.length}</b>`}
+async function loadLoans(){const {data}=await supabaseClient.from("loans").select("*").eq("loan_status","active").order("id",{ascending:false});loansCache=data||[];if($("activeLoansList"))$("activeLoansList").innerHTML=loansCache.map(l=>{const cust=customersCache.find(c=>c.id===l.customer_id);return `${cust?cust.full_name:l.customer_id} - ${money(l.total_amount||l.amount)}`}).join("<br>")||"Hakuna mikopo";if($("paymentLoan"))$("paymentLoan").innerHTML='<option value="">-- Chagua Mkopo --</option>'+loansCache.map(l=>{const cust=customersCache.find(c=>c.id===l.customer_id);return `<option value="${l.id}">${cust?cust.full_name:l.customer_id} - ${money(l.total_amount)}</option>`}).join("")}
+
+// === RATIBA KWA MAJINA - FIX KUBWA ===
+async function loadSchedules(){
+ const box=$("schedulesList");if(!box)return;box.innerHTML="Inapakia ratiba kwa majina...";
+ try{
+  const {data:schedules,error}=await supabaseClient.from("loan_schedules").select("*").order("due_date",{ascending:true}).limit(200);
+  if(error)throw error;
+  if(!schedules||!schedules.length){box.innerHTML='<div style="text-align:center;padding:20px">Hakuna ratiba. Bonyeza TENGENEZA RATIBA</div>';return}
+  // Loan IDs
+  const loanIds=[...new Set(schedules.map(s=>s.loan_id))];
+  let loansMap={};let custMap={};
+  if(loanIds.length){
+   const {data:loans}=await supabaseClient.from("loans").select("id,customer_id,total_amount").in("id",loanIds);
+   (loans||[]).forEach(l=>loansMap[l.id]=l);
+   const custIds=[...new Set((loans||[]).map(l=>l.customer_id).filter(Boolean))];
+   if(custIds.length){
+    const {data:custs}=await supabaseClient.from("customers").select("id,full_name,phone").in("id",custIds);
+    (custs||[]).forEach(c=>custMap[c.id]=c);
+   }
+  }
+  const q=($("scheduleSearch")?.value||"").toLowerCase();
+  const status=$("scheduleStatus")?.value||"all";
+  let filtered=schedules.filter(s=>{
+   if(status!=="all" && (s.status||"due")!==status) return false;
+   if(!q) return true;
+   const loan=loansMap[s.loan_id];const cust=loan?custMap[loan.customer_id]:null;
+   const name=(cust?.full_name||"").toLowerCase();
+   return name.includes(q)||String(s.loan_id).toLowerCase().includes(q)
+  });
+  box.innerHTML=`<div style="overflow:auto"><table><thead><tr><th>Siku</th><th>Jina la Mteja</th><th>Simu</th><th>Tarehe</th><th>Kiasi</th><th>Hali</th></tr></thead><tbody>${filtered.map(r=>{
+   const loan=loansMap[r.loan_id];const cust=loan?custMap[loan.customer_id]:null;
+   const jina=cust?cust.full_name:`<span style="color:#999">${String(r.loan_id).slice(0,8)}...</span>`;
+   const simu=cust?cust.phone:"-";
+   return `<tr><td>${r.installment_no||"-"}</td><td><b>${jina}</b></td><td>${simu}</td><td>${r.due_date||"-"}</td><td>${money(r.amount_due||r.amount)}</td><td><span class="badge">${r.status||"due"}</span></td></tr>`
+  }).join("")}</tbody></table></div><p style="font-size:11px;color:#666;margin-top:8px">Inaonyesha ${filtered.length} kati ya ${schedules.length} ratiba. Tafuta kwa jina juu.</p>`;
+ }catch(e){box.innerHTML='<span style="color:red">'+e.message+'</span>'}
 }
-$("saveDailyReport").addEventListener("click",saveDailyReport);
-$("newDailyReport").addEventListener("click",()=>{["rOpening","rSales","rFine","rOtherIncome","rMd","rStore","rBank","rTransport","rFood","rCommunication","rMaintenance","rOtherExpense"].forEach(id=>$(id).value=0);$("reportDate").value=today();calc();$("reportMessage").textContent="Form mpya"});
+$("scheduleSearch")?.addEventListener("input",loadSchedules);
+$("scheduleStatus")?.addEventListener("change",loadSchedules);
+$("generateSchedules")?.addEventListener("click",async()=>{const btn=$("generateSchedules");btn.textContent="INATENGENEZA...";btn.disabled=true;try{const {error}=await supabaseClient.rpc("generate_all_active_loan_schedules");if(error)throw error;alert("Ratiba imetengenezwa");await loadSchedules()}catch(e){alert(e.message)}finally{btn.textContent="TENGENEZA RATIBA";btn.disabled=false}});
 
-async function loadReports(){
-  const box=$("reportsList");if(!box)return;
-  const {data,error}=await supabaseClient.from("daily_reports").select("*").order("report_date",{ascending:false}).limit(30);
-  if(error){box.innerHTML=error.message;return}
-  if(!data.length){box.innerHTML='<div style="text-align:center;padding:20px;color:#
+// Ripoti
+function calc(){const g=id=>Number($(id)?.value||0);const inc=g("rSales")+g("rFine")+g("rOtherIncome");const exp=g("rMd")+g("rStore")+g("rBank")+g("rTransport")+g("rFood")+g("rCommunication")+g("rMaintenance")+g("rOtherExpense");const bal=g("rOpening")+inc-exp;if($("totalIncome"))$("totalIncome").textContent=money(inc);if($("totalExpense"))$("totalExpense").textContent=money(exp);if($("dailyBalance"))$("dailyBalance").textContent=money(bal);return {opening:g("rOpening"),inc,exp,bal}}
+document.querySelectorAll("#ripoti input[type='number']").forEach(i=>i.addEventListener("input",calc));
+async function saveDailyReport(){const c=calc();const row={report_date:$("reportDate").value||today(),opening_balance:c.opening,sales:Number($("rSales").value||0),fine:Number($("rFine").value||0),other_income:Number($("rOtherIncome").value||0),total_income:c.inc,md:Number($("rMd").value||0),store:Number($("rStore").value||0),bank:Number($("rBank").value||0),transport:Number($("rTransport").value||0),food:Number($("rFood").value||0),communication:Number($("rCommunication").value||0),maintenance:Number($("rMaintenance").value||0),other_expense:Number($("rOtherExpense").value||0),total_expense:c.exp,balance:c.bal};const {error}=await supabaseClient.from("daily_reports").upsert(row,{onConflict:"report_date"});$("reportMessage").textContent=error?error.message:"✅ Imehifadhiwa";if(!error)loadReports()}
+$("saveDailyReport").addEventListener("click",saveDailyReport);
+async function loadReports(){const box=$("reportsList");if(!box)return;const {data}=await supabaseClient.from("daily_reports").select("*").order("report_date",{ascending:false}).limit(30);if(!data||!data.length){box.innerHTML="Hakuna";return}box.innerHTML=data.map(r=>`<div class="history-item" onclick="openReport('${r.report_date}')" style="padding:12px;border-bottom:1px solid #eee;display:flex;justify-content:space-between"><div><b>${r.report_date}</b><br><small>Mapato ${money(r.total_income)} | Matumizi ${money(r.total_expense)}</small></div><div><b style="color:#065f46">${money(r.balance)}</b><br><span style="background:#047857;color:#fff;padding:2px 8px;border-radius:10px;font-size:10px">FUNGUA</span></div></div>`).join("")}
+async function openReport(tarehe){const {data}=await supabaseClient.from("daily_reports").select("*").eq("report_date",tarehe).single();if(!data)return;Object.entries({rOpening:data.opening_balance,rSales:data.sales,rFine:data.fine,rOtherIncome:data.other_income,rMd:data.md,rStore:data.store,rBank:data.bank,rTransport:data.transport,rFood:data.food,rCommunication:data.communication,rMaintenance:data.maintenance,rOtherExpense:data.other_expense}).forEach(([id,val])=>{if($(id))$(id).value=val||0});if($("reportDate"))$("reportDate").value=data.report_date;calc();showSection("ripoti");window.scrollTo(0,0)}
+
+// Watumiaji Admin
+async function loadUsers(){const {data}=await supabaseClient.from("officers").select("*").order("created_at",{ascending:false});if(!data)return;$("editUserSelect").innerHTML='<option value="">-- Chagua --</option>'+data.map(u=>`<option value="${u.email}">${u.full_name} - ${u.email} ${u.is_blocked?'[BLOCKED]':''}</option>`).join("");$("usersList").innerHTML=data.map(u=>`<div style="padding:10px;border-bottom:1px solid #eee;border-left:4px solid ${u.is_blocked?'red':'#047857'}"><b>${u.full_name}</b> ${u.is_blocked?'<span style="color:red">⛔ BLOCKED</span>':'<span style="color:green">✅ ACTIVE</span>'}<br><small>${u.email} | ${u.role}</small><br><button class="${u.is_blocked?'unblock-btn':'block-btn'}" onclick="toggleBlock('${u.id}',${u.is_blocked})">${u.is_blocked?'UNBLOCK':'BLOCK'}</button> <button class="delete-btn" onclick="deleteUser('${u.id}')">FUTA</button></div>`).join("")}
+async function toggleBlock(id,blocked){if(!confirm((blocked?'UNBLOCK':'BLOCK')+" user?"))return;await supabaseClient.from("officers").update({is_blocked:!blocked}).eq("id",id);loadUsers()}
+async function deleteUser(id){if(!confirm("Futa?"))return;await supabaseClient.from("officers").delete().eq("id",id);loadUsers()}
+async function adminChangePassword(){const email=$("editUserSelect").value,pass=$("adminNewPassword").value.trim();if(!email||pass.length<6)return alert("Chagua user na password min 6");await supabaseClient.auth.resetPasswordForEmail(email);alert("Email ya reset imetumwa kwa "+email+" - Mwambie aandike: "+pass)}
+async function adminSendReset(){const email=$("editUserSelect").value;if(!email)return alert("Chagua user");await supabaseClient.auth.resetPasswordForEmail(email);alert("Email imetumwa")}
+async function changeMyPassword(){const p=prompt("Password mpya:");if(!p||p.length<6)return alert("Fupi");await supabaseClient.auth.updateUser({password:p});alert("✅ Imebadilika")}
+$("userForm").addEventListener("submit",async e=>{e.preventDefault();const email=$("newUserEmail").value.trim(),password=$("newUserPassword").value.trim(),full_name=$("newUserName").value.trim(),phone=$("newUserPhone").value.trim(),role=$("newUserRole").value;const {data,error}=await supabaseClient.auth.signUp({email,password});if(error)return alert(error.message);await supabaseClient.from("officers").insert([{user_id:data.user.id,full_name,email,phone,role,is_blocked:false}]);alert("✅ Ameongezwa");loadUsers()});
+calc();
+</script>
+</body>
+</html>
