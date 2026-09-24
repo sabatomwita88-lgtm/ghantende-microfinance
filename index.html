@@ -189,7 +189,50 @@ async function loadReports(){const box=$("reportsList");if(!box)return;const {da
 
 async function loadPaymentLoans(){const sel=$("paymentLoan");if(!sel)return;try{const loans=await getActiveLoansWithBalances();sel.innerHTML='<option value="">-- Chagua mkopo --</option>'+loans.map(l=>`<option value="${esc(l.id)}">${esc(l.customer_name||l.customer_id||l.id)} — Salio ${money(l.computedBalance)}</option>`).join("")}catch(e){sel.innerHTML='<option value="">Imeshindwa kupakia</option>'}}
 async function loadPayments(){const box=$("paymentsList");if(!box)return;const {data,error}=await supabaseClient.from("payments").select("*").order("payment_date",{ascending:false});if(error){box.innerHTML='<div class="danger">'+esc(error.message)+'</div>';return}const q=($("paymentSearch")?.value||"").toLowerCase();const rows=(data||[]).filter(p=>JSON.stringify(p).toLowerCase().includes(q));box.innerHTML=rows.length?rows.map((p,i)=>`<div class="application"><b>${i+1}. ${money(p.amount)}</b><br>Loan: ${esc(p.loan_id)}<br>Tarehe: ${esc(p.payment_date)}<br>Njia: ${esc(p.payment_method||"-")}</div>`).join(""):'<div class="empty">Hakuna malipo.</div>'}
-async function loadSchedules(){const box=$("schedulesList");if(!box)return;try{const {data,error}=await supabaseClient.from("loan_schedules").select("*").order("due_date",{ascending:true});if(error)throw error;if(!data?.length){box.innerHTML='<div class="empty">Hakuna ratiba. Bonyeza TENGENEZA RATIBA</div>';return}box.innerHTML=`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse"><thead><tr><th>Siku</th><th>Loan</th><th>Tarehe</th><th>Kiasi</th><th>Hali</th></tr></thead><tbody>${data.map(r=>`<tr><td>${esc(r.installment_no)}</td><td style="font-size:11px">${esc(r.loan_id)}</td><td>${esc(r.due_date)}</td><td>${money(r.amount_due)}</td><td>${esc(r.status||"due")}</td></tr>`).join("")}</tbody></table></div>`}catch(e){box.innerHTML='<div class="danger">'+esc(e.message)+'</div>'}}
+<!-- V3 FIXED - RATIBA KWA MAJINA - HII NDIO YA MWISHO -->
+<script>
+async function loadSchedules(){
+ const box=$("schedulesList");
+ box.innerHTML='<div class="empty">Inapakia ratiba na majina...</div>';
+ try{
+  const {data:sched, error} = await supabaseClient.from("loan_schedules").select("*").order("due_date",{ascending:true}).limit(300);
+  if(error) throw error;
+  if(!sched?.length){box.innerHTML='<div class="empty">Hakuna ratiba. Bonyeza TENGENEZA RATIBA</div>';return}
+
+  const loanIds=[...new Set(sched.map(s=>s.loan_id))];
+  let loanMap={}; let custIds=[];
+  if(loanIds.length){
+    const {data:loans} = await supabaseClient.from("loans").select("id,customer_id,customer_name").in("id",loanIds);
+    loans?.forEach(l=>{loanMap[l.id]=l; custIds.push(l.customer_id)});
+  }
+  custIds=[...new Set(custIds.filter(Boolean))];
+  let custMap={};
+  if(custIds.length){
+    const {data:customers} = await supabaseClient.from("customers").select("id,full_name,phone").in("id",custIds);
+    customers?.forEach(c=>custMap[c.id]=c);
+  }
+
+  const status=$("scheduleStatus").value;
+  let filtered=sched;
+  if(status!=="all") filtered=sched.filter(s=> (s.status||"due")===status );
+
+  box.innerHTML=`<div style="overflow-x:auto"><table style="width:100%;border-collapse:collapse">
+  <thead><tr><th>#</th><th>Jina la Mteja</th><th>Tarehe</th><th>Kiasi</th><th>Hali</th></tr></thead>
+  <tbody>${filtered.map(r=>{
+    const loan=loanMap[r.loan_id];
+    const cust=loan?custMap[loan.customer_id]:null;
+    const jina = cust?.full_name || loan?.customer_name || 'Mteja';
+    const simu = cust?.phone || '';
+    return `<tr><td style="padding:8px;border-bottom:1px solid #eee">${esc(r.installment_no)}</td>
+    <td style="padding:8px;border-bottom:1px solid #eee"><b>${esc(jina)}</b><br><small>${esc(simu)}</small></td>
+    <td style="padding:8px;border-bottom:1px solid #eee">${esc(r.due_date)}</td>
+    <td style="padding:8px;border-bottom:1px solid #eee">${money(r.amount_due||r.amount)}</td>
+    <td style="padding:8px;border-bottom:1px solid #eee"><span class="badge">${esc(r.status||'due')}</span></td></tr>`
+  }).join("")}</tbody></table></div>`;
+
+ }catch(e){box.innerHTML='<div class="danger">'+esc(e.message)+'</div>'}
+}
+</script>
 async function generateSchedules(){const btn=$("generateSchedules");if(btn){btn.disabled=true;btn.textContent="INATENGENEZA..."}try{const {data,error}=await supabaseClient.rpc("generate_all_active_loan_schedules");if(error)throw error;alert("Ratiba imetengenezwa");await loadSchedules()}catch(e){alert("Imeshindikana: "+e.message)}finally{if(btn){btn.disabled=false;btn.textContent="TENGENEZA RATIBA"}}}
 
 async function loadMaafisa(){const box=$("maafisaList"),stats=$("maafisaStats");if(!box)return;const {data,error}=await supabaseClient.from("officers").select("*").order("created_at",{ascending:false});if(error){box.innerHTML='<div class="danger">'+esc(error.message)+'</div>';return}if(stats)stats.textContent="Jumla: "+(data?.length||0);box.innerHTML=!data?.length?'<div class="empty">Hakuna maafisa</div>':data.map((u,i)=>`<div class="application"><b>${i+1}. ${esc(u.full_name)}</b><br>${esc(u.email)}<br>Role: ${esc(u.role)}<br>${isAdmin?`<div class="actions"><button class="edit-btn" onclick="editUser('${u.id}')">HARIRI</button><button class="delete-btn" onclick="deleteUser('${u.id}')">DELETE</button></div>`:""}</div>`).join("")}
