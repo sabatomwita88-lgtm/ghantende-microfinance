@@ -18,7 +18,21 @@
 </div>
 <script>
 const SUPABASE_URL="https://kvcbsebklyuupwixmagd.supabase.co";const SUPABASE_ANON_KEY="sb_publishable_CaipCB_cvv1uPsqtt4Yalg_cFWGSP2t";const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);const $=id=>document.getElementById(id);function esc(v){return String(v??"").replace(/[&<>'"]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[m]))}function money(v){return "TZS "+Number(v||0).toLocaleString()}function showSection(id){document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));$(id).classList.add("active");document.querySelectorAll(".menu button").forEach(b=>b.classList.remove("active"));const mb=document.querySelector('.menu button[data-section="'+id+'"]');if(mb)mb.classList.add("active")}
-let currentOfficer=null,isAdmin=false;async function loadOfficerRole(u=null){try{let user=u;if(!user){const r=await supabaseClient.auth.getUser();user=r.data?.user}if(!user)return;const {data:officer}=await supabaseClient.from("officers").select("id,full_name,email,role,user_id").eq("user_id",user.id).maybeSingle();const {data:profile}=await supabaseClient.from("user_profiles").select("full_name,role").eq("id",user.id).maybeSingle();currentOfficer=officer;const role=String(officer?.role||profile?.role||"").toLowerCase();isAdmin=role==="admin";$("adminBadge").style.display=isAdmin?"block":"none";$("adminName").textContent=isAdmin?(officer?.full_name||profile?.full_name||user.email):"";$("usersMenu").style.display=isAdmin?"block":"none"}catch(e){isAdmin=false}}function requireAdmin(){if(!isAdmin){alert("Hii ni kazi ya ADMIN tu!");return false}return true}
+let currentOfficer=null,isAdmin=false;
+// === AUTO REPORT - KILA UNACHOKIANDIKA KINAENDA RIPOTI ===
+async function autoAddToReport(type,amount,date){
+  const rDate=date||new Date().toISOString().slice(0,10);
+  const {data}=await supabaseClient.from("daily_reports").select("*").eq("report_date",rDate).maybeSingle();
+  let row=data||{report_date:rDate,sales:0,fine:0,other_income:0,total_income:0,md:0,store:0,bank:0,transport:0,food:0,communication:0,maintenance:0,other_expense:0,total_expense:0,balance:0};
+  if(type==='payment') row.sales+=Number(amount);
+  if(type==='fine') row.fine+=Number(amount);
+  if(type==='other') row.other_income+=Number(amount);
+  row.total_income=Number(row.sales||0)+Number(row.fine||0)+Number(row.other_income||0);
+  row.total_expense=Number(row.md||0)+Number(row.store||0)+Number(row.bank||0)+Number(row.transport||0)+Number(row.food||0)+Number(row.communication||0)+Number(row.maintenance||0)+Number(row.other_expense||0);
+  row.balance=row.total_income-row.total_expense;
+  await supabaseClient.from("daily_reports").upsert(row,{onConflict:"report_date"});
+}
+async function loadOfficerRole(u=null){try{let user=u;if(!user){const r=await supabaseClient.auth.getUser();user=r.data?.user}if(!user)return;const {data:officer}=await supabaseClient.from("officers").select("id,full_name,email,role,user_id").eq("user_id",user.id).maybeSingle();const {data:profile}=await supabaseClient.from("user_profiles").select("full_name,role").eq("id",user.id).maybeSingle();currentOfficer=officer;const role=String(officer?.role||profile?.role||"").toLowerCase();isAdmin=role==="admin";$("adminBadge").style.display=isAdmin?"block":"none";$("adminName").textContent=isAdmin?(officer?.full_name||profile?.full_name||user.email):"";$("usersMenu").style.display=isAdmin?"block":"none"}catch(e){isAdmin=false}}function requireAdmin(){if(!isAdmin){alert("Hii ni kazi ya ADMIN tu!");return false}return true}
 let appLoading=false;async function showApp(user){if(appLoading)return;appLoading=true;$("loginPage").style.display="none";$("app").style.display="block";$("welcomeEmail").textContent=user?.email||"";try{await loadOfficerRole(user);showSection("dashboard");await loadDashboard()}finally{appLoading=false}}function showLogin(){$("loginPage").style.display="flex";$("app").style.display="none"}
 document.getElementById("loginForm").addEventListener("submit",async e=>{e.preventDefault();const email=$("email").value.trim(),password=$("password").value,msg=$("message"),btn=$("loginButton");btn.disabled=true;btn.textContent="INAINGIA...";msg.textContent="";try{const {data,error}=await supabaseClient.auth.signInWithPassword({email,password});if(error)throw error;await showApp(data.user)}catch(err){msg.style.color="red";msg.textContent=err.message}finally{btn.disabled=false;btn.textContent="INGIA"}});
 $("logoutButton").addEventListener("click",async()=>{await supabaseClient.auth.signOut();showLogin()});
