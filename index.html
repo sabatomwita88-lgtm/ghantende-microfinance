@@ -25,16 +25,29 @@ document.addEventListener("input",e=>{if(e.target.id.startsWith("r"))calcLive();
 async function autoAddToReport(type,amount,date){const rDate=date||new Date().toISOString().slice(0,10);const {data}=await supabaseClient.from("daily_reports").select("*").eq("report_date",rDate).maybeSingle();let row=data||{report_date:rDate,sales:0,fine:0,other_income:0,total_income:0,md:0,store:0,bank:0,transport:0,food:0,communication:0,maintenance:0,other_expense:0,total_expense:0,balance:0};if(type==='payment')row.sales+=Number(amount);if(type==='fine')row.fine+=Number(amount);row.total_income=Number(row.sales||0)+Number(row.fine||0)+Number(row.other_income||0);row.total_expense=Number(row.md||0)+Number(row.store||0)+Number(row.bank||0)+Number(row.transport||0)+Number(row.food||0)+Number(row.communication||0)+Number(row.maintenance||0)+Number(row.other_expense||0);row.balance=row.total_income-row.total_expense;await supabaseClient.from("daily_reports").upsert(row,{onConflict:"report_date"});}
 async function loadCustomers(){const {data}=await supabaseClient.from("customers").select("*").order("created_at",{ascending:false});$("customerCount").textContent=data?.length||0; $("customersList").innerHTML=!data?.length?"Hakuna":data.map((c,i)=>`<div class="customer"><b>${i+1}. ${esc(c.full_name)}</b><br>${esc(c.phone||'')} | ${esc(c.customer_number||'')} ${isAdmin?`<button class="delete-btn" onclick="deleteCustomer('${c.id}')">FUTA</button>`:``}</div>`).join(""); $("appCustomer").innerHTML='<option value="">--Chagua Mteja--</option>'+(data||[]).map(c=>`<option value="${c.id}">${esc(c.full_name)}</option>`).join("");}
 async function loadApplications(){const {data}=await supabaseClient.from("loan_applications").select("*").order("created_at",{ascending:false});$("pendingCount").textContent=data?.filter(a=>a.status==='pending').length||0; $("applicationsList").innerHTML=!data?.length?"Hakuna":data.map((a,i)=>`<div class="application"><b>Ombi ${i+1}</b> - ${money(a.amount)} <span class="badge">${esc(a.status)}</span><br>${isAdmin&&a.status==='pending'?`<button onclick="approveApplication('${a.id}')">APPROVE</button> `:``}${isAdmin?`<button class="delete-btn" onclick="deleteApplication('${a.id}')">FUTA</button>`: `<small style="color:#888">View only</small>`}</div>`).join("");}
-async function loadActiveLoans(){
+  async function loadActiveLoans(){
   const {data:loans}=await supabaseClient.from("loans").select("*").eq("loan_status","active");
-  console.log("Loans found:", loans);
+  const {data:payments}=await supabaseClient.from("payments").select("*");
+  
   $("activeLoanCount").textContent=loans?.length||0;
-  let total=0;
-  loans?.forEach(l=>{ total+=Number(l.total_amount||l.loan_amount||0); });
-  $("loanBalance").textContent="TZS "+total.toLocaleString();
-  $("activeLoansList").innerHTML=!loans?.length?"Hakuna":loans.map((l,i)=>`<div class="application"><b>${i+1}. ${l.customer_name||''}</b> - ${money(l.total_amount||l.loan_amount)} - ${l.loan_status}</div>`).join("");
-  $("paymentLoan").innerHTML='<option value="">--Chagua Mkopo--</option>'+(loans||[]).map(l=>`<option value="${l.id}">${l.customer_name||''} - ${money(l.total_amount)}</option>`).join("");
-                                                                                                                                                                                                                                                                                               }
+  let totalBalance=0;
+  let html="";
+
+  loans?.forEach((l,i)=>{
+    let paid=0;
+    payments?.forEach(p=>{
+      if(p.loan_id===l.id) paid+=Number(p.amount||0);
+    });
+    let remaining=Number(l.total_amount||l.loan_amount||0)-paid;
+    if(remaining<0) remaining=0;
+    totalBalance+=remaining;
+    html+=`<div class="application"><b>${i+1}. ${esc(l.customer_name||'')}</b><br>Mkopo: ${money(l.total_amount||l.loan_amount)} | Amelipa: <span style="color:green">${money(paid)}</span> | <b style="color:red">Salio: ${money(remaining)}</b><br><small>${esc(l.loan_status||'')}</small> ${isAdmin?`<button class="delete-btn" onclick="deleteLoan('${l.id}')">FUTA</button>`:''}</div>`;
+  });
+
+  $("loanBalance").textContent="TZS "+totalBalance.toLocaleString();
+  $("activeLoansList").innerHTML=!loans?.length?"Hakuna Mikopo Active":html;
+  $("paymentLoan").innerHTML='<option value="">--Chagua Mkopo--</option>'+(loans||[]).map(l=>`<option value="${l.id}">${esc(l.customer_name||'')} - Salio ${money(l.total_amount||l.loan_amount)}</option>`).join("");
+}                                                                                                                                                                                                                                                                                          }
 async function loadReports(){const {data}=await supabaseClient.from("daily_reports").select("*").order("report_date",{ascending:false});allReports=data||[];$("reportsList").innerHTML=!data?.length?"Hakuna":data.map(r=>`<div class="report-item" onclick="openReport('${r.report_date}')"><b>${r.report_date}</b><br>Mapato: ${money(r.total_income)} | Matumizi: ${money(r.total_expense)}<br><b style="color:#059669">Salio: ${money(r.balance)}</b><br><button style="margin-top:6px;background:#2563eb;font-size:12px">👁️ FUNGUA NA SOMa</button></div>`).join("");if($("todayReportBal")&&data?.[0])$("todayReportBal").textContent=money(data[0].balance);}
 function openReport(date){const r=allReports.find(x=>x.report_date===date);if(!r)return;$("reportDate").value=r.report_date;$("rSales").value=r.sales||0;$("rFine").value=r.fine||0;$("rOtherIncome").value=r.other_income||0;$("rMd").value=r.md||0;$("rStore").value=r.store||0;$("rBank").value=r.bank||0;$("rTransport").value=r.transport||0;$("rFood").value=r.food||0;$("rCommunication").value=r.communication||0;$("rMaintenance").value=r.maintenance||0;$("rOtherExpense").value=r.other_expense||0;calcLive();showSection('ripoti');window.scrollTo({top:0,behavior:'smooth'});$("modalDate").textContent="Ripoti: "+r.report_date;$("modalContent").innerHTML=`<div style="background:#f9fafb;padding:12px;border-radius:10px">MAPATO<br>Sales ${money(r.sales)}<br>Fine ${money(r.fine)}<br>Mengine ${money(r.other_income)}<br><b>Jumla ${money(r.total_income)}</b><br><br>MATUMIZI<br>MD ${money(r.md)}<br>Store ${money(r.store)}<br>Bank ${money(r.bank)}<br>Usafiri ${money(r.transport)}<br>Chakula ${money(r.food)}<br>Mawasiliano ${money(r.communication)}<br>Matengenezo ${money(r.maintenance)}<br>Mengine ${money(r.other_expense)}<br><b>Jumla ${money(r.total_expense)}</b><br><br><div style="background:#065f46;color:#fff;padding:12px;border-radius:10px;text-align:center"><b>SALIO ${money(r.balance)}</b></div></div>`;$("reportModal").classList.add("active");}
 function closeModal(){$("reportModal").classList.remove("active");}
