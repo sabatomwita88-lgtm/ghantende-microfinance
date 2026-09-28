@@ -47,63 +47,40 @@ $("payBtn").addEventListener("click",async()=>{
   const amount=Number($("paymentAmount").value||0);
   if(!loanId||!amount){ $("paymentMessage").textContent="Chagua mkopo na kiasi!"; return; }
   
+  $("payBtn").addEventListener("click",async()=>{
+  const loanId=$("paymentLoan").value;
+  const amount=Number($("paymentAmount").value||0);
+  if(!loanId||!amount){ 
+    $("paymentMessage").style.background="#fef2f2"; 
+    $("paymentMessage").textContent="⚠️ Chagua mkopo na kiasi!"; return; 
+  }
   $("payBtn").textContent="INAHIFADHI...";
   $("payBtn").disabled=true;
-  $("paymentMessage").textContent="";
-
+  $("paymentMessage").style.background="#fef3c7";
+  $("paymentMessage").textContent="⏳ Inahifadhi na kutuma SMS...";
   try{
-    // 1. Hifadhi malipo
-    const {error}=await supabaseClient.from("payments").insert([{loan_id:loanId,amount,payment_date:$("paymentDate").value,payment_method:$("paymentMethod").value}]);
-    if(error) throw error;
-
-    // 2. Tafuta mkopo + mteja ili tupate phone na salio
-    const {data:loan}=await supabaseClient.from("loans").select("*").eq("id",loanId).maybeSingle();
-    let customerPhone=""; let customerName=loan?.customer_name||"Mteja";
-    
-    if(loan?.customer_id){
-      const {data:cust}=await supabaseClient.from("customers").select("*").eq("id",loan.customer_id).maybeSingle();
-      if(cust){ customerPhone=cust.phone; customerName=cust.full_name||customerName; }
-    }
-
-    // 3. Hesabu salio jipya
-    const {data:allPays}=await supabaseClient.from("payments").select("amount").eq("loan_id",loanId);
-    let paid=0; (allPays||[]).forEach(p=>paid+=Number(p.amount||0));
-    const total=Number(loan?.total_amount||0);
-    let salio=total-paid; if(salio<0) salio=0;
-
-    // 4. TUMA SMS KAMA KUNA SIMU
-    if(customerPhone){
-      $("paymentMessage").textContent="✅ Malipo yamehifadhiwa, inatuma SMS...";
-      const smsText=`GHANTENDE: Asante ${customerName}. Malipo yako TZS ${amount.toLocaleString()} yamepokelewa. Salio lako ni TZS ${salio.toLocaleString()}. Ahsante!`;
-      
-      try{
-        const smsRes=await fetch(`${SUPABASE_URL}/functions/v1/send-sms`,{
-          method:'POST',
-          headers:{
-            'Content-Type':'application/json',
-            'Authorization':`Bearer ${SUPABASE_ANON_KEY}`,
-            'apikey':SUPABASE_ANON_KEY
-          },
-          body: JSON.stringify({ phone: customerPhone, message: smsText })
-        });
-        const smsData=await smsRes.json();
-        console.log("SMS:", smsData);
-        if(smsData.success){
-          $("paymentMessage").textContent=`✅ Malipo + SMS imetumwa kwa ${customerPhone}`;
-        }else{
-          $("paymentMessage").textContent=`✅ Malipo yamehifadhiwa (SMS haikutumwa: ${smsData.error||'error'})`;
-        }
-      }catch(smsErr){
-        console.log(smsErr);
-        $("paymentMessage").textContent="✅ Malipo yamehifadhiwa (SMS imeshindikana)";
-      }
-    }else{
-      $("paymentMessage").textContent="✅ Malipo yamehifadhiwa (Hakuna namba ya simu)";
-    }
-
+    const res = await fetch(`${SUPABASE_URL}/functions/v1/add-payment`,{
+      method:'POST',
+      headers:{
+        'Content-Type':'application/json',
+        'Authorization':`Bearer ${SUPABASE_ANON_KEY}`,
+        'apikey':SUPABASE_ANON_KEY
+      },
+      body: JSON.stringify({
+        loan_id: loanId,
+        amount: amount,
+        payment_date: $("paymentDate").value,
+        payment_method: $("paymentMethod").value
+      })
+    });
+    const data = await res.json();
+    if(!data.success) throw new Error(data.error||"Imeshindikana");
+    $("paymentMessage").style.background="#ecfdf5";
+    $("paymentMessage").textContent=`✅ TZS ${amount.toLocaleString()} imehifadhiwa! Salio: TZS ${Number(data.salio||0).toLocaleString()} - SMS imetumwa!`;
     $("paymentAmount").value="";
-    loadActiveLoans();
+    await loadActiveLoans();
   }catch(e){
+    $("paymentMessage").style.background="#fef2f2";
     $("paymentMessage").textContent="❌ Error: "+e.message;
   }finally{
     $("payBtn").textContent="HIFADHI + SMS";
