@@ -45,38 +45,58 @@ $("addAppBtn").addEventListener("click",async()=>{const cid=$("appCustomer").val
 $("payBtn").addEventListener("click", async()=>{
   const loanId=$("paymentLoan").value;
   const amt=Number($("paymentAmount").value||0);
+  const dateVal=$("paymentDate").value;
+  const methodVal=$("paymentMethod").value;
   if(!loanId||!amt) return alert("Chagua mkopo na kiasi");
-  $("payBtn").textContent="INAHIFADHI..."; $("payBtn").disabled=true;
+  
+  const btn=$("payBtn");
+  btn.textContent="INAHIFADHI..."; 
+  btn.disabled=true;
+
   try{
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/payments`,{
-      method:"POST",
-      headers:{"Content-Type":"application/json","apikey":SUPABASE_ANON_KEY,"Authorization":`Bearer ${SUPABASE_ANON_KEY}`,"Prefer":"return=minimal"},
-      body:JSON.stringify({ loan_id: loanId, amount: amt, payment_date: $("paymentDate").value, payment_method: $("paymentMethod").value })
-    });
-    if(!res.ok) throw new Error(await res.text());
-    alert(`✅ Imehifadhiwa TZS ${amt.toLocaleString()}!`);
-    const loanRes = await fetch(`${SUPABASE_URL}/rest/v1/loans?id=eq.${loanId}&select=customer_id,customer_name`,{
-      headers:{"apikey":SUPABASE_ANON_KEY,"Authorization":`Bearer ${SUPABASE_ANON_KEY}`}
-    });
-    const loans = await loanRes.json();
-    const loan = loans[0];
-    const custRes = await fetch(`${SUPABASE_URL}/rest/v1/customers?id=eq.${loan.customer_id}&select=full_name,phone`,{
-      headers:{"apikey":SUPABASE_ANON_KEY,"Authorization":`Bearer ${SUPABASE_ANON_KEY}`}
-    });
-    const cust = (await custRes.json())[0];
-    if(cust?.phone){
-      const smsRes = await fetch(`${SUPABASE_URL}/functions/v1/send-sms`,{
-        method:"POST",
-        headers:{"Content-Type":"application/json","apikey":SUPABASE_ANON_KEY,"Authorization":`Bearer ${SUPABASE_ANON_KEY}`},
-        body:JSON.stringify({ phone: cust.phone, message: `GHANTENDE: Asante ${cust.full_name||loan.customer_name}. Malipo TZS ${amt.toLocaleString()} yamepokelewa.` })
-      });
-      const txt = await smsRes.text();
-      console.log("SMS:", smsRes.status, txt);
-      if(smsRes.ok) alert("📲 SMS imetumwa kwa "+cust.phone);
+    // 1. Hifadhi malipo kwa supabaseClient (salama zaidi kuliko fetch)
+    const {error:payErr} = await supabaseClient.from("payments").insert([{loan_id:loanId, amount:amt, payment_date:dateVal, payment_method:methodVal}]);
+    if(payErr) throw new Error(payErr.message);
+
+    // 2. Tafuta phone haraka
+    const {data:loanData} = await supabaseClient.from("loans").select("customer_id,customer_name").eq("id",loanId).single();
+    const {data:custData} = await supabaseClient.from("customers").select("full_name,phone").eq("id",loanData.customer_id).single();
+    
+    const phone = custData?.phone?.replace(/\s+/g,'');
+    const name = custData?.full_name || loanData.customer_name;
+
+    // 3. Tuma SMS - usisubiri sana (timeout 8 sec)
+    if(phone){
+      try{
+        const controller = new AbortController();
+        setTimeout(()=>controller.abort(), 8000);
+        const smsRes = await fetch(`${SUPABASE_URL}/functions/v1/send-sms`,{
+          method:"POST",
+          signal: controller.signal,
+          headers:{"Content-Type":"application/json","apikey":SUPABASE_ANON_KEY,"Authorization":`Bearer ${SUPABASE_ANON_KEY}`},
+          body:JSON.stringify({ phone: phone, message: `GHANTENDE: Asante ${name}. Malipo TZS ${amt.toLocaleString()} yamepokelewa. Asante!` })
+        });
+        const txt = await smsRes.text();
+        console.log("SMS result:", smsRes.status, txt);
+        if(smsRes.ok){
+          alert(`✅ Imehifadhiwa TZS ${amt.toLocaleString()}!\n📲 SMS imetumwa kwa ${phone}`);
+        }else{
+          alert(`✅ Imehifadhiwa TZS ${amt.toLocaleString()}!\n⚠️ SMS failed (${smsRes.status}): ${txt}\nAngalia Supabase Logs > send-sms`);
+        }
+      }catch(smsErr){
+        alert(`✅ Imehifadhiwa TZS ${amt.toLocaleString()}!\n⚠️ SMS timeout/error: ${smsErr.message}\nMalipo yamehifadhiwa, lakini angalia Beem API Key kwenye Supabase Vault`);
+      }
+    }else{
+      alert(`✅ Imehifadhiwa TZS ${amt.toLocaleString()}!\n⚠️ Mteja hana namba`);
     }
-    $("paymentAmount").value=""; await loadActiveLoans();
-  }catch(e){ alert("❌ "+e.message); }
-  finally{ $("payBtn").textContent="HIFADHI + SMS"; $("payBtn").disabled=false; }
+    $("paymentAmount").value="";
+    await loadActiveLoans();
+  }catch(e){
+    alert("❌ "+e.message);
+  }finally{
+    btn.textContent="HIFADHI + SMS";
+    btn.disabled=false;
+  }
 });
 $("addOfficerBtn").addEventListener("click",async()=>{if(!isAdmin)return alert("Admin tu");const name=$("oName").value.trim();const email=$("oEmail").value.trim();const pass=$("oPass").value.trim();const {data:signUp,error:signErr}=await supabaseClient.auth.signUp({email,password:pass});let uid=signUp?.user?.id;if(signErr&&!signErr.message.toLowerCase().includes("already")){$("officerMsg").textContent=signErr.message;return;}await supabaseClient.from("officers").insert([{full_name:name,email,role:$("oRole").value,phone:$("oPhone").value,user_id:uid}]);$("officerMsg").textContent="✅ Ameongezwa";loadOfficers();});
 $("saveDailyReport").addEventListener("click",async()=>{const live=calcLive();const row={report_date:$("reportDate").value,sales:Number($("rSales").value||0),fine:Number($("rFine").value||0),other_income:Number($("rOtherIncome").value||0),total_income:live.inc,md:Number($("rMd").value||0),store:Number($("rStore").value||0),bank:Number($("rBank").value||0),transport:Number($("rTransport").value||0),food:Number($("rFood").value||0),communication:Number($("rCommunication").value||0),maintenance:Number($("rMaintenance").value||0),other_expense:Number($("rOtherExpense").value||0),total_expense:live.exp,balance:live.bal};await supabaseClient.from("daily_reports").upsert(row,{onConflict:"report_date"});loadReports();});
