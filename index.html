@@ -42,50 +42,23 @@ document.querySelectorAll(".menu button").forEach(b=>b.addEventListener("click",
 $("reportDate").value=new Date().toISOString().slice(0,10);$("paymentDate").value=new Date().toISOString().slice(0,10);
 $("addCustomerBtn").addEventListener("click",async()=>{await supabaseClient.from("customers").insert([{full_name:$("cName").value,phone:$("cPhone").value,customer_number:$("cNumber").value}]);loadCustomers();});
 $("addAppBtn").addEventListener("click",async()=>{const cid=$("appCustomer").value;const amt=Number($("appAmount").value||0);const months=Number($("appMonths").value||1);const rate=Number($("appInterest").value||10);const interest=amt*(rate/100)*months;const total=amt+interest;await supabaseClient.from("loan_applications").insert([{customer_id:cid,amount:amt,duration_months:months,interest_rate:rate,interest_amount:interest,total_amount:total,purpose:$("appPurpose").value,status:'pending'}]);loadApplications();});
-$("payBtn").addEventListener("click",async()=>{
+$("payBtn").addEventListener("click", async()=>{
   const loanId=$("paymentLoan").value;
-  const amount=Number($("paymentAmount").value||0);
-  if(!loanId||!amount){ $("paymentMessage").textContent="Chagua mkopo na kiasi!"; return; }
-  
-  $("payBtn").addEventListener("click",async()=>{
-  const loanId=$("paymentLoan").value;
-  const amount=Number($("paymentAmount").value||0);
-  if(!loanId||!amount){ 
-    $("paymentMessage").style.background="#fef2f2"; 
-    $("paymentMessage").textContent="⚠️ Chagua mkopo na kiasi!"; return; 
-  }
-  $("payBtn").textContent="INAHIFADHI...";
-  $("payBtn").disabled=true;
-  $("paymentMessage").style.background="#fef3c7";
-  $("paymentMessage").textContent="⏳ Inahifadhi na kutuma SMS...";
+  const amt=Number($("paymentAmount").value||0);
+  if(!loanId||!amt) return alert("Chagua mkopo na kiasi");
+  $("payBtn").textContent="INATUMA SMS..."; $("payBtn").disabled=true;
   try{
-    const res = await fetch(`${SUPABASE_URL}/functions/v1/add-payment`,{
-      method:'POST',
-      headers:{
-        'Content-Type':'application/json',
-        'Authorization':`Bearer ${SUPABASE_ANON_KEY}`,
-        'apikey':SUPABASE_ANON_KEY
-      },
-      body: JSON.stringify({
-        loan_id: loanId,
-        amount: amount,
-        payment_date: $("paymentDate").value,
-        payment_method: $("paymentMethod").value
-      })
+    const r=await fetch(`${SUPABASE_URL}/functions/v1/add-payment`,{
+      method:"POST",
+      headers:{"Content-Type":"application/json","apikey":SUPABASE_ANON_KEY,"Authorization":`Bearer ${SUPABASE_ANON_KEY}`},
+      body:JSON.stringify({loan_id:loanId, amount:amt, payment_date:$("paymentDate").value, payment_method:$("paymentMethod").value})
     });
-    const data = await res.json();
-    if(!data.success) throw new Error(data.error||"Imeshindikana");
-    $("paymentMessage").style.background="#ecfdf5";
-    $("paymentMessage").textContent=`✅ TZS ${amount.toLocaleString()} imehifadhiwa! Salio: TZS ${Number(data.salio||0).toLocaleString()} - SMS imetumwa!`;
-    $("paymentAmount").value="";
-    await loadActiveLoans();
-  }catch(e){
-    $("paymentMessage").style.background="#fef2f2";
-    $("paymentMessage").textContent="❌ Error: "+e.message;
-  }finally{
-    $("payBtn").textContent="HIFADHI + SMS";
-    $("payBtn").disabled=false;
-  }
+    const j=await r.json();
+    if(!j.success) throw new Error(j.error);
+    alert(`✅ Imehifadhiwa! Salio: TZS ${j.salio.toLocaleString()} - SMS imetumwa!`);
+    $("paymentAmount").value=""; await loadActiveLoans();
+  }catch(e){ alert("❌ "+e.message); }
+  finally{ $("payBtn").textContent="HIFADHI + SMS"; $("payBtn").disabled=false; }
 });
 $("addOfficerBtn").addEventListener("click",async()=>{if(!isAdmin)return alert("Admin tu");const name=$("oName").value.trim();const email=$("oEmail").value.trim();const pass=$("oPass").value.trim();const {data:signUp,error:signErr}=await supabaseClient.auth.signUp({email,password:pass});let uid=signUp?.user?.id;if(signErr&&!signErr.message.toLowerCase().includes("already")){$("officerMsg").textContent=signErr.message;return;}await supabaseClient.from("officers").insert([{full_name:name,email,role:$("oRole").value,phone:$("oPhone").value,user_id:uid}]);$("officerMsg").textContent="✅ Ameongezwa";loadOfficers();});
 $("saveDailyReport").addEventListener("click",async()=>{const live=calcLive();const row={report_date:$("reportDate").value,sales:Number($("rSales").value||0),fine:Number($("rFine").value||0),other_income:Number($("rOtherIncome").value||0),total_income:live.inc,md:Number($("rMd").value||0),store:Number($("rStore").value||0),bank:Number($("rBank").value||0),transport:Number($("rTransport").value||0),food:Number($("rFood").value||0),communication:Number($("rCommunication").value||0),maintenance:Number($("rMaintenance").value||0),other_expense:Number($("rOtherExpense").value||0),total_expense:live.exp,balance:live.bal};await supabaseClient.from("daily_reports").upsert(row,{onConflict:"report_date"});loadReports();});
