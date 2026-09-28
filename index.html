@@ -48,28 +48,31 @@ $("payBtn").addEventListener("click", async()=>{
   if(!loanId||!amt) return alert("Chagua mkopo na kiasi");
   $("payBtn").textContent="INAHIFADHI..."; $("payBtn").disabled=true;
   try{
-    // 1. Hifadhi moja kwa moja bila supabase.from
     const res = await fetch(`${SUPABASE_URL}/rest/v1/payments`,{
       method:"POST",
       headers:{"Content-Type":"application/json","apikey":SUPABASE_ANON_KEY,"Authorization":`Bearer ${SUPABASE_ANON_KEY}`,"Prefer":"return=minimal"},
       body:JSON.stringify({ loan_id: loanId, amount: amt, payment_date: $("paymentDate").value, payment_method: $("paymentMethod").value })
     });
     if(!res.ok) throw new Error(await res.text());
-
     alert(`✅ Imehifadhiwa TZS ${amt.toLocaleString()}!`);
-
-    // 2. Tuma SMS kwa kutumia function yako iliyopo
-    const loanRes = await fetch(`${SUPABASE_URL}/rest/v1/loans?id=eq.${loanId}&select=total_due,borrowers(name,phone)`,{
+    const loanRes = await fetch(`${SUPABASE_URL}/rest/v1/loans?id=eq.${loanId}&select=customer_id,customer_name`,{
       headers:{"apikey":SUPABASE_ANON_KEY,"Authorization":`Bearer ${SUPABASE_ANON_KEY}`}
     });
     const loans = await loanRes.json();
     const loan = loans[0];
-    if(loan?.borrowers?.phone){
-      await fetch(`${SUPABASE_URL}/functions/v1/send-sms`,{
+    const custRes = await fetch(`${SUPABASE_URL}/rest/v1/customers?id=eq.${loan.customer_id}&select=full_name,phone`,{
+      headers:{"apikey":SUPABASE_ANON_KEY,"Authorization":`Bearer ${SUPABASE_ANON_KEY}`}
+    });
+    const cust = (await custRes.json())[0];
+    if(cust?.phone){
+      const smsRes = await fetch(`${SUPABASE_URL}/functions/v1/send-sms`,{
         method:"POST",
         headers:{"Content-Type":"application/json","apikey":SUPABASE_ANON_KEY,"Authorization":`Bearer ${SUPABASE_ANON_KEY}`},
-        body:JSON.stringify({ phone: loan.borrowers.phone, message: `GHANTENDE: Asante ${loan.borrowers.name}. Malipo TZS ${amt.toLocaleString()} yamepokelewa.` })
+        body:JSON.stringify({ phone: cust.phone, message: `GHANTENDE: Asante ${cust.full_name||loan.customer_name}. Malipo TZS ${amt.toLocaleString()} yamepokelewa.` })
       });
+      const txt = await smsRes.text();
+      console.log("SMS:", smsRes.status, txt);
+      if(smsRes.ok) alert("📲 SMS imetumwa kwa "+cust.phone);
     }
     $("paymentAmount").value=""; await loadActiveLoans();
   }catch(e){ alert("❌ "+e.message); }
