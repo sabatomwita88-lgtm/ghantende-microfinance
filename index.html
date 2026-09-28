@@ -50,53 +50,47 @@ $("payBtn").addEventListener("click", async()=>{
   if(!loanId||!amt) return alert("Chagua mkopo na kiasi");
   
   const btn=$("payBtn");
-  btn.textContent="INAHIFADHI..."; 
-  btn.disabled=true;
+  btn.textContent="INAHIFADHI..."; btn.disabled=true;
 
   try{
-    // 1. Hifadhi malipo kwa supabaseClient (salama zaidi kuliko fetch)
+    // 1. Pata details za mkopo kabla ya kuhifadhi
+    const {data:loanData} = await supabaseClient.from("loans").select("customer_id,customer_name,total_amount,loan_amount").eq("id",loanId).single();
+    const {data:allPays} = await supabaseClient.from("payments").select("amount").eq("loan_id",loanId);
+    let paidBefore = 0; (allPays||[]).forEach(p=>paidBefore+=Number(p.amount||0));
+    const total = Number(loanData.total_amount||0);
+    let remainingAfter = total - paidBefore - amt;
+    if(remainingAfter<0) remainingAfter=0;
+
+    // 2. Hifadhi malipo
     const {error:payErr} = await supabaseClient.from("payments").insert([{loan_id:loanId, amount:amt, payment_date:dateVal, payment_method:methodVal}]);
     if(payErr) throw new Error(payErr.message);
 
-    // 2. Tafuta phone haraka
-    const {data:loanData} = await supabaseClient.from("loans").select("customer_id,customer_name").eq("id",loanId).single();
+    // 3. Pata phone
     const {data:custData} = await supabaseClient.from("customers").select("full_name,phone").eq("id",loanData.customer_id).single();
-    
     const phone = custData?.phone?.replace(/\s+/g,'');
     const name = custData?.full_name || loanData.customer_name;
 
-    // 3. Tuma SMS - usisubiri sana (timeout 8 sec)
+    // 4. Tuma SMS na SALIO
     if(phone){
+      const smsMsg = `GHANTENDE: Asante ${name}. Malipo TZS ${amt.toLocaleString()} yamepokelewa. Salio linalobaki: TZS ${remainingAfter.toLocaleString()}. Asante!`;
       try{
         const controller = new AbortController();
         setTimeout(()=>controller.abort(), 8000);
         const smsRes = await fetch(`${SUPABASE_URL}/functions/v1/send-sms`,{
-          method:"POST",
-          signal: controller.signal,
+          method:"POST", signal: controller.signal,
           headers:{"Content-Type":"application/json","apikey":SUPABASE_ANON_KEY,"Authorization":`Bearer ${SUPABASE_ANON_KEY}`},
-          body:JSON.stringify({ phone: phone, message: `GHANTENDE: Asante ${name}. Malipo TZS ${amt.toLocaleString()} yamepokelewa. Asante!` })
+          body:JSON.stringify({ phone: phone, message: smsMsg })
         });
         const txt = await smsRes.text();
-        console.log("SMS result:", smsRes.status, txt);
-        if(smsRes.ok){
-          alert(`✅ Imehifadhiwa TZS ${amt.toLocaleString()}!\n📲 SMS imetumwa kwa ${phone}`);
-        }else{
-          alert(`✅ Imehifadhiwa TZS ${amt.toLocaleString()}!\n⚠️ SMS failed (${smsRes.status}): ${txt}\nAngalia Supabase Logs > send-sms`);
-        }
-      }catch(smsErr){
-        alert(`✅ Imehifadhiwa TZS ${amt.toLocaleString()}!\n⚠️ SMS timeout/error: ${smsErr.message}\nMalipo yamehifadhiwa, lakini angalia Beem API Key kwenye Supabase Vault`);
+        if(smsRes.ok) alert(`✅ Imehifadhiwa!\n📲 SMS kwa ${phone}:\n"${smsMsg}"`);
+        else alert(`✅ Imehifadhiwa!\n⚠️ SMS failed: ${txt}`);
+      }catch(e){
+        alert(`✅ Imehifadhiwa! Salio TZS ${remainingAfter.toLocaleString()}\n⚠️ SMS error: ${e.message}`);
       }
-    }else{
-      alert(`✅ Imehifadhiwa TZS ${amt.toLocaleString()}!\n⚠️ Mteja hana namba`);
     }
-    $("paymentAmount").value="";
-    await loadActiveLoans();
-  }catch(e){
-    alert("❌ "+e.message);
-  }finally{
-    btn.textContent="HIFADHI + SMS";
-    btn.disabled=false;
-  }
+    $("paymentAmount").value=""; await loadActiveLoans();
+  }catch(e){ alert("❌ "+e.message); }
+  finally{ btn.textContent="HIFADHI + SMS"; btn.disabled=false; }
 });
 $("addOfficerBtn").addEventListener("click",async()=>{if(!isAdmin)return alert("Admin tu");const name=$("oName").value.trim();const email=$("oEmail").value.trim();const pass=$("oPass").value.trim();const {data:signUp,error:signErr}=await supabaseClient.auth.signUp({email,password:pass});let uid=signUp?.user?.id;if(signErr&&!signErr.message.toLowerCase().includes("already")){$("officerMsg").textContent=signErr.message;return;}await supabaseClient.from("officers").insert([{full_name:name,email,role:$("oRole").value,phone:$("oPhone").value,user_id:uid}]);$("officerMsg").textContent="✅ Ameongezwa";loadOfficers();});
 $("saveDailyReport").addEventListener("click",async()=>{const live=calcLive();const row={report_date:$("reportDate").value,sales:Number($("rSales").value||0),fine:Number($("rFine").value||0),other_income:Number($("rOtherIncome").value||0),total_income:live.inc,md:Number($("rMd").value||0),store:Number($("rStore").value||0),bank:Number($("rBank").value||0),transport:Number($("rTransport").value||0),food:Number($("rFood").value||0),communication:Number($("rCommunication").value||0),maintenance:Number($("rMaintenance").value||0),other_expense:Number($("rOtherExpense").value||0),total_expense:live.exp,balance:live.bal};await supabaseClient.from("daily_reports").upsert(row,{onConflict:"report_date"});loadReports();});
