@@ -48,27 +48,29 @@ $("payBtn").addEventListener("click", async()=>{
   if(!loanId||!amt) return alert("Chagua mkopo na kiasi");
   $("payBtn").textContent="INAHIFADHI..."; $("payBtn").disabled=true;
   try{
-    // 1. Hifadhi
-    const { error } = await supabase.from("payments").insert([{ loan_id:loanId, amount:amt, payment_date:$("paymentDate").value, payment_method:$("paymentMethod").value }]);
-    if(error) throw error;
+    // 1. Hifadhi moja kwa moja bila supabase.from
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/payments`,{
+      method:"POST",
+      headers:{"Content-Type":"application/json","apikey":SUPABASE_ANON_KEY,"Authorization":`Bearer ${SUPABASE_ANON_KEY}`,"Prefer":"return=minimal"},
+      body:JSON.stringify({ loan_id: loanId, amount: amt, payment_date: $("paymentDate").value, payment_method: $("paymentMethod").value })
+    });
+    if(!res.ok) throw new Error(await res.text());
 
-    // 2. Tafuta namba ya mteja
-    const { data: loan } = await supabase.from("loans").select("total_due, borrowers(name, phone)").eq("id", loanId).single();
-    let salio = 0;
-    if(loan){
-      const { data: pays } = await supabase.from("payments").select("amount").eq("loan_id", loanId);
-      const total = (pays||[]).reduce((s,p)=>s+Number(p.amount),0);
-      salio = Number(loan.total_due||0) - total;
-      // 3. Tuma SMS
-      if(loan.borrowers?.phone){
-        await fetch(`${SUPABASE_URL}/functions/v1/send-sms`,{
-          method:"POST",
-          headers:{"Content-Type":"application/json","apikey":SUPABASE_ANON_KEY,"Authorization":`Bearer ${SUPABASE_ANON_KEY}`},
-          body:JSON.stringify({ phone: loan.borrowers.phone, message: `GHANTENDE: Asante ${loan.borrowers.name}. Malipo TZS ${amt.toLocaleString()} yamepokelewa. Salio: TZS ${salio.toLocaleString()}` })
-        });
-      }
+    alert(`✅ Imehifadhiwa TZS ${amt.toLocaleString()}!`);
+
+    // 2. Tuma SMS kwa kutumia function yako iliyopo
+    const loanRes = await fetch(`${SUPABASE_URL}/rest/v1/loans?id=eq.${loanId}&select=total_due,borrowers(name,phone)`,{
+      headers:{"apikey":SUPABASE_ANON_KEY,"Authorization":`Bearer ${SUPABASE_ANON_KEY}`}
+    });
+    const loans = await loanRes.json();
+    const loan = loans[0];
+    if(loan?.borrowers?.phone){
+      await fetch(`${SUPABASE_URL}/functions/v1/send-sms`,{
+        method:"POST",
+        headers:{"Content-Type":"application/json","apikey":SUPABASE_ANON_KEY,"Authorization":`Bearer ${SUPABASE_ANON_KEY}`},
+        body:JSON.stringify({ phone: loan.borrowers.phone, message: `GHANTENDE: Asante ${loan.borrowers.name}. Malipo TZS ${amt.toLocaleString()} yamepokelewa.` })
+      });
     }
-    alert(`✅ Imehifadhiwa! Salio: TZS ${salio.toLocaleString()} - SMS imetumwa!`);
     $("paymentAmount").value=""; await loadActiveLoans();
   }catch(e){ alert("❌ "+e.message); }
   finally{ $("payBtn").textContent="HIFADHI + SMS"; $("payBtn").disabled=false; }
