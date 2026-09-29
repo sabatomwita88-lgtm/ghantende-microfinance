@@ -31,4 +31,137 @@
 <section id="smslog" class="section"><h2>SMS Log</h2><div class="table-box"><input id="searchSms" class="searchBox" placeholder="Tafuta SMS"><div id="smsList">Hakuna</div></div></section>
 
 <section id="maafisa" class="section"><h2>Maafisa</h2><div class="form-box"><label>Jina</label><input id="oName"><label>Email</label><input id="oEmail" type="email"><label>Password</label><input id="oPass" value="Ghantende123"><label>Role</label><select id="oRole"><option value="officer">Officer</option><option value="admin">Admin</option></select><label>Phone</label><input id="oPhone"><button id="addOfficerBtn" style="width:100%;background:#2563eb">ONGEZA</button><div id="officerMsg"></div></div><div class="table-box"><div id="maafisaList"></div></div></section>
-</div>
+</div><script>
+const SUPABASE_URL="https://kvcbsebklyuupwixmagd.supabase.co";const SUPABASE_ANON_KEY="sb_publishable_CaipCB_cvv1uPsqtt4Yalg_cFWGSP2t";const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+const $=id=>document.getElementById(id);const money=v=>"TZS "+Number(v||0).toLocaleString();const esc=v=>String(v??"").replace(/[&<>]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[m]));
+let allCustomers=[],allLoans=[],allPayments=[],smsLogs=JSON.parse(localStorage.getItem('smsLogs')||'[]');
+let currentUser={email:'',name:'',branch:'',role:''}; let allBranches=[];
+
+// ===== PART 2: MFUMO WA VITUO KIRIBA & BWAI =====
+async function loadBranches(){
+  const {data}=await supabaseClient.from("branches").select("*").order("name");
+  allBranches=data||[{name:'Kiriba Branch'},{name:'Bwai Branch'}];
+  const opts='<option value="">--Chagua Kituo--</option>'+allBranches.map(b=>"<option value='"+esc(b.name)+"'>"+esc(b.name)+"</option>").join("");
+  if($("oBranch")) $("oBranch").innerHTML=opts;
+  if($("cBranch")) $("cBranch").innerHTML=opts;
+  if($("filterBranch")) $("filterBranch").innerHTML='<option value="">Vituo Vyote</option>'+opts;
+}
+function getCurrentOfficerInfo(){
+  return {
+    email: currentUser.email,
+    name: currentUser.name,
+    branch: currentUser.branch
+  };
+}
+// ================================================
+
+function showSection(id){document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));$(id).classList.add("active");document.querySelectorAll(".menu button").forEach(b=>b.classList.remove("active"));document.querySelector(`.menu button[data-section="${id}"]`)?.classList.add("active");}
+window.showSection=showSection;
+function calcLive(){const g=id=>Number($(id)?.value||0);const inc=g("rSales")+g("rFine")+g("rOtherIncome");const exp=g("rMd")+g("rStore")+g("rBank")+g("rTransport")+g("rFood")+g("rCommunication")+g("rMaintenance")+g("rOtherExpense");if($("liveBal"))$("liveBal").textContent=money(inc-exp);return {inc,exp,bal:inc-exp};}
+function updateTotalPreview(){const amt=Number($("appAmount")?.value||0);const months=Number($("appMonths")?.value||1);const rate=Number($("appInterest")?.value||10);const interest=amt*(rate/100)*months;const total=amt+interest;if($("totalPreview"))$("totalPreview").innerHTML="Asili: "+money(amt)+"<br>Riba: "+money(interest)+"<br>Jumla: "+money(total);}
+function saveSmsLog(phone,msg,type){const log={phone,msg,type,date:new Date().toLocaleString()};smsLogs.unshift(log);localStorage.setItem('smsLogs',JSON.stringify(smsLogs.slice(0,200)));try{supabaseClient.from("sms_logs").insert([{phone,message:msg,type}]);}catch(e){}renderSmsLog();}
+function renderSmsLog(){const q=($("searchSms")?.value||"").toLowerCase();const filtered=smsLogs.filter(l=>l.phone.toLowerCase().includes(q)||l.msg.toLowerCase().includes(q));$("smsList").innerHTML=!filtered.length?"Hakuna SMS":filtered.map((l,i)=>"<div class='application'><b>"+(i+1)+". "+esc(l.phone)+"</b> <small>"+l.date+" - "+l.type+"</small><br>"+esc(l.msg)+"</div>").join("");}
+function isOverdue(loan){const created=new Date(loan.created_at);const due=new Date(created);due.setMonth(due.getMonth()+Number(loan.duration_months||1));return new Date()>due;}
+
+async function loadCustomers(){
+  const {data}=await supabaseClient.from("customers").select("*").order("created_at",{ascending:false});
+  allCustomers=data||[];
+  const q=($("searchCustomer")?.value||"").toLowerCase();
+  const bFilter=$("filterBranch")?.value||"";
+  let filtered=allCustomers.filter(c=>(c.full_name||"").toLowerCase().includes(q)||(c.phone||"").includes(q));
+  if(bFilter) filtered=filtered.filter(c=>c.branch_name===bFilter);
+  // Afisa wa kawaida aone kituo chake tu
+  if(currentUser.role!=='admin' && currentUser.branch){
+    filtered=filtered.filter(c=>c.branch_name===currentUser.branch);
+  }
+  $("customerCount").textContent=allCustomers.length;
+  $("customersList").innerHTML=!filtered.length?"Hakuna":filtered.map((c,i)=>"<div class='customer'><b>"+(i+1)+". "+esc(c.full_name)+"</b> <span class='badge' style='background:#6b7280'>"+esc(c.branch_name||'Hakuna kituo')+"</span><br>"+esc(c.phone||'')+" "+(c.guarantor_name?"<br><small>Mdhamini: "+esc(c.guarantor_name)+"</small>":'')+"<br><small style='color:#059669'>Served by: "+esc(c.served_by_name||c.served_by_email||'--')+"</small><br><button onclick=\"editCustomer('"+c.id+"')\" style='background:#2563eb;font-size:10px;padding:5px 8px'>Edit</button> <button onclick=\"viewCustomerLoans('"+c.id+"','"+esc(c.full_name).replace(/'/g,'')+"')\" style='background:#059669;font-size:10px;padding:5px 8px'>Mikopo</button></div>").join("");
+  $("appCustomer").innerHTML='<option value="">--Chagua--</option>'+allCustomers.map(c=>"<option value='"+c.id+"'>"+esc(c.full_name)+" - "+esc(c.phone||'')+" ["+esc(c.branch_name||'')+"]</option>").join("");
+}
+
+window.editCustomer=async function(id){const c=allCustomers.find(x=>x.id===id);if(!c)return;const newName=prompt("Jina jipya:",c.full_name);if(newName===null)return;const newPhone=prompt("Phone mpya:",c.phone);if(newPhone===null)return;const {error}=await supabaseClient.from("customers").update({full_name:newName,phone:newPhone}).eq("id",id);if(error)alert(error.message);else loadCustomers();}
+window.viewCustomerLoans=function(cid,name){showSection('mikopo');$("searchLoan").value=name;loadActiveLoans();};
+
+async function loadApplications(){const {data}=await supabaseClient.from("loan_applications").select("*").order("created_at",{ascending:false});const q=($("searchApp")?.value||"").toLowerCase();const filtered=(data||[]).filter(a=>JSON.stringify(a).toLowerCase().includes(q));$("pendingCount").textContent=(data||[]).filter(a=>a.status==='pending').length||0;$("applicationsList").innerHTML=!filtered.length?"Hakuna":filtered.map((a,i)=>{const p=Number(a.amount||0);const r=Number(a.interest_rate||10);const m=Number(a.duration_months||1);const interest=Number(a.interest_amount||p*(r/100)*m);const total=Number(a.total_amount||p+interest);const isPending=(a.status||'').toLowerCase()==='pending';const col=a.status==='approved'?'#059669':a.status==='rejected'?'#dc2626':'#d97706';return "<div class='application' style='border-left:4px solid "+col+"'><b>Ombi "+(i+1)+"</b> - "+money(p)+" + "+money(interest)+" = <b>"+money(total)+"</b><br><span class='badge' style='background:"+col+"'>"+esc(a.status)+"</span> "+(isPending?"<div style='margin-top:6px;display:flex;gap:6px'><button onclick=\"approveApplication('"+a.id+"')\" style='background:#059669;flex:1'>APPROVE</button><button onclick=\"rejectApplication('"+a.id+"')\" style='background:#dc2626;flex:1'>REJECT</button></div>":'')+"</div>";}).join("");}
+
+async function loadActiveLoans(){const {data:loans}=await supabaseClient.from("loans").select("*").eq("loan_status","active").order("created_at",{ascending:false});const {data:payments}=await supabaseClient.from("payments").select("*");const {data:customers}=await supabaseClient.from("customers").select("id,phone,full_name,branch_name");allLoans=loans||[];allPayments=payments||[];const custMap={};(customers||[]).forEach(c=>custMap[c.id]=c);$("activeLoanCount").textContent=allLoans.length;let bal=0,overdue=0,html="";const q=($("searchLoan")?.value||"").toLowerCase();const bFilter=$("filterBranch")?.value||"";let filtered=allLoans.filter(l=>(l.customer_name||"").toLowerCase().includes(q)||(custMap[l.customer_id]?.phone||"").includes(q));if(bFilter) filtered=filtered.filter(l=>custMap[l.customer_id]?.branch_name===bFilter);if(currentUser.role!=='admin' && currentUser.branch) filtered=filtered.filter(l=>custMap[l.customer_id]?.branch_name===currentUser.branch);filtered.forEach((l,i)=>{let paid=0;(allPayments||[]).forEach(p=>{if(p.loan_id===l.id)paid+=Number(p.amount||0);});const total=Number(l.total_amount||0);let rem=total-paid;if(rem<0)rem=0;bal+=rem;const overdueFlag=isOverdue(l)&&rem>0;if(overdueFlag)overdue++;const phone=custMap[l.customer_id]?.phone||"";const branch=custMap[l.customer_id]?.branch_name||"";const safeName=(l.customer_name||'').replace(/'/g,"");html+="<div class='application' style='"+(overdueFlag?'background:#fef2f2;border:1px solid #fecaca':'')+"'><b>"+(i+1)+". "+esc(l.customer_name||'')+"</b> <span class='badge'>"+esc(branch)+"</span> "+(overdueFlag?'<span class="badge" style="background:#dc2626">OVERDUE</span>':'')+"<br>"+esc(phone)+"<br>Jumla:"+money(total)+" Lipa:"+money(paid)+" Salio:<b style='color:"+(rem>0?'red':'green')+"'>"+money(rem)+"</b><br><small>Imeidhinishwa na: "+esc(l.approved_by_name||'--')+"</small><br><div style='margin-top:6px;display:flex;gap:4px;flex-wrap:wrap'><button onclick=\"viewLoanHistory('"+l.id+"','"+safeName+"',"+total+","+paid+","+rem+")\" style='background:#2563eb;font-size:10px;padding:6px 8px'>Historia</button><button onclick=\"sendReminder('"+l.id+"','"+safeName+"','"+phone+"','"+rem+"')\" style='background:#f59e0b;font-size:10px;padding:6px 8px'>Kumbusha</button><button onclick=\"addFine('"+l.id+"')\" style='background:#dc2626;font-size:10px;padding:6px 8px'>+Fine</button></div></div>";});$("loanBalance").textContent=money(bal);$("overdueCount").textContent=overdue;$("activeLoansList").innerHTML=!filtered.length?"Hakuna":html;$("paymentLoan").innerHTML='<option value="">--Chagua--</option>'+allLoans.map(l=>{let p=0;allPayments.forEach(x=>{if(x.loan_id===l.id)p+=Number(x.amount||0)});return "<option value='"+l.id+"'>"+esc(l.customer_name||'')+" - Salio "+money(Number(l.total_amount||0)-p)+"</option>";}).join("");loadPaymentsList();}
+
+async function loadPaymentsList(){const {data}=await supabaseClient.from("payments").select("*").order("created_at",{ascending:false}).limit(30);$("paymentsList").innerHTML=!data?.length?"Hakuna":data.map((p,i)=>"<div class='customer'><b>"+(i+1)+". "+money(p.amount)+"</b> "+(p.fine_amount?" + Fine "+money(p.fine_amount):'')+" - "+(p.payment_date||'')+" - "+esc(p.payment_method||'')+" <button onclick=\"printReceipt('"+p.id+"')\" style='background:#059669;font-size:10px;padding:4px 6px'>Receipt</button></div>").join("");}
+async function loadReports(){const {data}=await supabaseClient.from("daily_reports").select("*").order("report_date",{ascending:false}).limit(30);if(!data?.length){$("reportsList").innerHTML="Hakuna";$("todayReportBal").textContent=money(0);return;}$("todayReportBal").textContent=money(data[0].balance);$("todayIncome").textContent=money(data[0].total_income);$("reportsList").innerHTML=data.map(r=>"<div class='application'><b>"+r.report_date+"</b> <span class='badge'>"+esc(r.branch_name||'')+"</span><br>Mapato:"+money(r.total_income)+" Matumizi:"+money(r.total_expense)+"<br><b style='color:"+(Number(r.balance)>=0?'green':'red')+"'>Salio:"+money(r.balance)+"</b><br><small>Na: "+esc(r.reported_by_name||'')+"</small></div>").join("");drawChart(data.slice(0,7).reverse());}
+function drawChart(reports){const ctx=$("incomeChart");if(!ctx)return;try{if(window.myChart)window.myChart.destroy();window.myChart=new Chart(ctx,{type:'bar',data:{labels:reports.map(r=>r.report_date.slice(5)),datasets:[{label:'Mapato',data:reports.map(r=>Number(r.total_income||0)),backgroundColor:'#059669'},{label:'Matumizi',data:reports.map(r=>Number(r.total_expense||0)),backgroundColor:'#dc2626'}]},options:{responsive:true}});}catch(e){}}
+
+window.viewLoanHistory=async function(loanId,name,total,paid,rem){const el=$("singleHistory");el.style.display="block";el.innerHTML="Inapakia "+name+"...";const {data:payments}=await supabaseClient.from("payments").select("*").eq("loan_id",loanId).order("payment_date",{ascending:false});let html="<div style='display:flex;justify-content:space-between'><h3>"+esc(name)+"</h3><button onclick=\"this.parentElement.parentElement.style.display='none'\" style='background:#e5e7eb;color:#222'>X</button></div><div style='background:#f3f4f6;padding:8px;border-radius:8px;text-align:center'>Jumla:"+money(total)+" | Lipa:"+money(paid)+" | Salio:<b style='color:red'>"+money(rem)+"</b></div>";if(!payments?.length)html+="<div style='padding:15px;text-align:center'>Hajalipa</div>";else html+=payments.map((p,i)=>"<div style='padding:6px 0;border-bottom:1px solid #eee;display:flex;justify-content:space-between'><span>"+(i+1)+". "+p.payment_date+" "+p.payment_method+"</span><b>"+money(p.amount)+(p.fine_amount?" +"+money(p.fine_amount):'')+"</b></div>").join("");el.innerHTML=html;el.scrollIntoView({behavior:'smooth'});}
+window.addFine=async function(loanId){const amt=prompt("Weka Fine:");if(!amt)return;const loan=allLoans.find(l=>l.id===loanId);if(!loan)return;const newTotal=Number(loan.total_amount)+Number(amt);await supabaseClient.from("loans").update({total_amount:newTotal}).eq("id",loanId);alert("Fine "+money(amt)+" imeongezwa");loadActiveLoans();}
+window.approveApplication=async function(id){
+  const {data:appData}=await supabaseClient.from("loan_applications").select("*").eq("id",id).maybeSingle();if(!appData)return alert("Hayapo");
+  let custData=null;if(appData.customer_id){const {data:c}=await supabaseClient.from("customers").select("id,full_name,phone").eq("id",appData.customer_id).maybeSingle();custData=c;}
+  const name=custData?.full_name||"Mteja";const phone=(custData?.phone||"").replace(/\s+/g,'');const principal=Number(appData.amount||0);const months=Number(appData.duration_months||1);const rate=Number(appData.interest_rate||10);const interest=Number(appData.interest_amount||principal*(rate/100)*months);const total=Number(appData.total_amount||principal+interest);
+  if(!confirm("Approve "+name+" "+money(total)+"?"))return;
+  try{
+    const officer=getCurrentOfficerInfo();
+    try{await supabaseClient.rpc("approve_loan",{p_application_id:id});}catch(e){await supabaseClient.from("loan_applications").update({status:'approved'}).eq("id",id);await supabaseClient.from("loans").insert([{customer_id:appData.customer_id,customer_name:name,loan_amount:principal,interest_amount:interest,total_amount:total,loan_status:'active',duration_months:months,interest_rate:rate,application_id:id,approved_by_email:officer.email,approved_by_name:officer.name}]);}
+    await supabaseClient.from("loans").update({approved_by_email:officer.email,approved_by_name:officer.name}).eq("application_id",id);
+    if(phone){const msg="GHANTENDE: Hongera "+name+"! Mkopo TZS "+principal.toLocaleString()+" umeidhinishwa. Jumla "+total.toLocaleString()+" (Riba "+rate+"%). Karibu.";try{await fetch(SUPABASE_URL+"/functions/v1/send-sms",{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_ANON_KEY,"Authorization":"Bearer "+SUPABASE_ANON_KEY},body:JSON.stringify({phone,message:msg})});saveSmsLog(phone,msg,'APPROVE');}catch(e){}}
+    alert(name+" Approved na "+officer.name);loadApplications();loadActiveLoans();
+  }catch(e){alert(e.message);}
+}
+window.rejectApplication=async function(id){const {data:appData}=await supabaseClient.from("loan_applications").select("*").eq("id",id).maybeSingle();let custData=null;if(appData?.customer_id){const {data:c}=await supabaseClient.from("customers").select("full_name,phone").eq("id",appData.customer_id).maybeSingle();custData=c;}const name=custData?.full_name||"Mteja";const phone=(custData?.phone||"").replace(/\s+/g,'');if(!confirm("Kataa "+name+"?"))return;await supabaseClient.from("loan_applications").update({status:'rejected'}).eq("id",id);if(phone){const msg="GHANTENDE: Pole "+name+", ombi lako limekataliwa. Wasiliana na ofisi 0787581078";try{await fetch(SUPABASE_URL+"/functions/v1/send-sms",{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_ANON_KEY,"Authorization":"Bearer "+SUPABASE_ANON_KEY},body:JSON.stringify({phone,message:msg})});saveSmsLog(phone,msg,'REJECT');}catch(e){}}alert("Ombi limekataliwa");loadApplications();}
+window.sendReminder=async function(loanId,custName,phone,balance){if(!phone)return alert("Hana namba");const msg="GHANTENDE: Ndugu "+custName+", salio lako "+Number(balance).toLocaleString()+". Lipa leo 0787581078";try{const res=await fetch(SUPABASE_URL+"/functions/v1/send-sms",{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_ANON_KEY,"Authorization":"Bearer "+SUPABASE_ANON_KEY},body:JSON.stringify({phone,message:msg})});if(res.ok){saveSmsLog(phone,msg,'REMINDER');alert("Ukumbusho umetumwa");}else alert("Failed: "+await res.text());}catch(e){alert(e.message);}}
+window.printReceipt=async function(paymentId){const {data:p}=await supabaseClient.from("payments").select("*").eq("id",paymentId).single();if(!p)return;const {data:loan}=await supabaseClient.from("loans").select("*").eq("id",p.loan_id).single();const area=$("receiptArea");area.style.display="block";area.innerHTML="<div class='receipt'><center><b>GHANTENDE</b><br>RECEIPT<br>----------------</center>Mteja: "+esc(loan?.customer_name||'')+"<br>Tarehe: "+p.payment_date+"<br>Kiasi: "+money(p.amount)+"<br>Njia: "+p.payment_method+"<br>"+(p.fine_amount?"Fine: "+money(p.fine_amount)+"<br>":'')+"----------------<br>Asante!<br><br><button onclick='window.print()' style='width:100%'>Print</button><button onclick=\"document.getElementById('receiptArea').style.display='none'\" style='width:100%;background:#e5e7eb;color:#222;margin-top:5px'>Funga</button></div>";area.scrollIntoView();}
+
+document.getElementById("loginForm").addEventListener("submit",async e=>{
+  e.preventDefault();const email=$("email").value.trim(),password=$("password").value;$("message").textContent="Inaingia...";
+  const {data,error}=await supabaseClient.auth.signInWithPassword({email,password});if(error){$("message").textContent=error.message;return;}
+  // Pata info ya afisa
+  const {data:officer}=await supabaseClient.from("officers").select("*").eq("email",email).maybeSingle();
+  currentUser={email:email,name:officer?.full_name||email,branch:officer?.branch_name||'',role:officer?.role||'officer'};
+  localStorage.setItem('currentUser',JSON.stringify(currentUser));
+  $("loginPage").style.display="none";$("app").style.display="block";$("welcomeEmail").textContent=currentUser.name+" ("+currentUser.branch+")";$("todayDate").textContent=new Date().toLocaleDateString();
+  await loadBranches();await loadCustomers();await loadApplications();await loadActiveLoans();await loadReports();loadOfficers();calcLive();updateTotalPreview();renderSmsLog();
+});
+$("logoutButton").addEventListener("click",async()=>{await supabaseClient.auth.signOut();localStorage.removeItem('currentUser');location.reload();});
+document.querySelectorAll(".menu button").forEach(b=>b.addEventListener("click",()=>{showSection(b.dataset.section);}));
+$("reportDate").value=new Date().toISOString().slice(0,10);$("paymentDate").value=new Date().toISOString().slice(0,10);
+["searchCustomer","searchApp","searchLoan","searchSms"].forEach(id=>{const el=$(id);if(el)el.addEventListener("input",()=>{if(id==="searchCustomer")loadCustomers();if(id==="searchApp")loadApplications();if(id==="searchLoan")loadActiveLoans();if(id==="searchSms")renderSmsLog();});});
+document.addEventListener("input",e=>{if(e.target.id&&e.target.id.startsWith("r"))calcLive();if(["appAmount","appMonths","appInterest"].includes(e.target.id))updateTotalPreview();});
+
+// PART 2: CUSTOMER ADD NA BRANCH + SERVED BY
+$("addCustomerBtn").addEventListener("click",async()=>{
+  if(!$("cName").value.trim()||!$("cPhone").value.trim())return alert("Jina na Phone required");
+  const branch=$("cBranch")?.value||currentUser.branch||'Kiriba Branch';
+  if(!branch) return alert("Chagua Kituo");
+  const officer=getCurrentOfficerInfo();
+  const {error}=await supabaseClient.from("customers").insert([{
+    full_name:$("cName").value,phone:$("cPhone").value,customer_number:$("cNumber").value,
+    guarantor_name:$("cGuarantorName").value,guarantor_phone:$("cGuarantorPhone").value,
+    branch_name:branch,served_by_email:officer.email,served_by_name:officer.name
+  }]);
+  if(error)alert(error.message);else{$("cName").value="";$("cPhone").value="";$("cNumber").value="";$("cGuarantorName").value="";$("cGuarantorPhone").value="";alert("Amehifadhiwa Kiriba/Bwai: "+branch+" na "+officer.name);}loadCustomers();
+});
+
+$("addAppBtn").addEventListener("click",async()=>{const cid=$("appCustomer").value;if(!cid)return alert("Chagua mteja");const amt=Number($("appAmount").value||0);const months=Number($("appMonths").value||1);const rate=Number($("appInterest").value||10);const interest=amt*(rate/100)*months;const total=amt+interest;const {error}=await supabaseClient.from("loan_applications").insert([{customer_id:cid,amount:amt,duration_months:months,interest_rate:rate,interest_amount:interest,total_amount:total,purpose:$("appPurpose").value,status:'pending'}]);if(error)alert(error.message);else alert("Maombi yametumwa");loadApplications();});
+
+$("payBtn").addEventListener("click",async()=>{const loanId=$("paymentLoan").value;const amt=Number($("paymentAmount").value||0);const fine=Number($("paymentFine").value||0);const dateVal=$("paymentDate").value;const methodVal=$("paymentMethod").value;if(!loanId||!amt)return alert("Chagua mkopo na kiasi");const btn=$("payBtn");btn.textContent="INAHIFADHI...";btn.disabled=true;try{const {data:loanData}=await supabaseClient.from("loans").select("customer_id,customer_name,total_amount").eq("id",loanId).single();const {data:allPays}=await supabaseClient.from("payments").select("amount").eq("loan_id",loanId);let paidBefore=0;(allPays||[]).forEach(p=>paidBefore+=Number(p.amount||0));const total=Number(loanData.total_amount||0);let rem=total-paidBefore-amt;if(rem<0)rem=0;const {data:newPay,error:payErr}=await supabaseClient.from("payments").insert([{loan_id:loanId,amount:amt,payment_date:dateVal,payment_method:methodVal,fine_amount:fine}]).select().single();if(payErr)throw new Error(payErr.message);const {data:custData}=await supabaseClient.from("customers").select("full_name,phone").eq("id",loanData.customer_id).single();const phone=custData?.phone?.replace(/\s+/g,'');const name=custData?.full_name||loanData.customer_name;if(phone){const smsMsg="GHANTENDE: Asante "+name+". Malipo TZS "+amt.toLocaleString()+" yamepokelewa. Salio: TZS "+rem.toLocaleString()+".";try{await fetch(SUPABASE_URL+"/functions/v1/send-sms",{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_ANON_KEY,"Authorization":"Bearer "+SUPABASE_ANON_KEY},body:JSON.stringify({phone,message:smsMsg})});saveSmsLog(phone,smsMsg,'PAYMENT');}catch(e){}}alert("Imehifadhiwa! Salio "+money(rem));if(newPay)printReceipt(newPay.id);$("paymentAmount").value="";$("paymentFine").value="0";await loadActiveLoans();await loadReports();}catch(e){alert(e.message);}finally{btn.textContent="HIFADHI + SMS + RECEIPT";btn.disabled=false;}});
+
+$("addOfficerBtn").addEventListener("click",async()=>{
+  const name=$("oName").value.trim();const email=$("oEmail").value.trim();const pass=$("oPass").value.trim();const branch=$("oBranch")?.value||'';
+  if(!email||!pass)return alert("Email na Pass required");if(!branch)return alert("Chagua Kituo cha afisa");
+  const {data:signUp}=await supabaseClient.auth.signUp({email,password:pass});let uid=signUp?.user?.id;
+  const {error:offErr}=await supabaseClient.from("officers").insert([{full_name:name,email,role:$("oRole").value,phone:$("oPhone").value,user_id:uid,branch_name:branch}]);
+  if(offErr)$("officerMsg").textContent=offErr.message;else $("officerMsg").textContent="Ameongezwa "+branch;loadOfficers();
+});
+
+$("saveDailyReport").addEventListener("click",async()=>{
+  const live=calcLive();const officer=getCurrentOfficerInfo();
+  const row={
+    report_date:$("reportDate").value,sales:Number($("rSales").value||0),fine:Number($("rFine").value||0),other_income:Number($("rOtherIncome").value||0),total_income:live.inc,
+    md:Number($("rMd").value||0),store:Number($("rStore").value||0),bank:Number($("rBank").value||0),transport:Number($("rTransport").value||0),food:Number($("rFood").value||0),communication:Number($("rCommunication").value||0),maintenance:Number($("rMaintenance").value||0),other_expense:Number($("rOtherExpense").value||0),total_expense:live.exp,balance:live.bal,
+    branch_name:officer.branch,reported_by_email:officer.email,reported_by_name:officer.name
+  };
+  const {error}=await supabaseClient.from("daily_reports").upsert(row,{onConflict:"report_date"});
+  if(error){$("reportMsg").textContent=error.message;}else{$("reportMsg").textContent="Imehifadhiwa "+money(row.balance)+" - "+officer.branch+" na "+officer.name;loadReports();}
+});
+
+async function loadOfficers(){const {data}=await supabaseClient.from("officers").select("*").order("created_at",{ascending:false});$("maafisaList").innerHTML=!data?.length?"Hakuna":data.map(o=>"<div class='customer'>"+esc(o.full_name||'')+" - "+esc(o.email||'')+" | "+esc(o.role||'')+" <span class='badge' style='background:#059669'>"+esc(o.branch_name||'')+"</span> | <small>"+esc(o.is_blocked?'BLOCKED':'Active')+"</small></div>").join("");}
+$("exportAllBtn").addEventListener("click",()=>{let csv="Type,Name,Phone,Branch,ServedBy,Amount,Total,Balance\n";allCustomers.forEach(c=>{csv+="Customer,"+c.full_name+","+c.phone+","+c.branch_name+","+c.served_by_name+",,,\n";});allLoans.forEach(l=>{let paid=0;allPayments.forEach(p=>{if(p.loan_id===l.id)paid+=Number(p.amount||0)});csv+="Loan,"+l.customer_name+",,"+","+(l.approved_by_name||'')+","+l.loan_amount+","+l.total_amount+","+(Number(l.total_amount)-paid)+"\n";});const blob=new Blob([csv],{type:'text/csv'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='ghantende_Kiriba_Bwai_'+new Date().toISOString().slice(0,10)+'.csv';a.click();});
+</script>
