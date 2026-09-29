@@ -164,4 +164,11 @@ $("saveDailyReport").addEventListener("click",async()=>{
 
 async function loadOfficers(){const {data}=await supabaseClient.from("officers").select("*").order("created_at",{ascending:false});$("maafisaList").innerHTML=!data?.length?"Hakuna":data.map(o=>"<div class='customer'>"+esc(o.full_name||'')+" - "+esc(o.email||'')+" | "+esc(o.role||'')+" <span class='badge' style='background:#059669'>"+esc(o.branch_name||'')+"</span> | <small>"+esc(o.is_blocked?'BLOCKED':'Active')+"</small></div>").join("");}
 $("exportAllBtn").addEventListener("click",()=>{let csv="Type,Name,Phone,Branch,ServedBy,Amount,Total,Balance\n";allCustomers.forEach(c=>{csv+="Customer,"+c.full_name+","+c.phone+","+c.branch_name+","+c.served_by_name+",,,\n";});allLoans.forEach(l=>{let paid=0;allPayments.forEach(p=>{if(p.loan_id===l.id)paid+=Number(p.amount||0)});csv+="Loan,"+l.customer_name+",,"+","+(l.approved_by_name||'')+","+l.loan_amount+","+l.total_amount+","+(Number(l.total_amount)-paid)+"\n";});const blob=new Blob([csv],{type:'text/csv'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='ghantende_Kiriba_Bwai_'+new Date().toISOString().slice(0,10)+'.csv';a.click();});
-</script>
+</script><!-- Chini ya form ya kuongeza mteja -->
+<select id="cBranch"><option>Kiriba Branch</option><option>Bwai Branch</option></select>
+
+<!-- Chini ya form ya kuongeza afisa -->
+<select id="oBranch"><option>Kiriba Branch</option><option>Bwai Branch</option></select>
+
+<!-- Juu ya search ya wateja kwa admin -->
+<select id="filterBranch"><option value="">Vituo Vyote</option><option>Kiriba Branch</option><option>Bwai Branch</option></select>
