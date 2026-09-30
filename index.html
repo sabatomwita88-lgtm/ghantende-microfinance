@@ -172,3 +172,40 @@ $("exportAllBtn").addEventListener("click",()=>{let csv="Type,Name,Phone,Branch,
 
 <!-- Juu ya search ya wateja kwa admin -->
 <select id="filterBranch"><option value="">Vituo Vyote</option><option>Kiriba Branch</option><option>Bwai Branch</option></select>
+</select>
+</div>
+
+<script>
+// === ADMIN LOCK - PEKEE Sabatomwita88@gmail.com ===
+const ADMIN_EMAIL = 'sabatomwita88@gmail.com';
+
+function lockButtons(){
+  // soma email ya user (kama unatumia supabase auth, itachukua hapo)
+  let email = '';
+  try{
+    let s = localStorage.getItem('sb-auth-token') || localStorage.getItem('user_email') || '';
+    if(s.includes('@')) email = s;
+    else {
+      let p = JSON.parse(s);
+      email = p?.user?.email || p?.currentSession?.user?.email || '';
+    }
+  }catch(e){}
+  // kwa ajili yako - force admin kama ni wewe
+  if(!email) email = 'Sabatomwita88@gmail.com';
+  email = email.toLowerCase();
+  
+  if(email !== ADMIN_EMAIL){
+    document.querySelectorAll('button').forEach(b=>{
+      let t=(b.innerText||'').toLowerCase();
+      if(t.includes('futa')||t.includes('hariri')||t.includes('delete')||t.includes('edit')||t.includes('🗑')){
+        b.style.display='none';
+        b.disabled=true;
+      }
+    });
+  }
+}
+setInterval(lockButtons, 800);
+lockButtons();
+</script>
+</body>
+</html>
