@@ -172,40 +172,31 @@ $("exportAllBtn").addEventListener("click",()=>{let csv="Type,Name,Phone,Branch,
 
 <!-- Juu ya search ya wateja kwa admin -->
 <select id="filterBranch"><option value="">Vituo Vyote</option><option>Kiriba Branch</option><option>Bwai Branch</option></select>
-</select>
-</div>
-
 <script>
-// === ADMIN LOCK - PEKEE Sabatomwita88@gmail.com ===
 const ADMIN_EMAIL = 'sabatomwita88@gmail.com';
-
-function lockButtons(){
-  // soma email ya user (kama unatumia supabase auth, itachukua hapo)
-  let email = '';
+function lockAdmin(){
+  let email = (localStorage.getItem('user_email')||'').toLowerCase();
+  // Chukua pia kutoka supabase kama ipo
   try{
-    let s = localStorage.getItem('sb-auth-token') || localStorage.getItem('user_email') || '';
-    if(s.includes('@')) email = s;
-    else {
-      let p = JSON.parse(s);
-      email = p?.user?.email || p?.currentSession?.user?.email || '';
-    }
+    let raw = localStorage.getItem('sb-xxx-auth-token');
+    if(raw){ email = JSON.parse(raw).user.email.toLowerCase(); }
   }catch(e){}
-  // kwa ajili yako - force admin kama ni wewe
-  if(!email) email = 'Sabatomwita88@gmail.com';
-  email = email.toLowerCase();
   
-  if(email !== ADMIN_EMAIL){
-    document.querySelectorAll('button').forEach(b=>{
-      let t=(b.innerText||'').toLowerCase();
-      if(t.includes('futa')||t.includes('hariri')||t.includes('delete')||t.includes('edit')||t.includes('🗑')){
-        b.style.display='none';
-        b.disabled=true;
-      }
-    });
-  }
+  let isAdmin = (email === ADMIN_EMAIL);
+  
+  document.querySelectorAll('button').forEach(b=>{
+    let t = (b.innerText||'').toLowerCase();
+    let isDelEdit = t.includes('futa') || t.includes('hariri') || t.includes('delete') || t.includes('edit');
+    if(isDelEdit){
+      b.style.display = isAdmin ? '' : 'none';
+    }
+  });
 }
-setInterval(lockButtons, 800);
-lockButtons();
+setInterval(lockAdmin, 600);
+lockAdmin();
+
+// KWA AJILI YAKO PEKEE - fungua console ya browser yako na andika hii mara moja:
+// localStorage.setItem('user_email','sabatomwita88@gmail.com')
 </script>
 </body>
 </html>
