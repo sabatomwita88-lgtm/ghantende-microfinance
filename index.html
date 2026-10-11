@@ -113,7 +113,18 @@ function updateTotalPreview(){
   const interest=amt*(rate/100)*months;
   const total=amt+interest;
   if($("totalPreview"))$("totalPreview").innerHTML="Asili: "+money(amt)+"<br>Riba: "+money(interest)+"<br>Jumla: "+money(total);
-}
+}const BEEM_API_KEY = "WEKA_KEY_YAKO";
+const BEEM_SECRET_KEY = "WEKA_SECRET_YAKO";
+async function sendRealSms(phone,msg){
+ let to=phone.replace(/^0/,'255');
+ try{
+  await fetch('https://apisms.beem.africa/v1/send',{
+   method:'POST',
+   headers:{'Content-Type':'application/json','Authorization':'Basic '+btoa(BEEM_API_KEY+':'+BEEM_SECRET_KEY)},
+   body:JSON.stringify({source_addr:'GHANTENDE',encoding:0,message:msg,recipients:[{recipient_id:1,dest_addr:to}]})
+  });
+ }catch(e){}
+                        }
 function saveSmsLog(phone,msg,type){
   const log={phone,msg,type,date:new Date()};
   smsLogs.unshift(log);
