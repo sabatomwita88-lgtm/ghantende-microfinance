@@ -115,10 +115,12 @@ function updateTotalPreview(){
   if($("totalPreview"))$("totalPreview").innerHTML="Asili: "+money(amt)+"<br>Riba: "+money(interest)+"<br>Jumla: "+money(total);
 }
 function saveSmsLog(phone,msg,type){
-  const log={phone,msg,type,date:new Date().toLocaleString()};
+  const log={phone,msg,type,date:new Date()};
   smsLogs.unshift(log);
-  localStorage.setItem('smsLogs',JSON.stringify(smsLogs.slice(0,200)));
-  try{supabaseClient.from("sms_logs").insert([{phone,message:msg,type}]);}catch(e){}
+  localStorage.setItem('smsLogs',JSON.stringify(smsLogs));
+  try{supabaseClient.from("sms_logs").insert([{phone,message:msg,type}]);
+  sendRealSms(phone,msg); // <-- ONGEZA HII HAPA
+  }catch(e){}
   renderSmsLog();
 }
 function renderSmsLog(){
