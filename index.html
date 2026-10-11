@@ -1,59 +1,489 @@
 <!DOCTYPE html>
-<html lang="sw"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><title>GHANTENDE V6 FINAL</title><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="https://cdn.jsdelivr.net/npm/chart.js"></script><style>*{box-sizing:border-box;font-family:Arial}body{margin:0;background:#f3f4f6}button{border:0;border-radius:9px;padding:11px 14px;background:#047857;color:#fff;font-weight:bold;cursor:pointer}input,select{width:100%;padding:12px;border:1px solid #ccc;border-radius:9px;margin:5px 0 10px}label{font-weight:bold;font-size:12px}#loginPage{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(135deg,#064e3b,#0f766e)}.login-box{width:100%;max-width:420px;background:#fff;border-radius:18px;padding:26px 22px}.logo{width:70px;height:70px;margin:0 auto 12px;border-radius:50%;background:#047857;color:#fff;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:bold}#app{display:none}header{background:#065f46;color:#fff;padding:12px 14px;display:flex;justify-content:space-between;position:sticky;top:0;z-index:10}.menu{background:#fff;display:flex;gap:6px;padding:8px;overflow-x:auto;border-bottom:1px solid #ddd;position:sticky;top:48px;z-index:9}.menu button{background:#e5e7eb;color:#222;white-space:nowrap;font-size:12px}.menu button.active{background:#047857;color:#fff}.section{display:none;padding:12px;max-width:1100px;margin:auto}.section.active{display:block}.welcome{background:#047857;color:#fff;padding:14px;border-radius:12px;margin-bottom:12px}.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}.card{background:#fff;padding:14px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.06)}.form-box,.table-box{background:#fff;padding:14px;border-radius:12px;margin-top:10px}.balanceLive{background:linear-gradient(90deg,#059669,#2563eb);color:#fff;text-align:center;border-radius:12px;padding:16px}.balanceLive div{font-size:22px;font-weight:bold}.customer,.application{padding:10px 0;border-bottom:1px solid #eee;font-size:13px}.badge{padding:3px 8px;border-radius:12px;font-size:11px;color:#fff;background:#059669}.searchBox{width:100%;padding:12px;border:2px solid #047857;border-radius:10px;margin-bottom:10px}.receipt{font-family:monospace;background:#fff;color:#000;padding:15px;border:1px dashed #000;max-width:300px;margin:auto}.report-cat{background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:12px;margin:10px 0}.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:50;padding:12px}.modal.hidden{display:none}.modal-box{background:#fff;width:100%;max-width:480px;border-radius:14px;max-height:90vh;overflow:auto}</style></head><body>
-<div id="loginPage"><div class="login-box"><div class="logo">GM</div><h1 style="text-align:center;color:#065f46;margin:0">GHANTENDE</h1><p style="text-align:center;color:#666;font-size:11px">V6.0 PRO</p><form id="loginForm"><label>Email</label><input id="email" type="email" required><label>Password</label><input id="password" type="password" required><button style="width:100%" type="submit">INGIA</button><div id="message" style="text-align:center;color:red;margin-top:8px;font-weight:bold"></div></form></div></div>
-<div id="app"><header><h2>GHANTENDE V6</h2><div><button id="exportAllBtn" style="background:#059669;margin-right:4px;font-size:11px">Export</button><button id="logoutButton" style="background:#dc2626">TOKA</button></div></header><div class="menu"><button class="active" data-section="dashboard">Dashboard</button><button data-section="wateja">Wateja</button><button data-section="maombi">Maombi</button><button data-section="mikopo">Mikopo</button><button data-section="marejesho">Marejesho</button><button data-section="ripoti">Ripoti</button><button data-section="smslog">SMS Log</button><button data-section="maafisa">Maafisa</button></div>
+<html lang="sw">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>GHANTENDE V7 AUTO</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+*{box-sizing:border-box;font-family:Arial}
+body{margin:0;background:#f3f4f6}
+button{border:0;border-radius:9px;padding:11px 14px;background:#047857;color:#fff;font-weight:bold;cursor:pointer}
+input,select{width:100%;padding:12px;border:1px solid #ccc;border-radius:9px;margin:5px 0 10px}
+label{font-weight:bold;font-size:12px}
+#loginPage{min-height:100vh;display:flex;align-items:center;justify-content:center;padding:20px;background:linear-gradient(135deg,#064e3b,#0f766e)}
+.login-box{width:100%;max-width:420px;background:#fff;border-radius:18px;padding:26px 22px}
+.logo{width:70px;height:70px;margin:0 auto 12px;border-radius:50%;background:#047857;color:#fff;display:flex;align-items:center;justify-content:center;font-size:28px;font-weight:bold}
+#app{display:none}
+header{background:#065f46;color:#fff;padding:12px 14px;display:flex;justify-content:space-between;position:sticky;top:0;z-index:10}
+.menu{background:#fff;display:flex;gap:6px;padding:8px;overflow-x:auto;border-bottom:1px solid #ddd;position:sticky;top:48px;z-index:9}
+.menu button{background:#e5e7eb;color:#222;white-space:nowrap;font-size:12px}
+.menu button.active{background:#047857;color:#fff}
+.section{display:none;padding:12px;max-width:1100px;margin:auto}
+.section.active{display:block}
+.welcome{background:#047857;color:#fff;padding:14px;border-radius:12px;margin-bottom:12px}
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:10px}
+.card{background:#fff;padding:14px;border-radius:12px;box-shadow:0 2px 8px rgba(0,0,0,.06)}
+.form-box,.table-box{background:#fff;padding:14px;border-radius:12px;margin-top:10px}
+.balanceLive{background:linear-gradient(90deg,#059669,#2563eb);color:#fff;text-align:center;border-radius:12px;padding:16px}
+.balanceLive div{font-size:22px;font-weight:bold}
+.customer,.application{padding:10px 0;border-bottom:1px solid #eee;font-size:13px}
+.badge{padding:3px 8px;border-radius:12px;font-size:11px;color:#fff;background:#059669}
+.searchBox{width:100%;padding:12px;border:2px solid #047857;border-radius:10px;margin-bottom:10px}
+.receipt{font-family:monospace;background:#fff;color:#000;padding:15px;border:1px dashed #000;max-width:300px;margin:auto}
+.report-cat{background:#f9fafb;border:1px solid #e5e7eb;border-radius:10px;padding:12px;margin:10px 0}
+.modal{position:fixed;inset:0;background:rgba(0,0,0,.6);display:flex;align-items:center;justify-content:center;z-index:50;padding:12px}
+.modal.hidden{display:none}
+.modal-box{background:#fff;width:100%;max-width:480px;border-radius:14px;max-height:90vh;overflow:auto}
+</style>
+</head>
+<body>
+<div id="loginPage"><div class="login-box"><div class="logo">GM</div><h1 style="text-align:center;color:#065f46;margin:0">GHANTENDE</h1><p style="text-align:center;color:#666;font-size:11px">V7 AUTO - Kila kitu AUTO</p><form id="loginForm"><label>Email</label><input id="email" type="email" required><label>Password</label><input id="password" type="password" required><button style="width:100%" type="submit">INGIA</button><div id="message" style="text-align:center;color:red;margin-top:8px;font-weight:bold"></div></form></div></div>
+<div id="app"><header><h2>GHANTENDE V7 AUTO</h2><div><button id="exportAllBtn" style="background:#059669;margin-right:4px;font-size:11px">Export</button><button id="logoutButton" style="background:#dc2626">TOKA</button></div></header>
+<div class="menu"><button class="active" data-section="dashboard">Dashboard</button><button data-section="wateja">Wateja</button><button data-section="maombi">Maombi</button><button data-section="mikopo">Mikopo</button><button data-section="marejesho">Marejesho</button><button data-section="ripoti">Ripoti</button><button data-section="smslog">SMS Log</button><button data-section="maafisa">Maafisa</button></div>
 <section id="dashboard" class="section active"><div class="welcome">Karibu <b id="welcomeEmail"></b> - <span id="todayDate"></span></div><div class="cards"><div class="card"><small>Wateja</small><br><strong id="customerCount">0</strong></div><div class="card"><small>Pending</small><br><strong id="pendingCount">0</strong></div><div class="card"><small>Active</small><br><strong id="activeLoanCount">0</strong></div><div class="card"><small>Salio Mikopo</small><br><strong id="loanBalance">0</strong></div><div class="card"><small>Overdue</small><br><strong id="overdueCount" style="color:red">0</strong></div><div class="card"><small>Leo Mapato</small><br><strong id="todayIncome">0</strong></div></div><div class="table-box"><canvas id="incomeChart" height="120"></canvas></div><div class="table-box"><div class="balanceLive"><div id="todayReportBal">TZS 0</div><small>Salio la Ripoti ya Leo</small></div></div></section>
 <section id="wateja" class="section"><h2>Wateja + Mdhamini</h2><div class="form-box"><div style="display:flex;gap:8px"><select id="cBranch" style="flex:1"><option value="Kiriba Branch">Kiriba Branch</option><option value="Bwai Branch">Bwai Branch</option></select><select id="filterBranch" style="flex:1"><option value="">Vituo Vyote</option><option value="Kiriba Branch">Kiriba</option><option value="Bwai Branch">Bwai</option></select></div><input id="searchCustomer" class="searchBox" placeholder="Tafuta jina / phone"><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div><label>Jina *</label><input id="cName"></div><div><label>Phone *</label><input id="cPhone"></div></div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div><label>Namba</label><input id="cNumber"></div><div><label>Mdhamini Jina</label><input id="cGuarantorName"></div></div><label>Phone ya Mdhamini</label><input id="cGuarantorPhone"><button id="addCustomerBtn" style="width:100%">ONGEZA MTEJA</button></div><div class="table-box"><div id="customersList"></div></div></section>
 <section id="maombi" class="section"><h2>Maombi</h2><div class="form-box"><label>Mteja</label><select id="appCustomer"></select><label>Kiasi</label><input id="appAmount" type="number"><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div><label>Miezi</label><input id="appMonths" type="number" value="1"></div><div><label>Riba %</label><input id="appInterest" type="number" value="10"></div></div><div id="totalPreview" style="background:#ecfdf5;padding:12px;border-radius:8px;margin:8px 0;text-align:center;font-weight:bold">Jumla: 0</div><label>Sababu</label><input id="appPurpose"><button id="addAppBtn" style="width:100%">TUMA MAOMBI</button></div><div class="table-box"><input id="searchApp" class="searchBox" placeholder="Tafuta maombi"><div id="applicationsList"></div></div></section>
 <section id="mikopo" class="section"><h2>Mikopo Active</h2><input id="searchLoan" class="searchBox" placeholder="Tafuta mkopo"><div class="table-box"><div id="activeLoansList"></div><div id="singleHistory" style="display:none;background:#fff;padding:14px;border-radius:12px;margin-top:12px;border:2px solid #2563eb"></div></div></section>
 <section id="marejesho" class="section"><h2>Marejesho + Receipt</h2><div class="form-box"><label>Mkopo</label><select id="paymentLoan"></select><label>Kiasi</label><input id="paymentAmount" type="number"><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div><label>Tarehe</label><input id="paymentDate" type="date"></div><div><label>Njia</label><select id="paymentMethod"><option value="Cash">Cash</option><option value="M-Pesa">M-Pesa</option><option value="Tigo Pesa">Tigo Pesa</option><option value="Airtel Money">Airtel Money</option><option value="Bank">Bank</option><option value="Fine">Fine</option></select></div></div><label>Fine kama yupo</label><input id="paymentFine" type="number" value="0"><button id="payBtn" style="width:100%">HIFADHI + SMS + RECEIPT</button></div><div class="table-box"><div id="paymentsList"></div><div id="receiptArea" style="display:none;margin-top:15px"></div></div></section>
-<section id="ripoti" class="section"><h2>RIPOTI - V6 PRO</h2><div class="form-box"><div class="balanceLive"><div id="liveBal">TZS 0</div><small>Salio Live</small><div style="margin-top:6px;font-size:11px" id="liveBalDetail">Real: 0</div></div><label>Tarehe</label><input id="reportDate" type="date"><div class="report-cat" style="border-left:4px solid #059669"><h4 style="color:#059669">A. MAPATO</h4><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div><label>Marejesho</label><input id="rSales" type="number" value="0"></div><div><label>Faini</label><input id="rFine" type="number" value="0"></div><div><label>Riba</label><input id="rInterest" type="number" value="0"></div><div><label>Fomu</label><input id="rFormFee" type="number" value="0"></div></div><label>Mengine</label><input id="rOtherIncome" type="number" value="0"></div><div class="report-cat" style="border-left:4px solid #dc2626"><h4 style="color:#dc2626">B. MATUMIZI</h4><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div><label>MD</label><input id="rMd" type="number" value="0"></div><div><label>Store</label><input id="rStore" type="number" value="0"></div><div><label>Bank</label><input id="rBank" type="number" value="0"></div><div><label>Usafiri</label><input id="rTransport" type="number" value="0"></div><div><label>Chakula</label><input id="rFood" type="number" value="0"></div><div><label>Mawasiliano</label><input id="rCommunication" type="number" value="0"></div><div><label>Mikopo Leo</label><input id="rLoansGiven" type="number" value="0"></div><div><label>Matengenezo</label><input id="rMaintenance" type="number" value="0"></div></div><label>Mengine</label><input id="rOtherExpense" type="number" value="0"></div><div class="report-cat" style="border-left:4px solid #2563eb;background:#eff6ff"><h4 style="color:#1e40af">C. SALIO HALISI LILIPO</h4><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div><label>Cash Mkononi</label><input id="rCashHand" type="number" value="0"></div><div><label>M-Pesa</label><input id="rMpesa" type="number" value="0"></div><div><label>Tigo Pesa</label><input id="rTigoPesa" type="number" value="0"></div><div><label>Airtel Money</label><input id="rAirtel" type="number" value="0"></div><div><label>Halopesa</label><input id="rHalopesa" type="number" value="0"></div><div><label>Bank</label><input id="rBankBalance" type="number" value="0"></div></div><div style="background:#fff;padding:8px;border-radius:6px;margin-top:8px;text-align:center"><small>Jumla Salio Halisi:</small><br><strong id="realBalanceSum" style="font-size:18px;color:#1e40af">TZS 0</strong><div id="balanceCheck" style="font-size:11px"></div></div></div><button id="saveDailyReport" style="width:100%;margin-top:10px;background:#2563eb;font-size:16px;padding:14px">HIFADHI RIPOTI V6</button><div id="reportMsg" style="margin-top:8px;font-weight:bold;text-align:center"></div></div><div class="table-box"><div id="reportsList"></div></div></section>
+<section id="ripoti" class="section"><h2>RIPOTI - V7 AUTO</h2><div class="form-box"><div style="background:#dbeafe;border:1px solid #93c5fd;padding:10px;border-radius:8px;margin-bottom:10px;text-align:center"><small>AUTO MODE: Marejesho, Faini na Mikopo vinajipakia chenyewe</small><br><button id="autoLoadBtn" style="background:#2563eb;margin-top:6px;font-size:11px">PAKIA AUTO SASA</button></div><div class="balanceLive"><div id="liveBal">TZS 0</div><small>Salio Live</small><div style="margin-top:6px;font-size:11px" id="liveBalDetail">Real: 0</div></div><label>Tarehe</label><input id="reportDate" type="date"><div class="report-cat" style="border-left:4px solid #059669"><h4 style="color:#059669">A. MAPATO (AUTO)</h4><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div><label>Marejesho auto</label><input id="rSales" type="number" value="0"></div><div><label>Faini auto</label><input id="rFine" type="number" value="0"></div><div><label>Riba</label><input id="rInterest" type="number" value="0"></div><div><label>Fomu</label><input id="rFormFee" type="number" value="0"></div></div><label>Mengine</label><input id="rOtherIncome" type="number" value="0"></div><div class="report-cat" style="border-left:4px solid #dc2626"><h4 style="color:#dc2626">B. MATUMIZI</h4><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div><label>MD</label><input id="rMd" type="number" value="0"></div><div><label>Store</label><input id="rStore" type="number" value="0"></div><div><label>Bank</label><input id="rBank" type="number" value="0"></div><div><label>Usafiri</label><input id="rTransport" type="number" value="0"></div><div><label>Chakula</label><input id="rFood" type="number" value="0"></div><div><label>Mawasiliano</label><input id="rCommunication" type="number" value="0"></div><div><label>Mikopo Leo auto</label><input id="rLoansGiven" type="number" value="0"></div><div><label>Matengenezo</label><input id="rMaintenance" type="number" value="0"></div></div><label>Mengine</label><input id="rOtherExpense" type="number" value="0"></div><div class="report-cat" style="border-left:4px solid #2563eb;background:#eff6ff"><h4 style="color:#1e40af">C. SALIO HALISI LILIPO</h4><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div><label>Cash Mkononi</label><input id="rCashHand" type="number" value="0"></div><div><label>M-Pesa</label><input id="rMpesa" type="number" value="0"></div><div><label>Tigo Pesa</label><input id="rTigoPesa" type="number" value="0"></div><div><label>Airtel Money</label><input id="rAirtel" type="number" value="0"></div><div><label>Halopesa</label><input id="rHalopesa" type="number" value="0"></div><div><label>Bank</label><input id="rBankBalance" type="number" value="0"></div></div><div style="background:#fff;padding:8px;border-radius:6px;margin-top:8px;text-align:center"><small>Jumla Salio Halisi:</small><br><strong id="realBalanceSum" style="font-size:18px;color:#1e40af">TZS 0</strong><div id="balanceCheck" style="font-size:11px"></div></div></div><button id="saveDailyReport" style="width:100%;margin-top:10px;background:#2563eb;font-size:16px;padding:14px">HIFADHI RIPOTI V7 AUTO</button><div id="reportMsg" style="margin-top:8px;font-weight:bold;text-align:center"></div></div><div class="table-box"><div id="reportsList"></div></div></section>
 <section id="smslog" class="section"><h2>SMS Log</h2><div class="table-box"><input id="searchSms" class="searchBox" placeholder="Tafuta SMS"><div id="smsList">Hakuna</div></div></section>
 <section id="maafisa" class="section"><h2>Maafisa</h2><div class="form-box"><div style="display:flex;gap:8px"><select id="oBranch"><option value="Kiriba Branch">Kiriba Branch</option><option value="Bwai Branch">Bwai Branch</option></select><select id="oRole"><option value="officer">Officer</option><option value="admin">Admin</option></select></div><label>Jina</label><input id="oName"><label>Email</label><input id="oEmail" type="email"><label>Password</label><input id="oPass" value="Ghantende123"><label>Phone</label><input id="oPhone"><button id="addOfficerBtn" style="width:100%;background:#2563eb">ONGEZA AFISA</button><div id="officerMsg"></div></div><div class="table-box"><div id="maafisaList"></div></div></section>
 </div>
-<div id="reportModal" class="modal hidden"><div class="modal-box"><div style="padding:14px;background:#065f46;color:#fff;display:flex;justify-content:space-between"><h3 id="mTitle" style="margin:0;font-size:14px">Ripoti</h3><button onclick="closeReportModal()" style="background:#fff;color:#065f46;padding:6px 10px">X</button></div><div id="mContent" style="padding:14px"></div></div></div><script>
-const SUPABASE_URL="https://kvcbsebklyuupwixmagd.supabase.co";const SUPABASE_ANON_KEY="sb_publishable_CaipCB_cvv1uPsqtt4Yalg_cFWGSP2t";const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
-const $=id=>document.getElementById(id);const money=v=>"TZS "+Number(v||0).toLocaleString();const esc=v=>String(v??"").replace(/[&<>]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[m]));
+<div id="reportModal" class="modal hidden"><div class="modal-box"><div style="padding:14px;background:#065f46;color:#fff;display:flex;justify-content:space-between"><h3 id="mTitle" style="margin:0;font-size:14px">Ripoti</h3><button onclick="closeReportModal()" style="background:#fff;color:#065f46;padding:6px 10px">X</button></div><div id="mContent" style="padding:14px"></div></div></div>
+<script>
+const SUPABASE_URL="https://kvcbsebklyuupwixmagd.supabase.co";
+const SUPABASE_ANON_KEY="sb_publishable_CaipCB_cvv1uPsqtt4Yalg_cFWGSP2t";
+const supabaseClient=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+const $=id=>document.getElementById(id);
+const money=v=>"TZS "+Number(v||0).toLocaleString();
+const esc=v=>String(v??"").replace(/[&<>]/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;"}[m]));
 let allCustomers=[],allLoans=[],allPayments=[],smsLogs=JSON.parse(localStorage.getItem('smsLogs')||'[]');
-let currentUser={email:'',name:'',branch:'',role:''};let state={reports:[]};
+let currentUser={email:'',name:'',branch:'',role:''};
+let state={reports:[]};
 const BOSS_NUMBER="255765000000";
 function getCurrentOfficerInfo(){return {email:currentUser.email,name:currentUser.name,branch:currentUser.branch};}
-function showSection(id){document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));$(id).classList.add("active");document.querySelectorAll(".menu button").forEach(b=>b.classList.remove("active"));document.querySelector(`.menu button[data-section="${id}"]`)?.classList.add("active");}
+function showSection(id){
+  document.querySelectorAll(".section").forEach(s=>s.classList.remove("active"));
+  $(id).classList.add("active");
+  document.querySelectorAll(".menu button").forEach(b=>b.classList.remove("active"));
+  document.querySelector(`.menu button[data-section="${id}"]`)?.classList.add("active");
+  if(id==='ripoti'){ setTimeout(()=>{ if($("reportDate")?.value) autoFillReportForDate($("reportDate").value); },300); }
+}
 window.showSection=showSection;
-function calcLive(){const g=id=>Number($(id)?.value||0);const inc=g("rSales")+g("rFine")+g("rInterest")+g("rFormFee")+g("rOtherIncome");const exp=g("rMd")+g("rStore")+g("rBank")+g("rTransport")+g("rFood")+g("rCommunication")+g("rMaintenance")+g("rOtherExpense")+g("rLoansGiven");const bal=inc-exp;const realSum=g("rCashHand")+g("rMpesa")+g("rTigoPesa")+g("rAirtel")+g("rHalopesa")+g("rBankBalance");if($("liveBal"))$("liveBal").textContent=money(bal);if($("realBalanceSum"))$("realBalanceSum").textContent=money(realSum);if($("balanceCheck")){if(realSum===0){$("balanceCheck").textContent="";}else if(realSum===bal){$("balanceCheck").innerHTML="Sawa";$("balanceCheck").style.color="green";}else{$("balanceCheck").innerHTML="Tofauti: "+money(bal-realSum);$("balanceCheck").style.color="red";}}if($("liveBalDetail"))$("liveBalDetail").textContent="Real: "+money(realSum);return {inc,exp,bal,realSum};}
-function updateTotalPreview(){const amt=Number($("appAmount")?.value||0);const months=Number($("appMonths")?.value||1);const rate=Number($("appInterest")?.value||10);const interest=amt*(rate/100)*months;const total=amt+interest;if($("totalPreview"))$("totalPreview").innerHTML="Asili: "+money(amt)+"<br>Riba: "+money(interest)+"<br>Jumla: "+money(total);}
-function saveSmsLog(phone,msg,type){const log={phone,msg,type,date:new Date().toLocaleString()};smsLogs.unshift(log);localStorage.setItem('smsLogs',JSON.stringify(smsLogs.slice(0,200)));try{supabaseClient.from("sms_logs").insert([{phone,message:msg,type}]);}catch(e){}renderSmsLog();}
-function renderSmsLog(){const q=($("searchSms")?.value||"").toLowerCase();const filtered=smsLogs.filter(l=>l.phone.toLowerCase().includes(q)||l.msg.toLowerCase().includes(q));$("smsList").innerHTML=!filtered.length?"Hakuna SMS":filtered.map((l,i)=>"<div class='application'><b>"+(i+1)+". "+esc(l.phone)+"</b> <small>"+l.date+" - "+l.type+"</small><br>"+esc(l.msg)+"</div>").join("");}
-function isOverdue(loan){const created=new Date(loan.created_at);const due=new Date(created);due.setMonth(due.getMonth()+Number(loan.duration_months||1));return new Date()>due;}
-async function loadCustomers(){const {data}=await supabaseClient.from("customers").select("*").order("created_at",{ascending:false});allCustomers=data||[];const q=($("searchCustomer")?.value||"").toLowerCase();const bFilter=$("filterBranch")?.value||"";let filtered=allCustomers.filter(c=>(c.full_name||"").toLowerCase().includes(q)||(c.phone||"").includes(q));if(bFilter)filtered=filtered.filter(c=>c.branch_name===bFilter);if(currentUser.role!=='admin'&&currentUser.branch){filtered=filtered.filter(c=>c.branch_name===currentUser.branch);} $("customerCount").textContent=allCustomers.length;$("customersList").innerHTML=!filtered.length?"Hakuna":filtered.map((c,i)=>"<div class='customer'><b>"+(i+1)+". "+esc(c.full_name)+"</b> <span class='badge'>"+esc(c.branch_name||'')+"</span><br>"+esc(c.phone||'')+"<br><small>Served: "+esc(c.served_by_name||'')+"</small><br><button onclick=\"editCustomer('"+c.id+"')\" style='background:#2563eb;font-size:10px'>Edit</button> <button onclick=\"viewCustomerLoans('"+c.id+"','"+esc(c.full_name).replace(/'/g,'')+"')\" style='background:#059669;font-size:10px'>Mikopo</button></div>").join("");$("appCustomer").innerHTML='<option value="">--Chagua--</option>'+allCustomers.map(c=>"<option value='"+c.id+"'>"+esc(c.full_name)+" - "+esc(c.phone||'')+" ["+esc(c.branch_name||'')+"]</option>").join("");}
-window.editCustomer=async function(id){const c=allCustomers.find(x=>x.id===id);if(!c)return;const newName=prompt("Jina jipya:",c.full_name);if(newName===null)return;const newPhone=prompt("Phone mpya:",c.phone);if(newPhone===null)return;const {error}=await supabaseClient.from("customers").update({full_name:newName,phone:newPhone}).eq("id",id);if(error)alert(error.message);else loadCustomers();}
-window.viewCustomerLoans=function(cid,name){showSection('mikopo');$("searchLoan").value=name;loadActiveLoans();};
-async function loadApplications(){const {data}=await supabaseClient.from("loan_applications").select("*").order("created_at",{ascending:false});const q=($("searchApp")?.value||"").toLowerCase();const filtered=(data||[]).filter(a=>JSON.stringify(a).toLowerCase().includes(q));$("pendingCount").textContent=(data||[]).filter(a=>a.status==='pending').length||0;$("applicationsList").innerHTML=!filtered.length?"Hakuna":filtered.map((a,i)=>{const p=Number(a.amount||0);const r=Number(a.interest_rate||10);const m=Number(a.duration_months||1);const interest=Number(a.interest_amount||p*(r/100)*m);const total=Number(a.total_amount||p+interest);const isPending=(a.status||'').toLowerCase()==='pending';const col=a.status==='approved'?'#059669':a.status==='rejected'?'#dc2626':'#d97706';return "<div class='application' style='border-left:4px solid "+col+"'><b>Ombi "+(i+1)+"</b> - "+money(p)+" = <b>"+money(total)+"</b><br><span class='badge' style='background:"+col+"'>"+esc(a.status)+"</span> "+(isPending?"<div style='display:flex;gap:6px'><button onclick=\"approveApplication('"+a.id+"')\" style='background:#059669;flex:1'>APPROVE</button><button onclick=\"rejectApplication('"+a.id+"')\" style='background:#dc2626;flex:1'>REJECT</button></div>":'')+"</div>";}).join("");}
-async function loadActiveLoans(){const {data:loans}=await supabaseClient.from("loans").select("*").eq("loan_status","active").order("created_at",{ascending:false});const {data:payments}=await supabaseClient.from("payments").select("*");const {data:customers}=await supabaseClient.from("customers").select("id,phone,full_name,branch_name");allLoans=loans||[];allPayments=payments||[];const custMap={};(customers||[]).forEach(c=>custMap[c.id]=c);$("activeLoanCount").textContent=allLoans.length;let bal=0,overdue=0,html="";const q=($("searchLoan")?.value||"").toLowerCase();const bFilter=$("filterBranch")?.value||"";let filtered=allLoans.filter(l=>(l.customer_name||"").toLowerCase().includes(q)||(custMap[l.customer_id]?.phone||"").includes(q));if(bFilter)filtered=filtered.filter(l=>custMap[l.customer_id]?.branch_name===bFilter);if(currentUser.role!=='admin'&&currentUser.branch)filtered=filtered.filter(l=>custMap[l.customer_id]?.branch_name===currentUser.branch);filtered.forEach((l,i)=>{let paid=0;(allPayments||[]).forEach(p=>{if(p.loan_id===l.id)paid+=Number(p.amount||0);});const total=Number(l.total_amount||0);let rem=total-paid;if(rem<0)rem=0;bal+=rem;const overdueFlag=isOverdue(l)&&rem>0;if(overdueFlag)overdue++;const phone=custMap[l.customer_id]?.phone||"";const safeName=(l.customer_name||'').replace(/'/g,"");html+="<div class='application'><b>"+(i+1)+". "+esc(l.customer_name||'')+"</b> "+(overdueFlag?'<span style="background:red;color:#fff;padding:2px 6px;border-radius:8px;font-size:10px">OVERDUE</span>':'')+"<br>"+esc(phone)+"<br>Jumla:"+money(total)+" Salio:<b style='color:red'>"+money(rem)+"</b><br><div style='display:flex;gap:4px'><button onclick=\"viewLoanHistory('"+l.id+"','"+safeName+"',"+total+","+paid+","+rem+")\" style='background:#2563eb;font-size:10px'>Historia</button><button onclick=\"sendReminder('"+l.id+"','"+safeName+"','"+phone+"','"+rem+"')\" style='background:#f59e0b;font-size:10px'>Kumbusha</button><button onclick=\"addFine('"+l.id+"')\" style='background:#dc2626;font-size:10px'>+Fine</button></div></div>";});$("loanBalance").textContent=money(bal);$("overdueCount").textContent=overdue;$("activeLoansList").innerHTML=!filtered.length?"Hakuna":html;$("paymentLoan").innerHTML='<option value="">--Chagua--</option>'+allLoans.map(l=>{let p=0;allPayments.forEach(x=>{if(x.loan_id===l.id)p+=Number(x.amount||0)});return "<option value='"+l.id+"'>"+esc(l.customer_name||'')+" - Salio "+money(Number(l.total_amount||0)-p)+"</option>";}).join("");loadPaymentsList();}
-async function loadPaymentsList(){const {data}=await supabaseClient.from("payments").select("*").order("created_at",{ascending:false}).limit(30);$("paymentsList").innerHTML=!data?.length?"Hakuna":data.map((p,i)=>"<div class='customer'><b>"+(i+1)+". "+money(p.amount)+"</b> "+(p.fine_amount?" + Fine "+money(p.fine_amount):'')+" - "+(p.payment_date||'')+" <button onclick=\"printReceipt('"+p.id+"')\" style='background:#059669;font-size:10px'>Receipt</button></div>").join("");}
-async function loadReports(){const {data}=await supabaseClient.from("daily_reports").select("*").order("report_date",{ascending:false}).limit(30);state.reports=data||[];if(!data?.length){$("reportsList").innerHTML="Hakuna";$("todayReportBal").textContent=money(0);return;}$("todayReportBal").textContent=money(data[0].balance);$("todayIncome").textContent=money(data[0].total_income);$("reportsList").innerHTML=data.map((r,i)=>"<div class='application' style='cursor:pointer' onclick=\"openReportModalFromId('"+r.id+"')\"><b>"+r.report_date+"</b> "+esc(r.branch_name||'')+"<br>Mapato:"+money(r.total_income)+" Matumizi:"+money(r.total_expense)+"<br><b>Salio:"+money(r.balance)+"</b><br><small>Bonyeza kuona Balance</small></div>").join("");drawChart(data.slice(0,7).reverse());}
-function drawChart(reports){const ctx=$("incomeChart");if(!ctx)return;try{if(window.myChart)window.myChart.destroy();window.myChart=new Chart(ctx,{type:'bar',data:{labels:reports.map(r=>r.report_date.slice(5)),datasets:[{label:'Mapato',data:reports.map(r=>r.total_income),backgroundColor:'#059669'},{label:'Matumizi',data:reports.map(r=>r.total_expense),backgroundColor:'#dc2626'}]},options:{responsive:true}});}catch(e){}}
-window.openReportModalFromId=function(id){const row=state.reports.find(r=>r.id===id);if(!row)return;const bossNumber=BOSS_NUMBER;const reportText=`GHANTENDE RIPOTI ${row.report_date} Tawi ${row.branch_name} Mapato ${row.total_income} Matumizi ${row.total_expense} Salio ${row.balance} Cash ${row.cash_hand||0} M-Pesa ${row.mpesa||0} Tigo ${row.tigo_pesa||0}`;const whatsappAll=`https://wa.me/?text=${encodeURIComponent(reportText)}`;const whatsappBoss=`https://wa.me/${bossNumber}?text=${encodeURIComponent(reportText)}`;$("mTitle").textContent=`Ripoti ${row.report_date}`;$("mContent").innerHTML=`<div style="background:linear-gradient(135deg,#10b981,#059669);padding:16px;border-radius:12px;color:white;text-align:center"><div>Salio</div><div style="font-size:28px;font-weight:bold">TZS ${Number(row.balance).toLocaleString()}</div></div><div style="margin-top:10px;font-size:12px;line-height:1.8">Mapato: ${Number(row.total_income).toLocaleString()}<br>Matumizi: ${Number(row.total_expense).toLocaleString()}<br><br><b>Salio Lilipo:</b><br>Cash: ${Number(row.cash_hand||0).toLocaleString()}<br>M-Pesa: ${Number(row.mpesa||0).toLocaleString()}<br>Tigo: ${Number(row.tigo_pesa||0).toLocaleString()}<br>Airtel: ${Number(row.airtel_money||0).toLocaleString()}<br>Halo: ${Number(row.halo_pesa||0).toLocaleString()}<br>Bank: ${Number(row.bank_balance||0).toLocaleString()}</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px"><a href="${whatsappAll}" target="_blank" style="background:#25D366;color:white;padding:12px;text-align:center;border-radius:8px;text-decoration:none;font-weight:bold">WhatsApp</a><a href="${whatsappBoss}" target="_blank" style="background:#075E54;color:white;padding:12px;text-align:center;border-radius:8px;text-decoration:none;font-weight:bold">Tuma kwa Boss</a><button onclick="printReportModal()" style="background:#10b981;color:white;padding:12px;border-radius:8px">Print</button><button onclick="closeReportModal()" style="background:#e5e7eb;color:#222;padding:12px;border-radius:8px">Funga</button></div>`;$("reportModal").classList.remove("hidden");}
+async function autoFillReportForDate(dateStr){
+  if(!dateStr) return;
+  try{
+    const {data: pays} = await supabaseClient.from("payments").select("*").eq("payment_date", dateStr);
+    let sumSales=0,sumFine=0;
+    (pays||[]).forEach(p=>{ sumSales+=Number(p.amount||0); sumFine+=Number(p.fine_amount||0); });
+    if($("rSales")) $("rSales").value = sumSales;
+    if($("rFine")) $("rFine").value = sumFine;
+    const start = new Date(dateStr+"T00:00:00").toISOString();
+    const end = new Date(dateStr+"T23:59:59").toISOString();
+    const {data: loansToday} = await supabaseClient.from("loans").select("loan_amount,created_at").gte("created_at", start).lte("created_at", end);
+    let sumLoans=0;
+    (loansToday||[]).forEach(l=> sumLoans+=Number(l.loan_amount||0));
+    if($("rLoansGiven")) $("rLoansGiven").value = sumLoans;
+    calcLive();
+    $("reportMsg").innerHTML = "AUTO: Marejesho "+sumSales.toLocaleString()+" | Fine "+sumFine.toLocaleString()+" | Mikopo "+sumLoans.toLocaleString();
+  }catch(e){ console.log(e); }
+}
+function calcLive(){
+  const g=id=>Number($(id)?.value||0);
+  const inc=g("rSales")+g("rFine")+g("rInterest")+g("rFormFee")+g("rOtherIncome");
+  const exp=g("rMd")+g("rStore")+g("rBank")+g("rTransport")+g("rFood")+g("rCommunication")+g("rMaintenance")+g("rOtherExpense")+g("rLoansGiven");
+  const bal=inc-exp;
+  const realSum=g("rCashHand")+g("rMpesa")+g("rTigoPesa")+g("rAirtel")+g("rHalopesa")+g("rBankBalance");
+  if($("liveBal"))$("liveBal").textContent=money(bal);
+  if($("realBalanceSum"))$("realBalanceSum").textContent=money(realSum);
+  if($("balanceCheck")){
+    if(realSum===0){$("balanceCheck").textContent="";}
+    else if(realSum===bal){$("balanceCheck").innerHTML="Sawa";$("balanceCheck").style.color="green";}
+    else{$("balanceCheck").innerHTML="Tofauti: "+money(bal-realSum);$("balanceCheck").style.color="red";}
+  }
+  if($("liveBalDetail"))$("liveBalDetail").textContent="Real: "+money(realSum);
+  return {inc,exp,bal,realSum};
+}
+function updateTotalPreview(){
+  const amt=Number($("appAmount")?.value||0);
+  const months=Number($("appMonths")?.value||1);
+  const rate=Number($("appInterest")?.value||10);
+  const interest=amt*(rate/100)*months;
+  const total=amt+interest;
+  if($("totalPreview"))$("totalPreview").innerHTML="Asili: "+money(amt)+"<br>Riba: "+money(interest)+"<br>Jumla: "+money(total);
+}
+function saveSmsLog(phone,msg,type){
+  const log={phone,msg,type,date:new Date().toLocaleString()};
+  smsLogs.unshift(log);
+  localStorage.setItem('smsLogs',JSON.stringify(smsLogs.slice(0,200)));
+  try{supabaseClient.from("sms_logs").insert([{phone,message:msg,type}]);}catch(e){}
+  renderSmsLog();
+}
+function renderSmsLog(){
+  const q=($("searchSms")?.value||"").toLowerCase();
+  const filtered=smsLogs.filter(l=>l.phone.toLowerCase().includes(q)||l.msg.toLowerCase().includes(q));
+  $("smsList").innerHTML=!filtered.length?"Hakuna SMS":filtered.map((l,i)=>"<div class='application'><b>"+(i+1)+". "+esc(l.phone)+"</b> <small>"+l.date+" - "+l.type+"</small><br>"+esc(l.msg)+"</div>").join("");
+}
+function isOverdue(loan){
+  const created=new Date(loan.created_at);
+  const due=new Date(created);
+  due.setMonth(due.getMonth()+Number(loan.duration_months||1));
+  return new Date()>due;
+}
+async function loadCustomers(){
+  const {data}=await supabaseClient.from("customers").select("*").order("created_at",{ascending:false});
+  allCustomers=data||[];
+  const q=($("searchCustomer")?.value||"").toLowerCase();
+  const bFilter=$("filterBranch")?.value||"";
+  let filtered=allCustomers.filter(c=>(c.full_name||"").toLowerCase().includes(q)||(c.phone||"").includes(q));
+  if(bFilter)filtered=filtered.filter(c=>c.branch_name===bFilter);
+  if(currentUser.role!=='admin'&&currentUser.branch){filtered=filtered.filter(c=>c.branch_name===currentUser.branch);}
+  $("customerCount").textContent=allCustomers.length;
+  $("customersList").innerHTML=!filtered.length?"Hakuna":filtered.map((c,i)=>"<div class='customer'><b>"+(i+1)+". "+esc(c.full_name)+"</b> <span class='badge'>"+esc(c.branch_name||'')+"</span><br>"+esc(c.phone||'')+"<br><button onclick=\"editCustomer('"+c.id+"')\" style='background:#2563eb;font-size:10px'>Edit</button> <button onclick=\"viewCustomerLoans('"+c.id+"')\" style='background:#059669;font-size:10px'>Mikopo</button></div>").join("");
+  $("appCustomer").innerHTML='<option value="">--Chagua--</option>'+allCustomers.map(c=>"<option value='"+c.id+"'>"+esc(c.full_name)+" - "+esc(c.phone||'')+" ["+esc(c.branch_name||'')+"]</option>").join("");
+}
+window.editCustomer=async function(id){
+  const c=allCustomers.find(x=>x.id===id);
+  if(!c)return;
+  const newName=prompt("Jina jipya:",c.full_name);
+  if(newName===null)return;
+  const newPhone=prompt("Phone mpya:",c.phone);
+  if(newPhone===null)return;
+  const {error}=await supabaseClient.from("customers").update({full_name:newName,phone:newPhone}).eq("id",id);
+  if(error)alert(error.message);else loadCustomers();
+}
+window.viewCustomerLoans=function(cid){showSection('mikopo');loadActiveLoans();};
+async function loadApplications(){
+  const {data}=await supabaseClient.from("loan_applications").select("*").order("created_at",{ascending:false});
+  $("pendingCount").textContent=(data||[]).filter(a=>a.status==='pending').length||0;
+  $("applicationsList").innerHTML=!data?.length?"Hakuna":data.map((a,i)=>{
+    const p=Number(a.amount||0);
+    const total=Number(a.total_amount||0);
+    const isPending=(a.status||'').toLowerCase()==='pending';
+    const col=a.status==='approved'?'#059669':a.status==='rejected'?'#dc2626':'#d97706';
+    return "<div class='application' style='border-left:4px solid "+col+"'><b>Ombi "+(i+1)+"</b> - "+money(p)+" = <b>"+money(total)+"</b><br><span class='badge' style='background:"+col+"'>"+esc(a.status)+"</span> "+(isPending?"<div style='display:flex;gap:6px'><button onclick=\"approveApplication('"+a.id+"')\" style='background:#059669;flex:1'>APPROVE</button><button onclick=\"rejectApplication('"+a.id+"')\" style='background:#dc2626;flex:1'>REJECT</button></div>":'')+"</div>";
+  }).join("");
+}
+async function loadActiveLoans(){
+  const {data:loans}=await supabaseClient.from("loans").select("*").eq("loan_status","active").order("created_at",{ascending:false});
+  const {data:payments}=await supabaseClient.from("payments").select("*");
+  const {data:customers}=await supabaseClient.from("customers").select("id,phone,full_name,branch_name");
+  allLoans=loans||[];
+  allPayments=payments||[];
+  const custMap={};
+  (customers||[]).forEach(c=>custMap[c.id]=c);
+  $("activeLoanCount").textContent=allLoans.length;
+  let bal=0,overdue=0,html="";
+  const q=($("searchLoan")?.value||"").toLowerCase();
+  let filtered=allLoans.filter(l=>(l.customer_name||"").toLowerCase().includes(q)||(custMap[l.customer_id]?.phone||"").includes(q));
+  filtered.forEach((l,i)=>{
+    let paid=0;
+    (allPayments||[]).forEach(p=>{if(p.loan_id===l.id)paid+=Number(p.amount||0);});
+    const total=Number(l.total_amount||0);
+    let rem=total-paid;
+    if(rem<0)rem=0;
+    bal+=rem;
+    const overdueFlag=isOverdue(l)&&rem>0;
+    if(overdueFlag)overdue++;
+    const phone=custMap[l.customer_id]?.phone||"";
+    const safeName=(l.customer_name||'').replace(/'/g,"");
+    html+="<div class='application'><b>"+(i+1)+". "+esc(l.customer_name||'')+"</b> "+(overdueFlag?'<span style="background:red;color:#fff;padding:2px 6px;border-radius:8px;font-size:10px">OVERDUE</span>':'')+"<br>"+esc(phone)+"<br>Jumla:"+money(total)+" Salio:<b style='color:red'>"+money(rem)+"</b><br><div style='display:flex;gap:4px'><button onclick=\"viewLoanHistory('"+l.id+"','"+safeName+"',"+total+","+paid+","+rem+")\" style='background:#2563eb;font-size:10px'>Historia</button><button onclick=\"sendReminder('"+l.id+"','"+safeName+"','"+phone+"','"+rem+"')\" style='background:#f59e0b;font-size:10px'>Kumbusha</button><button onclick=\"addFine('"+l.id+"')\" style='background:#dc2626;font-size:10px'>+Fine</button></div></div>";
+  });
+  $("loanBalance").textContent=money(bal);
+  $("overdueCount").textContent=overdue;
+  $("activeLoansList").innerHTML=!filtered.length?"Hakuna":html;
+  $("paymentLoan").innerHTML='<option value="">--Chagua--</option>'+allLoans.map(l=>{let p=0;allPayments.forEach(x=>{if(x.loan_id===l.id)p+=Number(x.amount||0)});return "<option value='"+l.id+"'>"+esc(l.customer_name||'')+" - Salio "+money(Number(l.total_amount||0)-p)+"</option>";}).join("");
+  loadPaymentsList();
+}
+async function loadPaymentsList(){
+  const {data}=await supabaseClient.from("payments").select("*").order("created_at",{ascending:false}).limit(30);
+  $("paymentsList").innerHTML=!data?.length?"Hakuna":data.map((p,i)=>"<div class='customer'><b>"+(i+1)+". "+money(p.amount)+"</b> - "+(p.payment_date||'')+" <button onclick=\"printReceipt('"+p.id+"')\" style='background:#059669;font-size:10px'>Receipt</button></div>").join("");
+}
+async function loadReports(){
+  const {data}=await supabaseClient.from("daily_reports").select("*").order("report_date",{ascending:false}).limit(30);
+  state.reports=data||[];
+  if(!data?.length){$("reportsList").innerHTML="Hakuna";$("todayReportBal").textContent=money(0);return;}
+  $("todayReportBal").textContent=money(data[0].balance);
+  $("todayIncome").textContent=money(data[0].total_income);
+  $("reportsList").innerHTML=data.map((r,i)=>"<div class='application' style='cursor:pointer' onclick=\"openReportModalFromId('"+r.id+"')\"><b>"+r.report_date+"</b> "+esc(r.branch_name||'')+"<br>Mapato:"+money(r.total_income)+" Matumizi:"+money(r.total_expense)+"<br><b>Salio:"+money(r.balance)+"</b></div>").join("");
+  drawChart(data.slice(0,7).reverse());
+}
+function drawChart(reports){
+  const ctx=$("incomeChart");
+  if(!ctx)return;
+  try{
+    if(window.myChart)window.myChart.destroy();
+    window.myChart=new Chart(ctx,{
+      type:'bar',
+      data:{
+        labels:reports.map(r=>r.report_date.slice(5)),
+        datasets:[
+          {label:'Mapato',data:reports.map(r=>r.total_income),backgroundColor:'#059669'},
+          {label:'Matumizi',data:reports.map(r=>r.total_expense),backgroundColor:'#dc2626'}
+        ]
+      },
+      options:{responsive:true}
+    });
+  }catch(e){ console.log(e); }
+}
+window.openReportModalFromId=function(id){
+  const row=state.reports.find(r=>r.id===id);
+  if(!row)return;
+  const bossNumber=BOSS_NUMBER;
+  const reportText=`GHANTENDE RIPOTI ${row.report_date} Mapato ${row.total_income} Matumizi ${row.total_expense} Salio ${row.balance}`;
+  const whatsappAll=`https://wa.me/?text=${encodeURIComponent(reportText)}`;
+  const whatsappBoss=`https://wa.me/${bossNumber}?text=${encodeURIComponent(reportText)}`;
+  $("mTitle").textContent=`Ripoti ${row.report_date}`;
+  $("mContent").innerHTML=`<div style="background:linear-gradient(135deg,#10b981,#059669);padding:16px;border-radius:12px;color:white;text-align:center"><div>Salio</div><div style="font-size:28px;font-weight:bold">TZS ${Number(row.balance).toLocaleString()}</div></div><div style="margin-top:10px;font-size:12px">Mapato: ${Number(row.total_income).toLocaleString()}<br>Matumizi: ${Number(row.total_expense).toLocaleString()}<br>Cash: ${Number(row.cash_hand||0).toLocaleString()}<br>M-Pesa: ${Number(row.mpesa||0).toLocaleString()}<br>Tigo: ${Number(row.tigo_pesa||0).toLocaleString()}<br>Airtel: ${Number(row.airtel_money||0).toLocaleString()}<br>Bank: ${Number(row.bank_balance||0).toLocaleString()}</div><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:12px"><a href="${whatsappAll}" target="_blank" style="background:#25D366;color:white;padding:12px;text-align:center;border-radius:8px;text-decoration:none;font-weight:bold">WhatsApp</a><a href="${whatsappBoss}" target="_blank" style="background:#075E54;color:white;padding:12px;text-align:center;border-radius:8px;text-decoration:none;font-weight:bold">Boss</a><button onclick="printReportModal()" style="background:#10b981;color:white;padding:12px;border-radius:8px">Print</button><button onclick="closeReportModal()" style="background:#e5e7eb;color:#222;padding:12px;border-radius:8px">Funga</button></div>`;
+  $("reportModal").classList.remove("hidden");
+}
 window.closeReportModal=function(){$("reportModal").classList.add("hidden");}
-window.printReportModal=function(){const c=$("mContent").innerHTML;const w=window.open('','','width=400,height=600');w.document.write('<html><body>'+c+'<script>window.print()<\/script></body></html>');w.document.close();}
-window.viewLoanHistory=async function(loanId,name,total,paid,rem){const el=$("singleHistory");el.style.display="block";el.innerHTML="Inapakia "+name+"...";const {data:payments}=await supabaseClient.from("payments").select("*").eq("loan_id",loanId).order("payment_date",{ascending:false});let html="<div style='display:flex;justify-content:space-between'><h3>"+esc(name)+"</h3><button onclick=\"this.parentElement.parentElement.style.display='none'\" style='background:#e5e7eb;color:#222'>X</button></div><div style='background:#f3f4f6;padding:8px;border-radius:8px;text-align:center'>Jumla:"+money(total)+" | Salio:<b style='color:red'>"+money(rem)+"</b></div>";if(!payments?.length)html+="<div>Hajalipa</div>";else html+=payments.map((p,i)=>"<div style='padding:6px 0;border-bottom:1px solid #eee'>"+(i+1)+". "+p.payment_date+" "+money(p.amount)+"</div>").join("");el.innerHTML=html;}
-window.addFine=async function(loanId){const amt=prompt("Weka Fine:");if(!amt)return;const loan=allLoans.find(l=>l.id===loanId);if(!loan)return;const newTotal=Number(loan.total_amount)+Number(amt);await supabaseClient.from("loans").update({total_amount:newTotal}).eq("id",loanId);alert("Fine "+money(amt)+" imeongezwa");loadActiveLoans();}
-window.approveApplication=async function(id){const {data:appData}=await supabaseClient.from("loan_applications").select("*").eq("id",id).maybeSingle();if(!appData)return alert("Hayapo");let custData=null;if(appData.customer_id){const {data:c}=await supabaseClient.from("customers").select("id,full_name,phone").eq("id",appData.customer_id).maybeSingle();custData=c;}const name=custData?.full_name||"Mteja";if(!confirm("Approve "+name+"?"))return;try{const officer=getCurrentOfficerInfo();try{await supabaseClient.rpc("approve_loan",{p_application_id:id});}catch(e){await supabaseClient.from("loan_applications").update({status:'approved'}).eq("id",id);await supabaseClient.from("loans").insert([{customer_id:appData.customer_id,customer_name:name,loan_amount:Number(appData.amount||0),interest_amount:Number(appData.interest_amount||0),total_amount:Number(appData.total_amount||0),loan_status:'active',duration_months:Number(appData.duration_months||1),interest_rate:Number(appData.interest_rate||10),application_id:id,approved_by_email:officer.email,approved_by_name:officer.name}]);}await supabaseClient.from("loans").update({approved_by_email:officer.email,approved_by_name:officer.name}).eq("application_id",id);alert(name+" Approved");loadApplications();loadActiveLoans();}catch(e){alert(e.message);}}
-window.rejectApplication=async function(id){if(!confirm("Kataa?"))return;await supabaseClient.from("loan_applications").update({status:'rejected'}).eq("id",id);alert("Imekataliwa");loadApplications();}
-window.sendReminder=async function(loanId,custName,phone,balance){if(!phone)return alert("Hana namba");const msg="GHANTENDE: Ndugu "+custName+", salio lako "+Number(balance).toLocaleString()+". Lipa leo 0787581078";try{const res=await fetch(SUPABASE_URL+"/functions/v1/send-sms",{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_ANON_KEY,"Authorization":"Bearer "+SUPABASE_ANON_KEY},body:JSON.stringify({phone,message:msg})});if(res.ok){saveSmsLog(phone,msg,'REMINDER');alert("Ukumbusho umetumwa");}else alert("Failed");}catch(e){alert(e.message);}}
-window.printReceipt=async function(paymentId){const {data:p}=await supabaseClient.from("payments").select("*").eq("id",paymentId).single();if(!p)return;const {data:loan}=await supabaseClient.from("loans").select("*").eq("id",p.loan_id).single();const area=$("receiptArea");area.style.display="block";area.innerHTML="<div class='receipt'><center><b>GHANTENDE</b><br>RECEIPT</center>Mteja: "+esc(loan?.customer_name||'')+"<br>Kiasi: "+money(p.amount)+"<br><button onclick='window.print()' style='width:100%'>Print</button></div>";}
-document.getElementById("loginForm").addEventListener("submit",async e=>{e.preventDefault();const email=$("email").value.trim(),password=$("password").value;$("message").textContent="Inaingia...";const {data,error}=await supabaseClient.auth.signInWithPassword({email,password});if(error){$("message").textContent=error.message;return;}const {data:officer}=await supabaseClient.from("officers").select("*").eq("email",email).maybeSingle();currentUser={email:email,name:officer?.full_name||email,branch:officer?.branch_name||'',role:officer?.role||'officer'};localStorage.setItem('currentUser',JSON.stringify(currentUser));$("loginPage").style.display="none";$("app").style.display="block";$("welcomeEmail").textContent=currentUser.name+" ("+currentUser.branch+")";$("todayDate").textContent=new Date().toLocaleDateString();await loadCustomers();await loadApplications();await loadActiveLoans();await loadReports();loadOfficers();calcLive();updateTotalPreview();renderSmsLog();});
-$("logoutButton").addEventListener("click",async()=>{await supabaseClient.auth.signOut();localStorage.removeItem('currentUser');location.reload();});
+window.printReportModal=function(){
+  const c=$("mContent").innerHTML;
+  const w=window.open('','','width=400,height=600');
+  w.document.write('<html><body>'+c+'<script>window.print()<\/script></body></html>');
+  w.document.close();
+}
+window.viewLoanHistory=async function(loanId,name,total,paid,rem){
+  const el=$("singleHistory");
+  el.style.display="block";
+  el.innerHTML="Inapakia "+name+"...";
+  const {data:payments}=await supabaseClient.from("payments").select("*").eq("loan_id",loanId).order("payment_date",{ascending:false});
+  let html="<div style='display:flex;justify-content:space-between'><h3>"+esc(name)+"</h3><button onclick=\"this.parentElement.parentElement.style.display='none'\" style='background:#e5e7eb;color:#222'>X</button></div><div style='background:#f3f4f6;padding:8px;border-radius:8px;text-align:center'>Jumla:"+money(total)+" | Salio:<b style='color:red'>"+money(rem)+"</b></div>";
+  if(!payments?.length)html+="<div>Hajalipa</div>";
+  else html+=payments.map((p,i)=>"<div style='padding:6px 0;border-bottom:1px solid #eee'>"+(i+1)+". "+p.payment_date+" "+money(p.amount)+"</div>").join("");
+  el.innerHTML=html;
+}
+window.addFine=async function(loanId){
+  const amt=prompt("Weka Fine:");
+  if(!amt)return;
+  const loan=allLoans.find(l=>l.id===loanId);
+  if(!loan)return;
+  const newTotal=Number(loan.total_amount)+Number(amt);
+  await supabaseClient.from("loans").update({total_amount:newTotal}).eq("id",loanId);
+  alert("Fine "+money(amt)+" imeongezwa");
+  loadActiveLoans();
+}
+window.approveApplication=async function(id){
+  const {data:appData}=await supabaseClient.from("loan_applications").select("*").eq("id",id).maybeSingle();
+  if(!appData)return alert("Hayapo");
+  let custData=null;
+  if(appData.customer_id){
+    const {data:c}=await supabaseClient.from("customers").select("id,full_name,phone").eq("id",appData.customer_id).maybeSingle();
+    custData=c;
+  }
+  const name=custData?.full_name||"Mteja";
+  if(!confirm("Approve "+name+"?"))return;
+  try{
+    const officer=getCurrentOfficerInfo();
+    try{await supabaseClient.rpc("approve_loan",{p_application_id:id});}
+    catch(e){
+      await supabaseClient.from("loan_applications").update({status:'approved'}).eq("id",id);
+      await supabaseClient.from("loans").insert([{customer_id:appData.customer_id,customer_name:name,loan_amount:Number(appData.amount||0),interest_amount:Number(appData.interest_amount||0),total_amount:Number(appData.total_amount||0),loan_status:'active',duration_months:Number(appData.duration_months||1),interest_rate:Number(appData.interest_rate||10),application_id:id,approved_by_email:officer.email,approved_by_name:officer.name}]);
+    }
+    await supabaseClient.from("loans").update({approved_by_email:officer.email,approved_by_name:officer.name}).eq("application_id",id);
+    alert(name+" Approved");
+    loadApplications();
+    loadActiveLoans();
+  }catch(e){alert(e.message);}
+}
+window.rejectApplication=async function(id){
+  if(!confirm("Kataa?"))return;
+  await supabaseClient.from("loan_applications").update({status:'rejected'}).eq("id",id);
+  alert("Imekataliwa");
+  loadApplications();
+}
+window.sendReminder=async function(loanId,custName,phone,balance){
+  if(!phone)return alert("Hana namba");
+  const msg="GHANTENDE: Ndugu "+custName+", salio lako "+Number(balance).toLocaleString()+". Lipa leo 0787581078";
+  try{
+    const res=await fetch(SUPABASE_URL+"/functions/v1/send-sms",{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_ANON_KEY,"Authorization":"Bearer "+SUPABASE_ANON_KEY},body:JSON.stringify({phone,message:msg})});
+    if(res.ok){saveSmsLog(phone,msg,'REMINDER');alert("Ukumbusho umetumwa");}else alert("Failed");
+  }catch(e){alert(e.message);}
+}
+window.printReceipt=async function(paymentId){
+  const {data:p}=await supabaseClient.from("payments").select("*").eq("id",paymentId).single();
+  if(!p)return;
+  const {data:loan}=await supabaseClient.from("loans").select("*").eq("id",p.loan_id).single();
+  const area=$("receiptArea");
+  area.style.display="block";
+  area.innerHTML="<div class='receipt'><center><b>GHANTENDE</b><br>RECEIPT</center>Mteja: "+esc(loan?.customer_name||'')+"<br>Kiasi: "+money(p.amount)+"<br><button onclick='window.print()' style='width:100%'>Print</button></div>";
+}
+document.getElementById("loginForm").addEventListener("submit",async e=>{
+  e.preventDefault();
+  const email=$("email").value.trim(),password=$("password").value;
+  $("message").textContent="Inaingia...";
+  const {data,error}=await supabaseClient.auth.signInWithPassword({email,password});
+  if(error){$("message").textContent=error.message;return;}
+  const {data:officer}=await supabaseClient.from("officers").select("*").eq("email",email).maybeSingle();
+  currentUser={email:email,name:officer?.full_name||email,branch:officer?.branch_name||'',role:officer?.role||'officer'};
+  localStorage.setItem('currentUser',JSON.stringify(currentUser));
+  $("loginPage").style.display="none";
+  $("app").style.display="block";
+  $("welcomeEmail").textContent=currentUser.name+" ("+currentUser.branch+")";
+  $("todayDate").textContent=new Date().toLocaleDateString();
+  await loadCustomers();
+  await loadApplications();
+  await loadActiveLoans();
+  await loadReports();
+  loadOfficers();
+  calcLive();
+  updateTotalPreview();
+  renderSmsLog();
+  if($("reportDate")?.value) autoFillReportForDate($("reportDate").value);
+});
+$("logoutButton").addEventListener("click",async()=>{
+  await supabaseClient.auth.signOut();
+  localStorage.removeItem('currentUser');
+  location.reload();
+});
 document.querySelectorAll(".menu button").forEach(b=>b.addEventListener("click",()=>{showSection(b.dataset.section);}));
-$("reportDate").value=new Date().toISOString().slice(0,10);$("paymentDate").value=new Date().toISOString().slice(0,10);
-["searchCustomer","searchApp","searchLoan","searchSms"].forEach(id=>{const el=$(id);if(el)el.addEventListener("input",()=>{if(id==="searchCustomer")loadCustomers();if(id==="searchApp")loadApplications();if(id==="searchLoan")loadActiveLoans();if(id==="searchSms")renderSmsLog();});});
-document.addEventListener("input",e=>{if(e.target.id&&e.target.id.startsWith("r"))calcLive();if(["appAmount","appMonths","appInterest"].includes(e.target.id))updateTotalPreview();});
+$("reportDate").value=new Date().toISOString().slice(0,10);
+$("paymentDate").value=new Date().toISOString().slice(0,10);
+["searchCustomer","searchApp","searchLoan","searchSms"].forEach(id=>{
+  const el=$(id);
+  if(el)el.addEventListener("input",()=>{
+    if(id==="searchCustomer")loadCustomers();
+    if(id==="searchApp")loadApplications();
+    if(id==="searchLoan")loadActiveLoans();
+    if(id==="searchSms")renderSmsLog();
+  });
+});
+document.addEventListener("input",e=>{
+  if(e.target.id&&e.target.id.startsWith("r"))calcLive();
+  if(["appAmount","appMonths","appInterest"].includes(e.target.id))updateTotalPreview();
+});
 if($("filterBranch"))$("filterBranch").addEventListener("change",()=>{loadCustomers();loadActiveLoans();});
-$("addCustomerBtn").addEventListener("click",async()=>{if(!$("cName").value.trim()||!$("cPhone").value.trim())return alert("Jina na Phone required");const branch=$("cBranch")?.value||currentUser.branch||'Kiriba Branch';const officer=getCurrentOfficerInfo();const {error}=await supabaseClient.from("customers").insert([{full_name:$("cName").value,phone:$("cPhone").value,customer_number:$("cNumber").value,guarantor_name:$("cGuarantorName").value,guarantor_phone:$("cGuarantorPhone").value,branch_name:branch,served_by_email:officer.email,served_by_name:officer.name}]);if(error)alert(error.message);else{$("cName").value="";$("cPhone").value="";alert("Amehifadhiwa "+branch);}loadCustomers();});
-$("addAppBtn").addEventListener("click",async()=>{const cid=$("appCustomer").value;if(!cid)return alert("Chagua mteja");const amt=Number($("appAmount").value||0);const months=Number($("appMonths").value||1);const rate=Number($("appInterest").value||10);const interest=amt*(rate/100)*months;const total=amt+interest;const {error}=await supabaseClient.from("loan_applications").insert([{customer_id:cid,amount:amt,duration_months:months,interest_rate:rate,interest_amount:interest,total_amount:total,purpose:$("appPurpose").value,status:'pending'}]);if(error)alert(error.message);else alert("Maombi yametumwa");loadApplications();});
-$("payBtn").addEventListener("click",async()=>{const loanId=$("paymentLoan").value;const amt=Number($("paymentAmount").value||0);const fine=Number($("paymentFine").value||0);const dateVal=$("paymentDate").value;const methodVal=$("paymentMethod").value;if(!loanId||!amt)return alert("Chagua mkopo na kiasi");const btn=$("payBtn");btn.textContent="INAHIFADHI...";btn.disabled=true;try{const {data:loanData}=await supabaseClient.from("loans").select("customer_id,customer_name,total_amount").eq("id",loanId).single();const {data:allPays}=await supabaseClient.from("payments").select("amount").eq("loan_id",loanId);let paidBefore=0;(allPays||[]).forEach(p=>paidBefore+=Number(p.amount||0));const total=Number(loanData.total_amount||0);let rem=total-paidBefore-amt;if(rem<0)rem=0;const {data:newPay,error:payErr}=await supabaseClient.from("payments").insert([{loan_id:loanId,amount:amt,payment_date:dateVal,payment_method:methodVal,fine_amount:fine}]).select().single();if(payErr)throw new Error(payErr.message);alert("Imehifadhiwa Salio "+money(rem));if(newPay)printReceipt(newPay.id);$("paymentAmount").value="";await loadActiveLoans();await loadReports();}catch(e){alert(e.message);}finally{btn.textContent="HIFADHI + SMS + RECEIPT";btn.disabled=false;}});
-$("addOfficerBtn").addEventListener("click",async()=>{const name=$("oName").value.trim();const email=$("oEmail").value.trim();const pass=$("oPass").value.trim();const branch=$("oBranch")?.value||'';if(!email||!pass)return alert("Email na Pass required");const {data:signUp}=await supabaseClient.auth.signUp({email,password:pass});let uid=signUp?.user?.id;const {error:offErr}=await supabaseClient.from("officers").insert([{full_name:name,email,role:$("oRole").value,phone:$("oPhone").value,user_id:uid,branch_name:branch}]);if(offErr)$("officerMsg").textContent=offErr.message;else $("officerMsg").textContent="Ameongezwa "+branch;loadOfficers();});
-$("saveDailyReport").addEventListener("click",async()=>{const live=calcLive();const officer=getCurrentOfficerInfo();const row={report_date:$("reportDate").value,sales:Number($("rSales").value||0),fine:Number($("rFine").value||0),interest:Number($("rInterest").value||0),form_fee:Number($("rFormFee").value||0),other_income:Number($("rOtherIncome").value||0),total_income:live.inc,md:Number($("rMd").value||0),store:Number($("rStore").value||0),bank:Number($("rBank").value||0),transport:Number($("rTransport").value||0),food:Number($("rFood").value||0),communication:Number($("rCommunication").value||0),maintenance:Number($("rMaintenance").value||0),loans_given:Number($("rLoansGiven").value||0),other_expense:Number($("rOtherExpense").value||0),total_expense:live.exp,balance:live.bal,cash_hand:Number($("rCashHand").value||0),mpesa:Number($("rMpesa").value||0),tigo_pesa:Number($("rTigoPesa").value||0),airtel_money:Number($("rAirtel").value||0),halo_pesa:Number($("rHalopesa").value||0),bank_balance:Number($("rBankBalance").value||0),branch_name:officer.branch,reported_by_email:officer.email,reported_by_name:officer.name};const {error}=await supabaseClient.from("daily_reports").upsert(row,{onConflict:"report_date,branch_name"});if(error){const oldRow={report_date:row.report_date,sales:row.sales,fine:row.fine,other_income:row.other_income+row.interest+row.form_fee,total_income:row.total_income,md:row.md,store:row.store,bank:row.bank,transport:row.transport,food:row.food,communication:row.communication,maintenance:row.maintenance,other_expense:row.other_expense+row.loans_given,total_expense:row.total_expense,balance:row.balance,branch_name:row.branch_name,reported_by_email:row.reported_by_email,reported_by_name:row.reported_by_name};const {error:e2}=await supabaseClient.from("daily_reports").upsert(oldRow,{onConflict:"report_date"});if(e2){$("reportMsg").textContent="Kosa: "+e2.message;}else{$("reportMsg").textContent="Imehifadhiwa (old schema)";loadReports();}}else{$("reportMsg").textContent="Imehifadhiwa "+money(row.balance);loadReports();}});
-async function loadOfficers(){const {data}=await supabaseClient.from("officers").select("*").order("created_at",{ascending:false});$("maafisaList").innerHTML=!data?.length?"Hakuna":data.map(o=>"<div class='customer'>"+esc(o.full_name||'')+" - "+esc(o.email||'')+" | "+esc(o.branch_name||'')+"</div>").join("");}
-$("exportAllBtn").addEventListener("click",()=>{let csv="Type,Name,Branch,Amount,Balance\n";allCustomers.forEach(c=>{csv+="Customer,"+c.full_name+","+c.branch_name+",,\n";});const blob=new Blob([csv],{type:'text/csv'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download='ghantende_V6_'+new Date().toISOString().slice(0,10)+'.csv';a.click();});
-</script><script>const ADMIN_EMAIL='sabatomwita88@gmail.com';function lockAdmin(){let email=(localStorage.getItem('user_email')||'').toLowerCase();try{let raw=localStorage.getItem('sb-kvcbsebklyuupwixmagd-auth-token');if(raw){let j=JSON.parse(raw);email=(j.user?.email||email).toLowerCase();}}catch(e){}let isAdmin=(email===ADMIN_EMAIL);document.querySelectorAll('button').forEach(b=>{let t=(b.innerText||'').toLowerCase();let isDelEdit=t.includes('futa')||t.includes('hariri')||t.includes('delete')||t.includes('edit');if(isDelEdit){b.style.display=isAdmin?'':'none';}});}setInterval(lockAdmin,800);lockAdmin();</script></body></html>
+$("addCustomerBtn").addEventListener("click",async()=>{
+  if(!$("cName").value.trim()||!$("cPhone").value.trim())return alert("Jina na Phone required");
+  const branch=$("cBranch")?.value||currentUser.branch||'Kiriba Branch';
+  const officer=getCurrentOfficerInfo();
+  const {error}=await supabaseClient.from("customers").insert([{full_name:$("cName").value,phone:$("cPhone").value,customer_number:$("cNumber").value,guarantor_name:$("cGuarantorName").value,guarantor_phone:$("cGuarantorPhone").value,branch_name:branch,served_by_email:officer.email,served_by_name:officer.name}]);
+  if(error)alert(error.message);else{$("cName").value="";$("cPhone").value="";alert("Amehifadhiwa "+branch);}
+  loadCustomers();
+});
+$("addAppBtn").addEventListener("click",async()=>{
+  const cid=$("appCustomer").value;
+  if(!cid)return alert("Chagua mteja");
+  const amt=Number($("appAmount").value||0);
+  const months=Number($("appMonths").value||1);
+  const rate=Number($("appInterest").value||10);
+  const interest=amt*(rate/100)*months;
+  const total=amt+interest;
+  const {error}=await supabaseClient.from("loan_applications").insert([{customer_id:cid,amount:amt,duration_months:months,interest_rate:rate,interest_amount:interest,total_amount:total,purpose:$("appPurpose").value,status:'pending'}]);
+  if(error)alert(error.message);else alert("Maombi yametumwa");
+  loadApplications();
+});
+$("payBtn").addEventListener("click",async()=>{
+  const loanId=$("paymentLoan").value;
+  const amt=Number($("paymentAmount").value||0);
+  const fine=Number($("paymentFine").value||0);
+  const dateVal=$("paymentDate").value;
+  const methodVal=$("paymentMethod").value;
+  if(!loanId||!amt)return alert("Chagua mkopo na kiasi");
+  const btn=$("payBtn");
+  btn.textContent="INAHIFADHI...";
+  btn.disabled=true;
+  try{
+    const {data:loanData}=await supabaseClient.from("loans").select("customer_id,customer_name,total_amount").eq("id",loanId).single();
+    const {data:allPays}=await supabaseClient.from("payments").select("amount").eq("loan_id",loanId);
+    let paidBefore=0;
+    (allPays||[]).forEach(p=>paidBefore+=Number(p.amount||0));
+    const total=Number(loanData.total_amount||0);
+    let rem=total-paidBefore-amt;
+    if(rem<0)rem=0;
+    const {data:newPay, error:payErr} = await supabaseClient.from("payments").insert([{loan_id:loanId,amount:amt,payment_date:dateVal,payment_method:methodVal,fine_amount:fine}]).select().single();
+    if(payErr)throw new Error(payErr.message);
+    alert("Imehifadhiwa Salio "+money(rem));
+    if(newPay)printReceipt(newPay.id);
+    $("paymentAmount").value="";
+    await loadActiveLoans();
+    await loadReports();
+    if($("reportDate")?.value) await autoFillReportForDate($("reportDate").value);
+  }catch(e){alert(e.message);}
+  finally{btn.textContent="HIFADHI + SMS + RECEIPT";btn.disabled=false;}
+});
+$("addOfficerBtn").addEventListener("click",async()=>{
+  const name=$("oName").value.trim();
+  const email=$("oEmail").value.trim();
+  const pass=$("oPass").value.trim();
+  const branch=$("oBranch")?.value||'';
+  if(!email||!pass)return alert("Email na Pass required");
+  const {data:signUp}=await supabaseClient.auth.signUp({email,password:pass});
+  let uid=signUp?.user?.id;
+  const {error:offErr}=await supabaseClient.from("officers").insert([{full_name:name,email,role:$("oRole").value,phone:$("oPhone").value,user_id:uid,branch_name:branch}]);
+  if(offErr)$("officerMsg").textContent=offErr.message;else $("officerMsg").textContent="Ameongezwa "+branch;
+  loadOfficers();
+});
+$("saveDailyReport").addEventListener("click",async()=>{
+  const live=calcLive();
+  const officer=getCurrentOfficerInfo();
+  const row={
+    report_date:$("reportDate").value,
+    sales:Number($("rSales").value||0),
+    fine:Number($("rFine").value||0),
+    interest:Number($("rInterest").value||0),
+    form_fee:Number($("rFormFee").value||0),
+    other_income:Number($("rOtherIncome").value||0),
+    total_income:live.inc,
+    md:Number($("rMd").value||0),
+    store:Number($("rStore").value||0),
+    bank:Number($("rBank").value||0),
+    transport:Number($("rTransport").value||0),
+    food:Number($("rFood").value||0),
+    communication:Number($("rCommunication").value||0),
+    maintenance:Number($("rMaintenance").value||0),
+    loans_given:Number($("rLoansGiven").value||0),
+    other_expense:Number($("rOtherExpense").value||0),
+    total_expense:live.exp,
+    balance:live.bal,
+    cash_hand:Number($("rCashHand").value||0),
+    mpesa:Number($("rMpesa").value||0),
+    tigo_pesa:Number($("rTigoPesa").value||0),
+    airtel_money:Number($("rAirtel").value||0),
+    halo_pesa:Number($("rHalopesa").value||0),
+    bank_balance:Number($("rBankBalance").value||0),
+    branch_name:officer.branch,
+    reported_by_email:officer.email,
+    reported_by_name:officer.name
+  };
+  const {error}=await supabaseClient.from("daily_reports").upsert(row,{onConflict:"report_date,branch_name"});
+  if(error){$("reportMsg").textContent="Kosa: "+error.message;}
+  else{$("reportMsg").textContent="Imehifadhiwa AUTO "+money(row.balance);loadReports();}
+});
+async function loadOfficers(){
+  const {data}=await supabaseClient.from("officers").select("*").order("created_at",{ascending:false});
+  $("maafisaList").innerHTML=!data?.length?"Hakuna":data.map(o=>"<div class='customer'>"+esc(o.full_name||'')+" - "+esc(o.email||'')+" | "+esc(o.branch_name||'')+"</div>").join("");
+}
+$("exportAllBtn").addEventListener("click",()=>{
+  let csv="Type,Name,Branch,Amount,Balance\n";
+  allCustomers.forEach(c=>{csv+="Customer,"+c.full_name+","+c.branch_name+",,\n";});
+  const blob=new Blob([csv],{type:'text/csv'});
+  const url=URL.createObjectURL(blob);
+  const a=document.createElement('a');
+  a.href=url;
+  a.download='ghantende_V7_AUTO_'+new Date().toISOString().slice(0,10)+'.csv';
+  a.click();
+});
+$("autoLoadBtn")?.addEventListener("click", ()=>{ if($("reportDate")?.value) autoFillReportForDate($("reportDate").value); });
+$("reportDate")?.addEventListener("change", (e)=>{ autoFillReportForDate(e.target.value); });
+</script>
+<script>
+const ADMIN_EMAIL='sabatomwita88@gmail.com';
+function lockAdmin(){
+  let email=(localStorage.getItem('user_email')||'').toLowerCase();
+  try{let raw=localStorage.getItem('sb-kvcbsebklyuupwixmagd-auth-token');if(raw){let j=JSON.parse(raw);email=(j.user?.email||email).toLowerCase();}}catch(e){}
+  let isAdmin=(email===ADMIN_EMAIL);
+  document.querySelectorAll('button').forEach(b=>{
+    let t=(b.innerText||'').toLowerCase();
+    let isDelEdit=t.includes('futa')||t.includes('hariri')||t.includes('delete')||t.includes('edit');
+    if(isDelEdit){b.style.display=isAdmin?'':'none';}
+  });
+}
+setInterval(lockAdmin,800);
+lockAdmin();
+</script>
+</body>
+</html>
