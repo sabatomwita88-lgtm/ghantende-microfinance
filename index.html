@@ -309,12 +309,11 @@ window.rejectApplication=async function(id){
   loadApplications();
 }
 window.sendReminder=async function(loanId,custName,phone,balance){
-  if(!phone)return alert("Hana namba");
-  const msg="GHANTENDE: Ndugu "+custName+", salio lako "+Number(balance).toLocaleString()+". Lipa leo 0787581078";
-  try{
-    const res=await fetch(SUPABASE_URL+"/functions/v1/send-sms",{method:"POST",headers:{"Content-Type":"application/json","apikey":SUPABASE_ANON_KEY,"Authorization":"Bearer "+SUPABASE_ANON_KEY},body:JSON.stringify({phone,message:msg})});
-    if(res.ok){saveSmsLog(phone,msg,'REMINDER');alert("Ukumbusho umetumwa");}else alert("Failed");
-  }catch(e){alert(e.message);}
+  if(!phone) return alert("Hana namba");
+  const msg="GHANTENDE: Ndugu "+custName+", salio lako ni TZS "+Number(balance).toLocaleString()+". Tafadhali lipa leo. GHANTENDE";
+  await sendRealSms(phone, msg);
+  saveSmsLog(phone, msg, 'REMINDER');
+  alert("Ukumbusho umetumwa");
 }
 // ===== RECEIPT YA KISASA V7 - WEKA HII =====
 window.printReceipt = async function(paymentId){
