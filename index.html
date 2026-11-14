@@ -113,7 +113,8 @@ function updateTotalPreview(){
   const interest=amt*(rate/100)*months;
   const total=amt+interest;
   if($("totalPreview"))$("totalPreview").innerHTML="Asili: "+money(amt)+"<br>Riba: "+money(interest)+"<br>Jumla: "+money(total);
-}
+}const BEEM_API_KE = "weka Beem api ke hapa";
+const BEEM_SECRET = "";
 async function sendRealSms(phone, msg){
   let to = phone.replace(/^0/,'255');
   try{
