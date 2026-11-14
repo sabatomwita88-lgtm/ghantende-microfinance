@@ -289,6 +289,7 @@ window.approveApplication=async function(id){
     custData=c;
   }
   const name=custData?.full_name||"Mteja";
+  const phone=custData?.phone||"";
   if(!confirm("Approve "+name+"?"))return;
   try{
     const officer=getCurrentOfficerInfo();
