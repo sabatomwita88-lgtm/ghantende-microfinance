@@ -127,12 +127,11 @@ async function sendRealSms(phone, msg){
 }
                         
 function saveSmsLog(phone,msg,type){
-  const log={phone,msg,type,date:new Date()};
+  const log={phone,msg,type,date:new Date().toLocaleString('sw-TZ')};
   smsLogs.unshift(log);
-  localStorage.setItem('smsLogs',JSON.stringify(smsLogs));
-  try{supabaseClient.from("sms_logs").insert([{phone,message:msg,type}]);
-  sendRealSms(phone,msg); // <-- ONGEZA HII HAPA
-  }catch(e){}
+  // Weka kwenye localStorage tu - HAI TUMI SMS TENA HAPA
+  try{ localStorage.setItem('smsLogs',JSON.stringify(smsLogs)); }catch(e){}
+  try{ supabaseClient.from("sms_logs").insert([{phone,message:msg,type}]); }catch(e){}
   renderSmsLog();
 }
 function renderSmsLog(){
