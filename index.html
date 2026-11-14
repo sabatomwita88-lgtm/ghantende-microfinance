@@ -475,6 +475,15 @@ $("payBtn").addEventListener("click",async()=>{
     const {data:newPay, error:payErr} = await supabaseClient.from("payments").insert([{loan_id:loanId,amount:amt,payment_date:dateVal,payment_method:methodVal,fine_amount:fine}]).select().single();
     if(payErr)throw new Error(payErr.message);
     alert("Imehifadhiwa Salio "+money(rem));
+    // SMS YA MALIPO - IMEONGEZWA HAPA TU, HAKUNA KILICHOFUTWA
+    try{
+      const smsMsg = "GHANTENDE: Asante " + loanData.customer_name + ", umelipa TZS " + Number(amt).toLocaleString() + ". Salio lako ni TZS " + Number(rem).toLocaleString() + ". GHANTENDE";
+      const { data: custSms } = await supabaseClient.from("customers").select("phone").eq("id", loanData.customer_id).maybeSingle();
+      if(custSms?.phone){
+        await sendRealSms(custSms.phone, smsMsg);
+        saveSmsLog(custSms.phone, smsMsg, 'MALIPO');
+      }
+    }catch(e){ console.log(e); }
     if(newPay)printReceipt(newPay.id);
     $("paymentAmount").value="";
     await loadActiveLoans();
