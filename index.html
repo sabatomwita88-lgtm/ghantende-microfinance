@@ -115,16 +115,17 @@ function updateTotalPreview(){
   if($("totalPreview"))$("totalPreview").innerHTML="Asili: "+money(amt)+"<br>Riba: "+money(interest)+"<br>Jumla: "+money(total);
 }const BEEM_API_KEY = "0438ad9b6c0a6a32";
 const BEEM_SECRET_KEY = "ZDRiOTgwOTVmOTViYjJiN2Y0NTJjMjUyODM4YjUyMmQ3ZmM4ZmVkNDM3YTM4MjYyMTcwMjVjNTkyMjQwOGE4ZA==";
-async function sendRealSms(phone,msg){
- let to=phone.replace(/^0/,'255');
- try{
-  await fetch('https://apisms.beem.africa/v1/send',{
-   method:'POST',
-   headers:{'Content-Type':'application/json','Authorization':'Basic '+btoa(BEEM_API_KEY+':'+BEEM_SECRET_KEY)},
-   body:JSON.stringify({source_addr:'GHANTENDE',encoding:0,message:msg,recipients:[{recipient_id:1,dest_addr:to}]})
-  });
- }catch(e){}
-                        }
+async function sendRealSms(phone, msg){
+  let to = phone.replace(/^0/,'255');
+  try{
+    const { data, error } = await supabaseClient.functions.invoke('send-sms', {
+      body: { phone: to, message: msg }
+    });
+    if(error) console.log("SMS Error", error);
+    return data;
+  }catch(e){ console.log(e); }
+}
+                        
 function saveSmsLog(phone,msg,type){
   const log={phone,msg,type,date:new Date()};
   smsLogs.unshift(log);
