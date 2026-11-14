@@ -298,7 +298,12 @@ window.approveApplication=async function(id){
       await supabaseClient.from("loans").insert([{customer_id:appData.customer_id,customer_name:name,loan_amount:Number(appData.amount||0),interest_amount:Number(appData.interest_amount||0),total_amount:Number(appData.total_amount||0),loan_status:'active',duration_months:Number(appData.duration_months||1),interest_rate:Number(appData.interest_rate||10),application_id:id,approved_by_email:officer.email,approved_by_name:officer.name}]);
     }
     await supabaseClient.from("loans").update({approved_by_email:officer.email,approved_by_name:officer.name}).eq("application_id",id);
-    alert(name+" Approved");
+    // === SMS YA KUKUBALIWA ===
+if(phone){
+  const msg = `GHANTENDE: Hongera ${name}, mkopo wako wa TZS ${Number(appData.total_amount||0).toLocaleString()} umekubaliwa. Tafadhali fika ofisini kuchukua. Asante - GHANTENDE`;
+  await sendRealSms(phone, msg);
+  saveSmsLog(phone, msg, 'APPROVED');
+  }alert(name+" Approved");
     loadApplications();
     loadActiveLoans();
   }catch(e){alert(e.message);}
