@@ -301,7 +301,7 @@ window.approveApplication=async function(id){
     await supabaseClient.from("loans").update({approved_by_email:officer.email,approved_by_name:officer.name}).eq("application_id",id);
     // === SMS YA KUKUBALIWA ===
 if(phone){
-  const msg = `GHANTENDE: Hongera ${name}, mkopo wako wa TZS ${Number(appData.total_amount||0).toLocaleString()} umekubaliwa. Tafadhali fika ofisini kuchukua. Asante - GHANTENDE`;
+  const msg = "GHANTENDE: Hongera " + name + ", mkopo wako umekubaliwa. Tafadhali fika ofisini kuchukua. Asante - GHANTENDE";
   await sendRealSms(phone, msg);
   saveSmsLog(phone, msg, 'APPROVED');
   }alert(name+" Approved");
