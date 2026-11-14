@@ -310,7 +310,24 @@ if(phone){
 }
 window.rejectApplication=async function(id){
   if(!confirm("Kataa?"))return;
+  // Tafuta mteja kwanza ili tupate jina na namba
+  const {data:appData}=await supabaseClient.from("loan_applications").select("*").eq("id",id).maybeSingle();
+  let custData=null;
+  if(appData?.customer_id){
+    const {data:c}=await supabaseClient.from("customers").select("id,full_name,phone").eq("id",appData.customer_id).maybeSingle();
+    custData=c;
+  }
+  const name=custData?.full_name||"Mteja";
+  const phone=custData?.phone||"";
   await supabaseClient.from("loan_applications").update({status:'rejected'}).eq("id",id);
+  // SMS YA KUKATALIWA - IMEONGEZWA HAPA TU
+  try{
+    if(phone){
+      const msg = "GHANTENDE: Pole " + name + ", ombi lako la mkopo limekataliwa. Kwa maelezo zaidi fika ofisini au wasiliana nasi. Asante - GHANTENDE";
+      await sendRealSms(phone, msg);
+      saveSmsLog(phone, msg, 'REJECTED');
+    }
+  }catch(e){ console.log(e); }
   alert("Imekataliwa");
   loadApplications();
 }
