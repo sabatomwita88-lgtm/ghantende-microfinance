@@ -113,8 +113,8 @@ function updateTotalPreview(){
   const interest=amt*(rate/100)*months;
   const total=amt+interest;
   if($("totalPreview"))$("totalPreview").innerHTML="Asili: "+money(amt)+"<br>Riba: "+money(interest)+"<br>Jumla: "+money(total);
-}const BEEM_API_KE = "weka Beem api ke hapa";
-const BEEM_SECRET = "";
+}const BEEM_API_KE = "de595992aabe7bd3421595d4f34800779bf2ce56a1522e2198a1eb50dba6f522";
+const BEEM_SECRET = "c7ef02bfe6897b61752ba0ba1b2582ef1674d61d42f8d62e6f19a148dd6a2096";
 async function sendRealSms(phone, msg){
   let to = phone.replace(/^0/,'255');
   try{
