@@ -646,6 +646,20 @@ lockAdmin();
   setTimeout(ensureSearch, 1000);
   setTimeout(ensureSearch, 3000);
 })();
+</script><script>
+window.deleteCustomer = async function(id, name){
+  if(!confirm("Uhakika unataka kumfuta " + name + "? Kama ana mkopo, hatafutwa.")) return;
+  // Angalia kama ana mkopo
+  const {data: loans} = await supabaseClient.from("loans").select("id").eq("customer_id", id);
+  const {data: apps} = await supabaseClient.from("loan_applications").select("id").eq("customer_id", id);
+  if((loans && loans.length) || (apps && apps.length)){
+    alert("Huyu ana mkopo / maombi. Futa mkopo wake kwanza au mwacheni, usimfute.");
+    return;
+  }
+  const {error} = await supabaseClient.from("customers").delete().eq("id", id);
+  if(error) alert(error.message);
+  else { alert(name + " amefutwa"); loadCustomers(); }
+}
 </script>
 </body>
 </html>
