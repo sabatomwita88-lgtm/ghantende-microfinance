@@ -155,7 +155,7 @@ async function loadCustomers(){
   if(currentUser.role!=='admin'&&currentUser.branch){filtered=filtered.filter(c=>c.branch_name===currentUser.branch);}
   $("customerCount").textContent=allCustomers.length;
   $("customersList").innerHTML=!filtered.length?"Hakuna":filtered.map((c,i)=>"<div class='customer'><b>"+(i+1)+". "+esc(c.full_name)+"</b> <span class='badge'>"+esc(c.branch_name||'')+"</span><br>"+esc(c.phone||'')+"<br><button onclick=\"editCustomer('"+c.id+"')\" style='background:#2563eb;font-size:10px'>Edit</button> <button onclick=\"viewCustomerLoans('"+c.id+"')\" style='background:#059669;font-size:10px'>Mikopo</button></div>").join("");
-  $("appCustomer").innerHTML='<option value="">--Chagua--</option>'+allCustomers.map(c=>"<option value='"+c.id+"'>"+esc(c.full_name)+" - "+esc(c.phone||'')+" ["+esc(c.branch_name||'')+"]</option>").join("");
+  filterAppCustomer();
 }
   function filterAppCustomer(){
   const q = ($("searchAppCustomer")?.value || "").toLowerCase();
