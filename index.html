@@ -605,6 +605,47 @@ function lockAdmin(){
 }
 setInterval(lockAdmin,800);
 lockAdmin();
+</script><script>
+// FIX SEARCH MAOMBI - V7.1
+(function(){
+  function ensureSearch(){
+    var sel = document.getElementById('appCustomer');
+    if(!sel) return;
+    var old = document.getElementById('searchAppCustomer');
+    if(!old){
+      var inp = document.createElement('input');
+      inp.id = 'searchAppCustomer';
+      inp.placeholder = '🔍 Tafuta mteja kwa jina / namba...';
+      inp.className = 'searchBox';
+      inp.style.cssText = 'width:100%;padding:12px;border:2px solid #047857;border-radius:10px;margin-bottom:10px';
+      sel.parentNode.insertBefore(inp, sel);
+      old = inp;
+    }
+    old.oninput = function(){
+      var q = old.value.toLowerCase().trim();
+      var list = window.allCustomers || allCustomers || [];
+      // Kama allCustomers bado tupu, jaribu ku-load tena
+      if(!list.length){
+        if(typeof loadCustomers === 'function') loadCustomers();
+        return;
+      }
+      var filtered = list;
+      if(q){
+        filtered = list.filter(function(c){
+          return (c.full_name||'').toLowerCase().includes(q) || (c.phone||'').includes(q);
+        });
+      }
+      var keep = sel.value;
+      sel.innerHTML = '<option value="">--Chagua-- ('+filtered.length+')</option>' + filtered.map(function(c){
+        return "<option value='"+c.id+"'>"+c.full_name+" - "+(c.phone||'')+" ["+(c.branch_name||'')+"]</option>";
+      }).join('');
+      if(keep) sel.value = keep;
+    };
+  }
+  // Subiri page iload
+  setTimeout(ensureSearch, 1000);
+  setTimeout(ensureSearch, 3000);
+})();
 </script>
 </body>
 </html>
