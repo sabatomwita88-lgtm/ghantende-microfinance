@@ -591,20 +591,6 @@ $("exportAllBtn").addEventListener("click",()=>{
 $("autoLoadBtn")?.addEventListener("click", ()=>{ if($("reportDate")?.value) autoFillReportForDate($("reportDate").value); });
 $("reportDate")?.addEventListener("change", (e)=>{ autoFillReportForDate(e.target.value); });
 </script>
-<script>
-const ADMIN_EMAIL='sabatomwita88@gmail.com';
-function lockAdmin(){
-  let email=(localStorage.getItem('user_email')||'').toLowerCase();
-  try{let raw=localStorage.getItem('sb-kvcbsebklyuupwixmagd-auth-token');if(raw){let j=JSON.parse(raw);email=(j.user?.email||email).toLowerCase();}}catch(e){}
-  let isAdmin=(email===ADMIN_EMAIL);
-  document.querySelectorAll('button').forEach(b=>{
-    let t=(b.innerText||'').toLowerCase();
-    let isDelEdit=t.includes('futa')||t.includes('hariri')||t.includes('delete')||t.includes('edit');
-    if(isDelEdit){b.style.display=isAdmin?'':'none';}
-  });
-}
-setInterval(lockAdmin,800);
-lockAdmin();
 </script><script>
 // FIX SEARCH MAOMBI - V7.1
 (function(){
