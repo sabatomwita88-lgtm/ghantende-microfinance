@@ -157,6 +157,23 @@ async function loadCustomers(){
   $("customersList").innerHTML=!filtered.length?"Hakuna":filtered.map((c,i)=>"<div class='customer'><b>"+(i+1)+". "+esc(c.full_name)+"</b> <span class='badge'>"+esc(c.branch_name||'')+"</span><br>"+esc(c.phone||'')+"<br><button onclick=\"editCustomer('"+c.id+"')\" style='background:#2563eb;font-size:10px'>Edit</button> <button onclick=\"viewCustomerLoans('"+c.id+"')\" style='background:#059669;font-size:10px'>Mikopo</button></div>").join("");
   $("appCustomer").innerHTML='<option value="">--Chagua--</option>'+allCustomers.map(c=>"<option value='"+c.id+"'>"+esc(c.full_name)+" - "+esc(c.phone||'')+" ["+esc(c.branch_name||'')+"]</option>").join("");
 }
+  function filterAppCustomer(){
+  const q = ($("searchAppCustomer")?.value || "").toLowerCase();
+  const select = $("appCustomer");
+  if(!select) return;
+  const selected = select.value;
+  let list = allCustomers;
+  if(q){
+    list = allCustomers.filter(c => 
+      (c.full_name||"").toLowerCase().includes(q) || 
+      (c.phone||"").includes(q) ||
+      (c.branch_name||"").toLowerCase().includes(q)
+    );
+  }
+  select.innerHTML = '<option value="">--Chagua--</option>' + list.map(c => "<option value='"+c.id+"'>"+esc(c.full_name)+" - "+esc(c.phone||'')+" ["+esc(c.branch_name||'')+"]</option>").join("");
+  if(selected) select.value = selected;
+}
+window.filterAppCustomer = filterAppCustomer;
 window.editCustomer=async function(id){
   const c=allCustomers.find(x=>x.id===id);
   if(!c)return;
