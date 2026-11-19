@@ -660,47 +660,41 @@ window.deleteCustomer = async function(id, name){
   if(error) alert(error.message);
   else { alert(name + " amefutwa"); loadCustomers(); }
 }
-
-
 </script><script>
-const ADMIN_EMAIL='sabatomwita88@gmail.com';
-function isAdminUser(){
-  var email = (window.currentUser?.email || '').toLowerCase();
-  if(!email){
-    try{ var raw = localStorage.getItem('currentUser'); if(raw) email = JSON.parse(raw).email?.toLowerCase() || ''; }catch(e){}
-  }
-  if(!email){
-    try{ var raw2 = localStorage.getItem('sb-kvcbsebklyuupwixmagd-auth-token'); if(raw2) email = JSON.parse(raw2).user?.email?.toLowerCase() || ''; }catch(e){}
-  }
-  return email === ADMIN_EMAIL;
+const ADMIN_EMAIL2='sabatomwita88@gmail.com';
+function isAdmin2(){
+  var e=(window.currentUser?.email||'').toLowerCase();
+  if(!e){ try{ e=JSON.parse(localStorage.getItem('currentUser')||'{}').email?.toLowerCase()||''; }catch(_){} }
+  return e===ADMIN_EMAIL2;
 }
 window.deleteLoan = async function(id){
-  if(!isAdminUser()){ alert("Wewe si Admin. Ni Admin pekee anayeweza kufuta mkopo."); return; }
-  if(!confirm("Admin, uhakika kufuta huu mkopo?")) return;
+  if(!isAdmin2()){ alert("Wewe si Admin."); return; }
+  if(!confirm("Admin, futa huu mkopo?")) return;
   const {data: pays} = await supabaseClient.from("payments").select("id").eq("loan_id", id);
-  if(pays && pays.length){ alert("Huu una malipo "+pays.length+". Futa mwingine usio na malipo."); return; }
+  if(pays && pays.length){ alert("Huu una malipo. Futa mwingine."); return; }
   const {error} = await supabaseClient.from("loans").delete().eq("id", id);
-  if(error) alert(error.message);
-  else { alert("Mkopo umefutwa"); loadActiveLoans(); }
+  if(error) alert(error.message); else { alert("Umefutwa"); loadActiveLoans(); }
 };
-window.filterAppCustomer = function(){
-  var q = (document.getElementById('searchAppCustomer')?.value||'').toLowerCase();
-  var sel = document.getElementById('appCustomer');
-  if(!sel) return;
-  var filtered = allCustomers;
-  if(q) filtered = allCustomers.filter(c => (c.full_name||'').toLowerCase().includes(q) || (c.phone||'').includes(q));
-  sel.innerHTML = '<option value="">--Chagua-- ('+filtered.length+')</option>' + filtered.map(c => "<option value='"+c.id+"'>"+c.full_name+" - "+(c.phone||'')+"</option>").join('');
-};
-document.addEventListener('input', function(e){ if(e.target.id==='searchAppCustomer') window.filterAppCustomer(); });
-
-// Ficha kitufe cha Futa kwa wasio Admin, onyesha kwa Admin
-function lockAdmin(){
-  var admin = isAdminUser();
-  document.querySelectorAll('.del-loan-btn').forEach(function(b){
-    b.style.display = admin ? '' : 'none';
+// WEKA KITUFE KIOTOMATIKI KWA MIKOPO - ID SAHIHI NI activeLoansList
+setInterval(function(){
+  if(!isAdmin2()) return;
+  var cards = document.querySelectorAll("#activeLoansList > div");
+  cards.forEach(function(card){
+    if(card.querySelector(".del-loan-btn")) return;
+    var btn = card.querySelector("button[onclick*='viewLoanHistory']");
+    if(!btn) return;
+    var m = btn.getAttribute("onclick").match(/'([a-f0-9-]{36})'/);
+    if(!m) return;
+    var id = m[1];
+    var del = document.createElement("button");
+    del.textContent = "Futa";
+    del.className = "del-loan-btn";
+    del.style.cssText = "background:#000;color:#fff;font-size:10px;padding:11px 14px;border-radius:9px;margin-left:4px";
+    del.onclick = function(){ window.deleteLoan(id); };
+    card.querySelector("div")?.appendChild(del);
+    if(!card.querySelector("div")) card.appendChild(del);
   });
-}
-setInterval(lockAdmin, 800);
+}, 1000);
 </script>
 </body>
 </html>
