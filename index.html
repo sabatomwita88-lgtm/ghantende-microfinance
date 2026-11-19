@@ -660,9 +660,11 @@ window.deleteCustomer = async function(id, name){
   if(error) alert(error.message);
   else { alert(name + " amefutwa"); loadCustomers(); }
 }
+
 </script><script>
-window.deleteLoan = async function(id, name){
-  if(!confirm("Uhakika kufuta mkopo wa " + name + " ?")) return;
+// WEKA KITUFE CHA FUTA MKOPO KIOTOMATIKI
+window.deleteLoan = async function(id){
+  if(!confirm("Uhakika unataka kufuta huu mkopo? Kama una malipo hautafutwa.")) return;
   const {data: pays} = await supabaseClient.from("payments").select("id").eq("loan_id", id);
   if(pays && pays.length){
     alert("Huu mkopo una malipo " + pays.length + ". Usufute huu, futa mwingine usio na malipo.");
@@ -670,8 +672,28 @@ window.deleteLoan = async function(id, name){
   }
   const {error} = await supabaseClient.from("loans").delete().eq("id", id);
   if(error) alert(error.message);
-  else { alert("Mkopo umefutwa"); loadData(); }
-}
+  else { alert("Mkopo umefutwa"); if(typeof loadData==='function') loadData(); location.reload(); }
+};
+
+setInterval(function(){
+  // Tafuta kadi zote za mikopo
+  var cards = document.querySelectorAll("#loansList > div, #loansList .loan, .loan-card");
+  cards.forEach(function(card){
+    if(card.querySelector(".btn-delete-loan")) return; // tayari ina kitufe
+    // Tafuta ID kutoka kwenye button yoyote yenye onclick yenye ID
+    var btn = card.querySelector("button[onclick*='-']");
+    if(!btn) return;
+    var m = btn.getAttribute("onclick").match(/'([a-f0-9-]{36})'/);
+    if(!m) return;
+    var id = m[1];
+    var del = document.createElement("button");
+    del.textContent = "Futa";
+    del.className = "btn-delete-loan";
+    del.style.cssText = "background:#dc2626;font-size:11px;margin-left:5px;padding:6px 10px;color:white;border:none;border-radius:6px";
+    del.onclick = function(){ window.deleteLoan(id); };
+    card.appendChild(del);
+  });
+}, 1500);
 </script>
 </body>
 </html>
