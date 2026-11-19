@@ -660,6 +660,18 @@ window.deleteCustomer = async function(id, name){
   if(error) alert(error.message);
   else { alert(name + " amefutwa"); loadCustomers(); }
 }
+</script><script>
+window.deleteLoan = async function(id, name){
+  if(!confirm("Uhakika kufuta mkopo wa " + name + " ?")) return;
+  const {data: pays} = await supabaseClient.from("payments").select("id").eq("loan_id", id);
+  if(pays && pays.length){
+    alert("Huu mkopo una malipo " + pays.length + ". Usufute huu, futa mwingine usio na malipo.");
+    return;
+  }
+  const {error} = await supabaseClient.from("loans").delete().eq("id", id);
+  if(error) alert(error.message);
+  else { alert("Mkopo umefutwa"); loadData(); }
+}
 </script>
 </body>
 </html>
