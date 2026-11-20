@@ -578,15 +578,31 @@ async function loadOfficers(){
   const {data}=await supabaseClient.from("officers").select("*").order("created_at",{ascending:false});
   $("maafisaList").innerHTML=!data?.length?"Hakuna":data.map(o=>"<div class='customer'>"+esc(o.full_name||'')+" - "+esc(o.email||'')+" | "+esc(o.branch_name||'')+"</div>").join("");
 }
-$("exportAllBtn").addEventListener("click",()=>{
-  let csv="Type,Name,Branch,Amount,Balance\n";
-  allCustomers.forEach(c=>{csv+="Customer,"+c.full_name+","+c.branch_name+",,\n";});
+$("exportAllBtn").addEventListener("click", async ()=>{
+  const {data: loans} = await supabaseClient.from("loans").select("*");
+  const {data: pays} = await supabaseClient.from("payments").select("*");
+  let csv="Type,Jina,Branch,Phone,Kiasi Mkopo,Jumla,Imelipwa,Salio,Afisa Aliyesajili,Afisa Aliyeapprove,Tarehe\n";
+  const q = v => '"'+String(v??"").replace(/"/g,'""')+'"';
+  allCustomers.forEach(c=>{
+    csv+=[ "Customer",c.full_name,c.branch_name,c.phone,"","","","",c.served_by_name||"","",c.created_at||"" ].map(q).join(",")+"\n";
+  });
+  (loans||[]).forEach(l=>{
+    let paid=0;
+    (pays||[]).forEach(p=>{ if(p.loan_id===l.id) paid+=Number(p.amount||0); });
+    let bal = Number(l.total_amount||0) - paid;
+    if(bal<0) bal=0;
+    csv+=["Loan",l.customer_name,"","",l.loan_amount,l.total_amount,paid,bal,l.approved_by_name||"",l.approved_by_name||"",l.created_at||""].map(q).join(",")+"\n";
+  });
+  (pays||[]).forEach(p=>{
+    csv+=["Malipo","","","",p.amount,"","","","","",p.payment_date||""].map(q).join(",")+"\n";
+  });
   const blob=new Blob([csv],{type:'text/csv'});
   const url=URL.createObjectURL(blob);
   const a=document.createElement('a');
   a.href=url;
-  a.download='ghantende_V7_AUTO_'+new Date().toISOString().slice(0,10)+'.csv';
+  a.download='ghantende_FULL_'+new Date().toISOString().slice(0,10)+'.csv';
   a.click();
+  alert("Export kamili imepakuliwa");
 });
 $("autoLoadBtn")?.addEventListener("click", ()=>{ if($("reportDate")?.value) autoFillReportForDate($("reportDate").value); });
 $("reportDate")?.addEventListener("change", (e)=>{ autoFillReportForDate(e.target.value); });
